@@ -1,0 +1,23 @@
+# 🛡️ Project Security
+.env
+
+# 📦 Local Database
+*.db
+*.db-journal
+
+# 🐍 Python Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# 🛠️ Development Tools
+.vscode/
+.idea/
+.gemini/
+
+# 🖥️ System Files
+Thumbs.db
+.DS_Store

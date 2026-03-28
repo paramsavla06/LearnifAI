@@ -18,6 +18,9 @@ import cors from 'cors'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 config({ path: join(__dirname, '..', '.env') })
 
+import { supabase } from './supabase/client.js'
+import { conceptsData, questionsData } from './services/dataLoader.js'
+
 import usersRouter from './routes/users.js'
 import subjectsRouter from './routes/subjects.js'
 import questionsRouter from './routes/questions.js'
@@ -25,6 +28,7 @@ import testsRouter from './routes/tests.js'
 import resultsRouter from './routes/results.js'
 import authRouter from './routes/auth.js'
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import graphRouter from './routes/graph.js'
 
 const app = express()
 const PORT = 3002
@@ -46,7 +50,8 @@ app.use('/api/subjects', subjectsRouter)
 app.use('/api/questions', questionsRouter)
 app.use('/api', testsRouter)
 app.use('/api', resultsRouter)
-app.use("/api/dashboard", dashboardRoutes);
+app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/graph', graphRouter)
 
 // ── Health ─────────────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) =>
@@ -56,14 +61,97 @@ app.get('/health', (_req, res) =>
 // ── 404 ────────────────────────────────────────────────────────────────────────
 app.use((_req, res) => res.status(404).json({ error: 'Route not found' }))
 
+// ── Sync helpers ───────────────────────────────────────────────────────────────
+async function syncSubjectsToSupabase(subjects) {
+    console.log('[Sync] Syncing subjects to Supabase...')
+    const rows = subjects.map(s => ({
+        name: s.name,
+        description: s.description ?? null,
+        branch: s.branch ?? null
+    }))
+    const { error } = await supabase.from('subjects').upsert(rows, { onConflict: 'name' })
+    if (error) console.error('[Sync] Subjects sync failed:', error.message)
+    else console.log(`[Sync] ✅ Synced ${rows.length} subjects`)
+}
+
+async function syncConceptsToSupabase(subjects) {
+    console.log('[Sync] Syncing concepts to Supabase...')
+
+    // Fetch subject name→id map from Supabase (just inserted above)
+    const { data: subjectRows, error: subErr } = await supabase.from('subjects').select('id, name')
+    if (subErr) { console.error('[Sync] Could not fetch subject IDs:', subErr.message); return }
+
+    const subjectIdMap = {}
+    for (const s of subjectRows) subjectIdMap[s.name] = s.id
+
+    const rows = []
+    for (const subject of subjects) {
+        const subject_id = subjectIdMap[subject.name]
+        if (!subject_id) { console.warn(`[Sync] No subject_id for "${subject.name}", skipping concepts`); continue }
+        for (const c of subject.concepts) {
+            rows.push({
+                slug: c.slug,
+                name: c.name,
+                subject_id,
+                difficulty: c.difficulty ?? 2,
+                semester: c.semester ?? null
+            })
+        }
+    }
+
+    const { error } = await supabase.from('concepts').upsert(rows, { onConflict: 'slug' })
+    if (error) console.error('[Sync] Concepts sync failed:', error.message)
+    else console.log(`[Sync] ✅ Synced ${rows.length} concepts`)
+}
+
+async function syncQuestionsToSupabase(questions) {
+    console.log('[Sync] Syncing questions to Supabase...')
+
+    // Fetch existing (concept_slug, question_text) pairs to avoid true duplicates
+    const { data: existing } = await supabase.from('questions').select('concept_slug, question_text')
+    const existingSet = new Set((existing || []).map(q => `${q.concept_slug}||${q.question_text}`))
+
+    const rows = questions
+        .filter(q => !existingSet.has(`${q.slug}||${q.q}`))
+        .map(q => ({
+            concept_slug: q.slug,
+            question_text: q.q,
+            option_a: q.a,
+            option_b: q.b,
+            option_c: q.c,
+            option_d: q.d,
+            correct_option: q.ans,
+            difficulty: q.diff ?? 2,
+            test_level: 'surface'
+        }))
+
+    if (rows.length === 0) {
+        console.log('[Sync] ✅ Questions already up-to-date, nothing to insert')
+        return
+    }
+
+    const { error } = await supabase.from('questions').insert(rows)
+    if (error) console.error('[Sync] Questions sync failed:', error.message)
+    else console.log(`[Sync] ✅ Synced ${rows.length} new questions`)
+}
+
 // ── Start ──────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-    console.log(`\n✅ LearnifAI API running → http://localhost:${PORT}`)
-    console.log(`   - Subjects:  GET  /api/subjects`)
-    console.log(`   - User:      POST /api/user`)
-    console.log(`   - Questions: GET  /api/questions/:testId`)
-    console.log(`   - Submit:    POST /api/submit-test`)
-    console.log(`   - Result:    GET  /api/result/:userId`)
-    console.log(`   - Books:     GET  /api/books/:slug`)
-    console.log(`   - Library:   GET  /api/library/:slug\n`)
-})
+;(async () => {
+    // 1. Sync local JSON → Supabase (subjects first, then concepts, then questions)
+    await syncSubjectsToSupabase(conceptsData.subjects)
+    await syncConceptsToSupabase(conceptsData.subjects)
+    await syncQuestionsToSupabase(questionsData)
+
+    // 2. Start server
+    app.listen(PORT, () => {
+        console.log(`\n✅ LearnifAI API running → http://localhost:${PORT}`)
+        console.log(`   - Subjects:  GET  /api/subjects`)
+        console.log(`   - User:      POST /api/user`)
+        console.log(`   - Questions: GET  /api/questions/:testId`)
+        console.log(`   - Submit:    POST /api/submit-test`)
+        console.log(`   - Result:    GET  /api/result/:userId`)
+        console.log(`   - Books:     GET  /api/books/:slug`)
+        console.log(`   - Library:   GET  /api/library/:slug`)
+        console.log(`   - Graph:     GET  /api/graph?userId=xxx\n`)
+    })
+})()

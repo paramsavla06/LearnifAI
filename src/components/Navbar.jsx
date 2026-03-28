@@ -10,6 +10,7 @@ const navLinks = [
     { label: 'Library', to: '/library' },
     { label: 'Professors', to: '/professors' },
     { label: 'AI', to: '/ai' },
+    { label: 'Graph', to: '/graph' },
 ]
 
 export default function Navbar() {

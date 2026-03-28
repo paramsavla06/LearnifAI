@@ -1,57 +1,226 @@
 import { useState, useMemo } from 'react'
-import { motion } from 'framer-motion'
-import { Search, Book } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Search, Book, MapPin, Layers, ChevronDown, ChevronUp, GraduationCap, Zap } from 'lucide-react'
 import { GlassCard } from './ui/GlassCard'
 import { ScrollReveal } from './ui/ScrollReveal'
-import { GlassButton } from './ui/GlassButton'
-import curriculum from '../data/curriculum.json'
+import conceptsData from '../data/concepts.json'
+import recommendedBooksRaw from '../data/recommended_books.json'
 
-// Gather all unique library sections from subjects
-const allSections = [...new Set(curriculum.subjects.flatMap((s) => s.library_sections))].sort()
+// ─── Data prep ────────────────────────────────────────────────────────────────
+const booksBySlug = {}
+for (const entry of recommendedBooksRaw) {
+    for (const slug of entry.slugs) {
+        booksBySlug[slug] = entry.recommended_books
+    }
+}
 
+const allConcepts = []
+for (const subject of conceptsData.subjects) {
+    for (const concept of subject.concepts) {
+        allConcepts.push({
+            ...concept,
+            subject_name: subject.name,
+            branch: subject.branch,
+            recommended_books: booksBySlug[concept.slug] || []
+        })
+    }
+}
+
+const allSections  = [...new Set(allConcepts.map(c => c.library_section))].sort()
+const allSubjectNames = ['All', ...conceptsData.subjects.map(s => s.name)]
+
+function inferFloor(section) {
+    if (!section) return 'Ground Floor'
+    const code = section.replace('Section ', '').trim().toUpperCase().charCodeAt(0) - 65
+    if (code <= 5)  return 'Ground Floor'
+    if (code <= 11) return 'First Floor'
+    if (code <= 17) return 'Second Floor'
+    return 'Third Floor'
+}
+
+function floorColor(section) {
+    if (!section) return 'text-text-secondary'
+    const code = section.replace('Section ', '').trim().toUpperCase().charCodeAt(0) - 65
+    if (code <= 5)  return 'text-emerald-400'
+    if (code <= 11) return 'text-blue-400'
+    if (code <= 17) return 'text-violet-400'
+    return 'text-orange-400'
+}
+
+// ─── Concept Card ──────────────────────────────────────────────────────────────
+function ConceptCard({ concept, idx }) {
+    const [open, setOpen] = useState(false)
+    const floor = inferFloor(concept.library_section)
+    const fc    = floorColor(concept.library_section)
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ delay: Math.min(idx * 0.04, 0.3), duration: 0.4 }}
+        >
+            <div className={`rounded-2xl border transition-all duration-300 overflow-hidden ${open ? 'border-primary-accent/40 bg-white/5' : 'border-white/10 bg-surface-elevation-1 hover:border-white/20'}`}>
+                {/* Header row */}
+                <button
+                    onClick={() => setOpen(!open)}
+                    className="w-full flex items-center justify-between px-6 py-5 text-left group"
+                >
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <h3 className={`text-base font-bold transition-colors ${open ? 'text-primary-accent' : 'text-white group-hover:text-primary-accent'}`}>
+                                {concept.name}
+                            </h3>
+                        </div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <span className="text-[10px] font-bold text-primary-accent bg-primary-accent/10 border border-primary-accent/20 px-2.5 py-0.5 rounded-full uppercase tracking-widest">
+                                {concept.semester}
+                            </span>
+                            <span className="text-[10px] text-text-secondary font-medium">
+                                {concept.subject_name}
+                            </span>
+                            <span className="flex items-center gap-1 text-[10px] text-text-secondary/70">
+                                <MapPin className="w-3 h-3" />
+                                <span className={`font-bold ${fc}`}>{floor}</span>
+                                <span>→ {concept.library_section} → {concept.shelf}</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div className="shrink-0 ml-4">
+                        {open
+                            ? <ChevronUp className="w-5 h-5 text-primary-accent" />
+                            : <ChevronDown className="w-5 h-5 text-text-secondary group-hover:text-white" />
+                        }
+                    </div>
+                </button>
+
+                {/* Expanded detail */}
+                <AnimatePresence initial={false}>
+                    {open && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        >
+                            <div className="border-t border-white/10 mx-6" />
+                            <div className="px-6 pb-6 pt-4 flex flex-col gap-4">
+                                {/* Primary book */}
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl bg-black/40 border border-white/10">
+                                    <div className="flex items-center gap-3 flex-1">
+                                        <Book className="w-5 h-5 text-primary-accent shrink-0" />
+                                        <div>
+                                            <p className="text-sm font-bold text-white">{concept.book_title}</p>
+                                            <p className="text-xs text-text-secondary mt-0.5">ISBN: {concept.book_isbn}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-start sm:items-end gap-1 shrink-0">
+                                        <div className="flex items-center gap-1.5">
+                                            <MapPin className="w-3.5 h-3.5 text-primary-accent" />
+                                            <span className={`text-xs font-bold ${fc}`}>{floor}</span>
+                                        </div>
+                                        <span className="text-xs font-bold text-white">{concept.library_section} → {concept.shelf}</span>
+                                    </div>
+                                </div>
+
+                                {/* Difficulty bar */}
+                                <div className="flex items-center gap-3">
+                                    <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest w-20 shrink-0">Difficulty</span>
+                                    <div className="flex gap-1">
+                                        {[1,2,3,4,5].map(n => (
+                                            <div key={n} className={`w-5 h-1.5 rounded-full ${n <= concept.difficulty ? 'bg-primary-accent' : 'bg-white/10'}`} />
+                                        ))}
+                                    </div>
+                                    <span className="text-[10px] text-text-secondary">{concept.difficulty}/5</span>
+                                </div>
+
+                                {/* Recommended books */}
+                                {concept.recommended_books.length > 0 && (
+                                    <div>
+                                        <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-3">
+                                            Recommended Study Books
+                                        </p>
+                                        <div className="flex flex-col gap-3">
+                                            {concept.recommended_books.map((book, bi) => (
+                                                <div key={bi} className="p-4 rounded-xl bg-surface-elevation-1 border border-white/5 hover:bg-white/5 transition-colors">
+                                                    <div className="flex items-start justify-between gap-3 mb-2">
+                                                        <div>
+                                                            <p className="text-sm font-bold text-white relative pl-4 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:bg-primary-accent before:rounded-full">
+                                                                {book.title}
+                                                            </p>
+                                                            <p className="text-xs text-text-secondary ml-4 mt-0.5">by {book.author}</p>
+                                                        </div>
+                                                        <div className="shrink-0 px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-right">
+                                                            <p className="text-[9px] font-bold text-text-secondary uppercase tracking-widest">Found at</p>
+                                                            <p className={`text-xs font-bold mt-0.5 ${fc}`}>{concept.library_section}</p>
+                                                            <p className="text-[10px] text-text-secondary">{concept.shelf}</p>
+                                                        </div>
+                                                    </div>
+                                                    {book.sections && book.sections.length > 0 && (
+                                                        <div className="flex flex-wrap gap-2 ml-4">
+                                                            {book.sections.slice(0, 4).map((sec, si) => (
+                                                                <span key={si} className="text-[10px] text-text-secondary bg-white/5 border border-white/5 px-2.5 py-1 rounded-full">
+                                                                    {sec}
+                                                                </span>
+                                                            ))}
+                                                            {book.sections.length > 4 && (
+                                                                <span className="text-[10px] text-text-secondary/60 px-2.5 py-1">
+                                                                    +{book.sections.length - 4} more
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* CTA */}
+                                <a href="/tests" className="flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-primary-accent/10 border border-primary-accent/20 text-primary-accent text-sm font-bold hover:bg-primary-accent hover:text-black transition-colors w-full sm:w-auto">
+                                    <Zap className="w-4 h-4" />
+                                    Take a Diagnostic on this Concept
+                                </a>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+        </motion.div>
+    )
+}
+
+// ─── Floor legend ──────────────────────────────────────────────────────────────
+const FLOORS = [
+    { label: 'Ground Floor', color: 'text-emerald-400', bg: 'bg-emerald-400' },
+    { label: 'First Floor',  color: 'text-blue-400',    bg: 'bg-blue-400' },
+    { label: 'Second Floor', color: 'text-violet-400',  bg: 'bg-violet-400' },
+    { label: 'Third Floor',  color: 'text-orange-400',  bg: 'bg-orange-400' },
+]
+
+// ─── Main Library ──────────────────────────────────────────────────────────────
 export default function Library() {
-    const [activeSection, setActiveSection] = useState(allSections[0])
-    const [selectedYear, setSelectedYear] = useState('All')
-    const [searchQuery, setSearchQuery] = useState('')
+    const [activeSection,   setActiveSection]   = useState(allSections[0])
+    const [selectedSubject, setSelectedSubject] = useState('All')
+    const [searchQuery,     setSearchQuery]     = useState('')
 
-    const years = ['All', 'FE', 'SE', 'TE', 'BE']
-
-    // Subjects that belong to the active section
-    const sectionSubjects = useMemo(() => {
-        return curriculum.subjects.filter(
-            (s) =>
-                s.library_sections.includes(activeSection) &&
-                (selectedYear === 'All' || s.year === selectedYear)
-        )
-    }, [activeSection, selectedYear])
-
-    // Topics for those subjects
     const results = useMemo(() => {
-        const subIds = sectionSubjects.map((s) => s.id)
-        let topics = curriculum.topics.filter((t) => subIds.includes(t.subject_id))
-
+        let filtered = allConcepts.filter(c => c.library_section === activeSection)
+        if (selectedSubject !== 'All') filtered = filtered.filter(c => c.subject_name === selectedSubject)
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase()
-            topics = topics.filter(
-                (t) =>
-                    t.name.toLowerCase().includes(q) ||
-                    t.description.toLowerCase().includes(q)
+            filtered = filtered.filter(c =>
+                c.name.toLowerCase().includes(q) ||
+                c.book_title.toLowerCase().includes(q) ||
+                c.subject_name.toLowerCase().includes(q) ||
+                c.slug.toLowerCase().includes(q)
             )
         }
+        return filtered
+    }, [activeSection, selectedSubject, searchQuery])
 
-        return topics.map((topic) => {
-            const subject = curriculum.subjects.find((s) => s.id === topic.subject_id)
-            const maps = curriculum.topic_book_map.filter((m) => m.topic_id === topic.id)
-            const books = maps.map((m) => {
-                const book = curriculum.books.find((b) => b.id === m.book_id)
-                return { ...book, chapter: m.chapter, priority: m.priority }
-            })
-            return { topic, subject, books }
-        })
-    }, [sectionSubjects, searchQuery])
-
-    // Subjects in active section for overview strip
-    const sectionSubjectNames = sectionSubjects.map((s) => `${s.name} (${s.code})`).join(' • ')
+    const floor   = inferFloor(activeSection)
+    const fc      = floorColor(activeSection)
 
     return (
         <section id="library" className="relative py-24 md:py-32">
@@ -64,145 +233,110 @@ export default function Library() {
                         Library Resources
                     </div>
                     <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-                        Books and Sections
+                        Books &amp; Sections
                     </h2>
-                    <p className="text-text-secondary mt-4 max-w-xl text-lg font-medium tracking-wide">
-                        The library is divided into physical sections based on subject area.
-                        Select a section to browse the books shelved there, mapped to specific topics and chapters.
+                    <p className="text-text-secondary mt-4 max-w-xl text-lg font-medium">
+                        Every concept maps to a physical book. Navigate by section, then
+                        find the exact floor, section, and shelf in the library.
                     </p>
                 </ScrollReveal>
 
-                <div className="mb-8">
-                    <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">
-                        Library Sections
-                    </p>
-                    <div className="flex gap-3 flex-wrap">
-                        {allSections.map((sec) => (
-                            <button
-                                key={sec}
-                                onClick={() => {
-                                    setActiveSection(sec)
-                                    setSearchQuery('')
-                                }}
-                                className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all duration-300 border ${
-                                    activeSection === sec
-                                        ? 'bg-primary-accent text-black border-primary-accent shadow-[0_0_20px_rgba(255,216,95,0.3)]'
-                                        : 'bg-white/5 text-text-secondary border-white/10 hover:bg-white/10 hover:text-white'
-                                }`}
-                            >
-                                {sec}
-                            </button>
-                        ))}
+                {/* Floor legend */}
+                <div className="flex flex-wrap gap-4 mb-8">
+                    {FLOORS.map(f => (
+                        <div key={f.label} className="flex items-center gap-2">
+                            <div className={`w-2.5 h-2.5 rounded-full ${f.bg}`} />
+                            <span className={`text-xs font-bold ${f.color}`}>{f.label}</span>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Section tabs */}
+                <div className="mb-6">
+                    <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">Library Sections</p>
+                    <div className="flex gap-2 flex-wrap">
+                        {allSections.map(sec => {
+                            const secFloorColor = floorColor(sec)
+                            const active = activeSection === sec
+                            return (
+                                <button
+                                    key={sec}
+                                    onClick={() => { setActiveSection(sec); setSearchQuery('') }}
+                                    className={`px-5 py-2 rounded-full font-bold text-xs transition-all duration-300 border ${
+                                        active
+                                            ? 'bg-primary-accent text-black border-primary-accent shadow-[0_0_20px_rgba(255,216,95,0.25)]'
+                                            : 'bg-white/5 text-text-secondary border-white/10 hover:bg-white/10 hover:text-white'
+                                    }`}
+                                >
+                                    {sec}
+                                </button>
+                            )
+                        })}
                     </div>
                 </div>
 
-                {sectionSubjectNames && (
-                    <div className="mb-8 px-6 py-4 rounded-xl border border-white/5 bg-black/40 overflow-hidden flex items-center gap-4">
-                        <Book className="w-5 h-5 text-primary-accent shrink-0" />
-                        <div>
-                            <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">
-                                Subjects in {activeSection}
-                            </p>
-                            <p className="text-sm font-medium text-white line-clamp-1">{sectionSubjectNames}</p>
-                        </div>
+                {/* Location info bar */}
+                <div className="mb-6 px-6 py-4 rounded-xl border border-primary-accent/20 bg-primary-accent/5 flex items-center gap-4">
+                    <MapPin className="w-5 h-5 text-primary-accent shrink-0" />
+                    <div className="flex-1">
+                        <p className="text-[10px] font-bold text-primary-accent uppercase tracking-widest mb-1">Physical Location</p>
+                        <p className="text-sm font-bold text-white">
+                            <span className={fc}>{floor}</span> → {activeSection}
+                        </p>
                     </div>
-                )}
+                    <div className="flex items-center gap-2">
+                        <Layers className="w-4 h-4 text-text-secondary" />
+                        <span className="text-xs font-bold text-text-secondary">{results.length} book{results.length !== 1 ? 's' : ''} here</span>
+                    </div>
+                </div>
 
+                {/* Filters row */}
                 <div className="flex flex-col md:flex-row gap-4 mb-8">
                     <div className="relative flex-1">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
                         <input
                             type="text"
-                            placeholder="Search topic or keyword..."
+                            placeholder="Search concept, book, or subject…"
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-surface-elevation-1 border border-white/10 rounded-full pl-12 pr-6 py-3.5 text-sm font-medium text-white placeholder:text-text-secondary focus:outline-none focus:border-primary-accent/50 focus:ring-1 focus:ring-primary-accent/50 transition-all shadow-lg"
+                            onChange={e => setSearchQuery(e.target.value)}
+                            className="w-full bg-surface-elevation-1 border border-white/10 rounded-full pl-11 pr-6 py-3 text-sm font-medium text-white placeholder:text-text-secondary/50 focus:outline-none focus:border-primary-accent/50 focus:ring-1 focus:ring-primary-accent/40 transition-all"
                         />
                     </div>
                     <div className="flex gap-2 flex-wrap">
-                        {years.map((y) => (
+                        {allSubjectNames.map(b => (
                             <button
-                                key={y}
-                                onClick={() => setSelectedYear(y)}
-                                className={`px-5 py-3 rounded-full font-bold text-xs transition-colors border ${
-                                    selectedYear === y 
-                                    ? 'bg-white/10 text-white border-white/20' 
-                                    : 'bg-transparent text-text-secondary border-transparent hover:bg-white/5 hover:text-white'
+                                key={b}
+                                onClick={() => setSelectedSubject(b)}
+                                className={`px-4 py-2.5 rounded-full font-bold text-xs transition-colors border ${
+                                    selectedSubject === b
+                                        ? 'bg-white/10 text-white border-white/20'
+                                        : 'bg-transparent text-text-secondary border-transparent hover:bg-white/5 hover:text-white'
                                 }`}
                             >
-                                {y}
+                                {b}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                <p className="text-sm font-bold text-text-secondary mb-8 flex items-center gap-2">
+                {/* Result count */}
+                <p className="text-sm font-bold text-text-secondary mb-6 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-primary-accent animate-pulse" />
-                    {results.length} topic{results.length !== 1 ? 's' : ''} in {activeSection}
-                    {selectedYear !== 'All' ? ` — ${selectedYear}` : ''}
+                    {results.length} concept{results.length !== 1 ? 's' : ''} in {activeSection}
+                    {selectedSubject !== 'All' ? ` — ${selectedSubject}` : ''}
                 </p>
 
-                <div className="flex flex-col gap-6">
-                    {results.map(({ topic, subject, books }, i) => (
-                        <motion.div
-                            key={topic.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true, margin: '-40px' }}
-                            transition={{ delay: Math.min(i * 0.05, 0.3), duration: 0.4 }}
-                        >
-                            <GlassCard className="!p-8 group hover:border-primary-accent/30 transition-colors">
-                                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6 pb-6 border-b border-white/5 group-hover:border-white/10 transition-colors">
-                                    <div className="flex-1">
-                                        <h3 className="text-xl font-bold text-white mb-2">{topic.name}</h3>
-                                        <p className="text-text-secondary text-sm font-medium leading-relaxed max-w-3xl">{topic.description}</p>
-                                    </div>
-                                    {subject && (
-                                        <div className="shrink-0 text-left md:text-right px-4 py-3 rounded-xl bg-black/40 border border-white/5">
-                                            <span className="text-[10px] font-bold text-primary-accent uppercase tracking-widest block mb-1">{subject.year} • {subject.code}</span>
-                                            <span className="text-sm font-bold text-white">{subject.name}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-4">
-                                    {books.map((book) => (
-                                        <div
-                                            key={book.id + book.chapter}
-                                            className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-xl bg-surface-elevation-1 border border-white/5 hover:bg-white/5 transition-colors"
-                                        >
-                                            <div className="flex flex-col gap-1">
-                                                <p className="text-base font-bold text-white relative pl-4 before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:bg-primary-accent before:rounded-full">{book.title}</p>
-                                                <p className="text-sm font-medium text-text-secondary ml-4">{book.author}</p>
-                                                <p className="text-xs font-semibold text-text-secondary/60 ml-4 pt-1">{book.publisher}</p>
-                                            </div>
-                                            <div className="flex items-center gap-3 shrink-0 flex-wrap ml-4 md:ml-0">
-                                                <span className="text-sm font-bold text-white bg-black/40 px-3 py-1.5 rounded-lg border border-white/10">Chapter {book.chapter}</span>
-                                                <span className="text-xs font-bold text-primary-accent uppercase tracking-widest bg-primary-accent/10 px-3 py-1.5 rounded-lg border border-primary-accent/20">
-                                                    {activeSection}
-                                                </span>
-                                                <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg border ${
-                                                    book.priority === 'high' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 
-                                                    book.priority === 'medium' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 
-                                                    'bg-green-500/10 text-green-400 border-green-500/20'
-                                                }`}>
-                                                    {book.priority} Priority
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </GlassCard>
-                        </motion.div>
+                {/* Cards */}
+                <div className="flex flex-col gap-4">
+                    {results.map((concept, i) => (
+                        <ConceptCard key={concept.slug} concept={concept} idx={i} />
                     ))}
-
                     {results.length === 0 && (
                         <div className="text-center py-20">
                             <Book className="w-12 h-12 text-text-secondary/30 mx-auto mb-4" />
-                            <p className="text-lg font-bold text-white mb-2">No topics found</p>
+                            <p className="text-lg font-bold text-white mb-2">No books found</p>
                             <p className="text-text-secondary font-medium">
-                                No topics found in {activeSection}
-                                {selectedYear !== 'All' ? ` for ${selectedYear}` : ''}.
+                                No concepts in {activeSection}{selectedSubject !== 'All' ? ` for ${selectedSubject}` : ''}.
                                 {searchQuery ? ' Try clearing the search.' : ''}
                             </p>
                         </div>

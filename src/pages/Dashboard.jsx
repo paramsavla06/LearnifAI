@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, useScroll, useTransform, useMotionValue, useAnimationFrame } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { GlassCard } from '../components/ui/GlassCard'
 import { ScrollReveal } from '../components/ui/ScrollReveal'
 import { 
@@ -14,79 +14,136 @@ import {
   Cpu, 
   GraduationCap, 
   LineChart, 
+  MapPin,
   MousePointer2, 
   Sparkles, 
   Target, 
   Terminal, 
-  Zap 
+  Zap,
+  BarChart2,
+  AlertTriangle
 } from "lucide-react"
 
-const subjects = [
-  { name: "Calculus", icon: Sparkles, face: "front", color: "bg-blue-500/20", textColor: "text-blue-400", progress: 75, lessons: 12, hours: 4.5 },
-  { name: "Algebra", icon: BookOpen, face: "front", color: "bg-orange-500/20", textColor: "text-orange-400", progress: 45, lessons: 8, hours: 3.2 },
-  { name: "Physics", icon: Cpu, face: "front", color: "bg-purple-500/20", textColor: "text-purple-400", progress: 90, lessons: 15, hours: 6.8 },
-  { name: "Logic", icon: Brain, face: "front", color: "bg-green-500/20", textColor: "text-green-400", progress: 60, lessons: 10, hours: 4.0 },
-  
-  { name: "Geometry", icon: Compass, face: "right", color: "bg-pink-500/20", textColor: "text-pink-400", progress: 30, lessons: 6, hours: 2.5 },
-  { name: "Statistics", icon: LineChart, face: "right", color: "bg-indigo-500/20", textColor: "text-indigo-400", progress: 85, lessons: 14, hours: 5.5 },
-  { name: "Biology", icon: Activity, face: "right", color: "bg-red-500/20", textColor: "text-red-400", progress: 55, lessons: 9, hours: 3.8 },
-  { name: "Chemistry", icon: Zap, face: "right", color: "bg-yellow-500/20", textColor: "text-yellow-400", progress: 70, lessons: 11, hours: 4.2 },
-  
-  { name: "Economics", icon: LineChart, face: "back", color: "bg-teal-500/20", textColor: "text-teal-400", progress: 40, lessons: 7, hours: 3.0 },
-  { name: "Psychology", icon: Brain, face: "back", color: "bg-rose-500/20", textColor: "text-rose-400", progress: 95, lessons: 16, hours: 7.2 },
-  { name: "Sociology", icon: Target, face: "back", color: "bg-cyan-500/20", textColor: "text-cyan-400", progress: 50, lessons: 8, hours: 3.5 },
-  { name: "Linguistics", icon: BookOpen, face: "back", color: "bg-amber-500/20", textColor: "text-amber-400", progress: 65, lessons: 10, hours: 4.5 },
-  
-  { name: "Comp Sci", icon: Terminal, face: "left", color: "bg-slate-500/20", textColor: "text-slate-400", progress: 80, lessons: 13, hours: 6.0 },
-  { name: "Robotics", icon: Cpu, face: "left", color: "bg-emerald-500/20", textColor: "text-emerald-400", progress: 35, lessons: 6, hours: 2.8 },
-  { name: "Astronomy", icon: Compass, face: "left", color: "bg-violet-500/20", textColor: "text-violet-400", progress: 75, lessons: 12, hours: 5.0 },
-  { name: "Genetics", icon: Activity, face: "left", color: "bg-fuchsia-500/20", textColor: "text-fuchsia-400", progress: 60, lessons: 10, hours: 4.2 },
-  
-  { name: "Music", icon: Sparkles, face: "top", color: "bg-sky-500/20", textColor: "text-sky-400", progress: 25, lessons: 5, hours: 2.0 },
-  { name: "Art", icon: Target, face: "top", color: "bg-lime-500/20", textColor: "text-lime-400", progress: 90, lessons: 15, hours: 6.5 },
-  { name: "Philosophy", icon: Brain, face: "top", color: "bg-orange-500/20", textColor: "text-orange-400", progress: 50, lessons: 8, hours: 3.5 },
-  { name: "Ethics", icon: CheckCircle2, face: "top", color: "bg-blue-500/20", textColor: "text-blue-400", progress: 70, lessons: 11, hours: 4.8 },
-  
-  { name: "Literature", icon: BookOpen, face: "bottom", color: "bg-pink-500/20", textColor: "text-pink-400", progress: 45, lessons: 7, hours: 3.2 },
-  { name: "History", icon: Compass, face: "bottom", color: "bg-yellow-500/20", textColor: "text-yellow-400", progress: 85, lessons: 14, hours: 5.8 },
-  { name: "Geography", icon: Compass, face: "bottom", color: "bg-green-500/20", textColor: "text-green-400", progress: 65, lessons: 10, hours: 4.0 },
-  { name: "Matrices", icon: LineChart, face: "bottom", color: "bg-indigo-500/20", textColor: "text-indigo-400", progress: 55, lessons: 9, hours: 3.5 },
-]
+const API_BASE = 'http://localhost:3002/api'
+
+// ── Diagnostic Banner ─────────────────────────────────────────────────────────
+function DiagnosticBanner() {
+  const [result, setResult]   = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const userId = localStorage.getItem('learnifai_user_id')
+    if (!userId) { setLoading(false); return }
+    fetch(`${API_BASE}/result/${userId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data && !data.error) setResult(data) })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) return null
+
+  if (!result) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8 p-5 rounded-2xl border border-primary-accent/20 bg-primary-accent/5 flex flex-col sm:flex-row sm:items-center gap-4"
+      >
+        <div className="flex items-center gap-3 flex-1">
+          <div className="w-10 h-10 rounded-full bg-primary-accent/10 border border-primary-accent/20 flex items-center justify-center shrink-0">
+            <Brain className="w-5 h-5 text-primary-accent" />
+          </div>
+          <div>
+            <p className="font-bold text-white text-sm">No Diagnostic Yet</p>
+            <p className="text-xs text-text-secondary mt-0.5">Take a diagnostic to see your personal knowledge gap map and library recommendations.</p>
+          </div>
+        </div>
+        <Link
+          to="/tests"
+          className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary-accent text-black font-bold text-xs hover:opacity-90 transition-opacity"
+        >
+          <Zap className="w-4 h-4" /> Start Diagnostic
+        </Link>
+      </motion.div>
+    )
+  }
+
+  const pct   = result.mastery_summary?.overall_pct ?? 0
+  const weak  = result.weak_topics  ?? []
+  const strong = result.strong_topics ?? []
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-8 p-5 rounded-2xl border border-white/10 bg-surface-elevation-1 flex flex-col gap-4"
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="flex items-center gap-3 flex-1">
+          <div className="w-10 h-10 rounded-full bg-primary-accent/10 border border-primary-accent/20 flex items-center justify-center shrink-0">
+            <BarChart2 className="w-5 h-5 text-primary-accent" />
+          </div>
+          <div>
+            <p className="font-bold text-white text-sm">Last Diagnostic Result</p>
+            <p className="text-xs text-text-secondary mt-0.5">
+              {strong.length} concepts mastered · {weak.length} need attention · Overall <span className="text-primary-accent font-bold">{pct}%</span>
+            </p>
+          </div>
+        </div>
+        <Link
+          to="/tests"
+          className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/10 text-text-secondary font-bold text-xs hover:bg-white/5 hover:text-white transition-all"
+        >
+          Retake <ChevronRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      {weak.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {weak.slice(0, 4).map(t => (
+            <Link
+              key={t.slug}
+              to="/library"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-xs font-bold text-red-300 hover:bg-red-500/20 transition-colors"
+            >
+              <AlertTriangle className="w-3 h-3" />
+              {t.name}
+              {t.mastery_pct !== undefined && <span className="opacity-70">{t.mastery_pct}%</span>}
+            </Link>
+          ))}
+          {weak.length > 4 && (
+            <span className="flex items-center px-3 py-1.5 rounded-full bg-white/5 text-xs font-bold text-text-secondary">
+              +{weak.length - 4} more
+            </span>
+          )}
+        </div>
+      )}
+    </motion.div>
+  )
+}
+
+const ICON_MAP = {
+  Sparkles, BookOpen, Cpu, Brain, Compass, LineChart, Activity, Target, Terminal, CheckCircle2, Zap
+}
 
 const faces = ["front", "right", "back", "left", "top", "bottom"]
 
 const faceOffsets = {
-  front: 150,
-  right: 150,
-  back: 150,
-  left: 150,
-  top: 150,
-  bottom: 150,
+  front: 150, right: 150, back: 150, left: 150, top: 150, bottom: 150,
 }
 
 const faceRotations = {
-  front: "rotateY(0deg)",
-  right: "rotateY(90deg)",
-  back: "rotateY(180deg)",
-  left: "rotateY(-90deg)",
-  top: "rotateX(90deg)",
-  bottom: "rotateX(-90deg)",
+  front: "rotateY(0deg)", right: "rotateY(90deg)", back: "rotateY(180deg)", left: "rotateY(-90deg)", top: "rotateX(90deg)", bottom: "rotateX(-90deg)",
 }
-
-const learningHours = [
-  { day: "Mon", hours: 4 },
-  { day: "Tue", hours: 6 },
-  { day: "Wed", hours: 3 },
-  { day: "Thu", hours: 8 },
-  { day: "Fri", hours: 5 },
-  { day: "Sat", hours: 2 },
-  { day: "Sun", hours: 4 },
-]
 
 export default function Dashboard() {
   const { scrollYProgress } = useScroll()
   const rotateX = useMotionValue(-20)
   const rotateY = useMotionValue(25)
+  const [userName, setUserName] = useState('')
+  const [data, setData] = useState({ learningHours: [], totalHoursThisWeek: 0, subjects: [], mentors: [] })
+  const navigate = useNavigate()
 
   useAnimationFrame((t, delta) => {
     rotateY.set(rotateY.get() + delta * 0.015)
@@ -97,14 +154,52 @@ export default function Dashboard() {
     rotateY.set(rotateY.get() + info.delta.x * 0.5)
   }
 
+  // Persist userId when found in result and load userName
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('learnifai_user_id')
+    const storedName = localStorage.getItem('learnifai_user_name')
+    if (storedName) setUserName(storedName)
+
+    if (storedUserId) {
+      fetch(`${API_BASE}/dashboard/${storedUserId}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d && !d.error) setData(d) })
+    } else {
+      navigate('/auth')
+    }
+  }, [navigate])
+
+  const learningHours = data.learningHours.length > 0 ? data.learningHours : [
+    { day: "Mon", hours: 0 }, { day: "Tue", hours: 0 }, { day: "Wed", hours: 0 },
+    { day: "Thu", hours: 0 }, { day: "Fri", hours: 0 }, { day: "Sat", hours: 0 }, { day: "Sun", hours: 0 }
+  ]
+  const subjects = data.subjects
+  // Fallback demo subjects for empty state
+  const demoFallback = [
+    { name: "Take Diagnostic", iconStr: "Sparkles", face: "front", color: "bg-blue-500/20", textColor: "text-blue-400", progress: 0, lessons: 0, hours: 0 }
+  ]
+  const activeSubjects = subjects.length > 0 ? subjects : demoFallback
+
+  const mentors = data.mentors && data.mentors.length > 0 ? data.mentors : [
+    { name: "Dr. Sarah Chen", role: "Quantum Physics", img: "https://i.pravatar.cc/150?u=sarah" },
+    { name: "Prof. James Wilson", role: "Pure Mathematics", img: "https://i.pravatar.cc/150?u=james" },
+  ]
+
+  const continueWatch = activeSubjects.length > 0 
+    ? activeSubjects.reduce((prev, curr) => (prev.progress < curr.progress ? prev : curr)) 
+    : demoFallback[0]
+
   return (
     <>
-      <div className="mb-10 pt-10">
+      <div className="mb-8 pt-10">
         <ScrollReveal className="origin-left">
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Welcome back, Nafis! 👋</h1>
-          <p className="text-text-secondary font-medium">Ready to learn something new today?</p>
+          <h1 className="text-4xl font-bold tracking-tight mb-1">
+            Welcome to LearnifAI{userName ? `, ${userName}` : ''} 👋
+          </h1>
+          <p className="text-text-secondary font-medium">Your AI-powered diagnostic learning platform.</p>
         </ScrollReveal>
       </div>
+      <DiagnosticBanner />
 
       <div className="grid lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-8">
@@ -115,7 +210,7 @@ export default function Dashboard() {
                 <p className="text-sm text-text-secondary font-medium">Your progress this week</p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold">32.5h</span>
+                <span className="text-2xl font-bold">{data.totalHoursThisWeek}h</span>
                 <span className="text-xs font-bold text-green-500 bg-green-100/20 px-2 py-1 rounded-full">+12%</span>
               </div>
             </div>
@@ -164,20 +259,26 @@ export default function Dashboard() {
                 </div>
                 <div className="p-8 flex-1 flex flex-col justify-center">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-blue-500/20 text-blue-400 rounded">Mathematics</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Lesson 8 of 12</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-blue-500/20 text-blue-400 rounded">
+                      {continueWatch.name}
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">
+                      Lesson {Math.max(1, Math.floor((continueWatch.progress / 100) * continueWatch.lessons))} of {Math.max(1, continueWatch.lessons)}
+                    </span>
                   </div>
-                  <h4 className="text-2xl font-bold mb-2">Advanced Calculus: Integration Techniques</h4>
-                  <p className="text-text-secondary text-sm mb-6 line-clamp-2">Master the art of integration with our AI-guided step-by-step breakdown of complex problems.</p>
+                  <h4 className="text-2xl font-bold mb-2">Mastering {continueWatch.name}: Advanced Concepts</h4>
+                  <p className="text-text-secondary text-sm mb-6 line-clamp-2">
+                    Review your weakest areas in {continueWatch.name} with our AI-guided step-by-step breakdown of complex problems.
+                  </p>
                   <div className="flex items-center gap-4">
                     <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
-                        whileInView={{ width: "65%" }}
+                        whileInView={{ width: `${continueWatch.progress}%` }}
                         className="h-full bg-primary-accent"
                       />
                     </div>
-                    <span className="text-sm font-bold">65%</span>
+                    <span className="text-sm font-bold">{continueWatch.progress}%</span>
                   </div>
                 </div>
               </div>
@@ -228,7 +329,9 @@ export default function Dashboard() {
                         transform: `${faceRotations[faceName]} translateZ(${faceOffsets[faceName]}px)`,
                       }}
                     >
-                      {subjects.filter(s => s.face === faceName).map((subject, j) => (
+                      {activeSubjects.filter(s => s.face === faceName).map((subject, j) => {
+                        const Icon = ICON_MAP[subject.iconStr] || Sparkles
+                        return (
                         <motion.div 
                           key={j} 
                           className="cuboid-tile group"
@@ -238,10 +341,10 @@ export default function Dashboard() {
                             transition: { type: "spring", stiffness: 300, damping: 20 }
                           }}
                         >
-                          <subject.icon className="w-8 h-8 text-white/20 group-hover:text-black mb-2 transition-all duration-300" />
+                          <Icon className="w-8 h-8 text-white/20 group-hover:text-black mb-2 transition-all duration-300" />
                           <span className="text-[10px] font-bold uppercase tracking-tighter text-white/40 group-hover:text-black">{subject.name}</span>
                         </motion.div>
-                      ))}
+                      )})}
                     </motion.div>
                   ))}
                 </motion.div>
@@ -270,7 +373,9 @@ export default function Dashboard() {
           </div>
 
           <div className="space-y-4">
-            {subjects.slice(0, 4).map((subject, i) => (
+            {activeSubjects.slice(0, 4).map((subject, i) => {
+              const Icon = ICON_MAP[subject.iconStr] || Sparkles
+              return (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: 20 }}
@@ -280,7 +385,7 @@ export default function Dashboard() {
               >
                 <div className="flex items-center gap-4 mb-6">
                   <div className={`w-12 h-12 rounded-2xl ${subject.color} flex items-center justify-center transition-transform group-hover:scale-110`}>
-                    <subject.icon className={`w-6 h-6 ${subject.textColor}`} />
+                    <Icon className={`w-6 h-6 ${subject.textColor}`} />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-bold text-lg leading-none mb-1">{subject.name}</h4>
@@ -306,19 +411,16 @@ export default function Dashboard() {
                   </div>
                 </div>
               </motion.div>
-            ))}
+            )})}
           </div>
 
           <GlassCard className="!p-6 bg-surface-elevation-1 overflow-hidden relative">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary-accent/10 blur-[60px] rounded-full" />
             <h3 className="text-lg font-bold mb-4 relative z-10">Top Mentors</h3>
             <div className="space-y-4 relative z-10">
-              {[
-                { name: "Dr. Sarah Chen", role: "Quantum Physics", img: "https://i.pravatar.cc/150?u=sarah" },
-                { name: "Prof. James Wilson", role: "Pure Mathematics", img: "https://i.pravatar.cc/150?u=james" },
-              ].map((mentor, i) => (
+              {mentors.map((mentor, i) => (
                 <div key={i} className="flex items-center gap-3 group cursor-pointer">
-                  <img src={mentor.img} alt={mentor.name} className="w-10 h-10 rounded-full border-2 border-white/10 group-hover:border-primary-accent transition-colors" />
+                  <img src={mentor.img} alt={mentor.name} className="w-10 h-10 rounded-full border-2 border-white/10 group-hover:border-primary-accent object-cover transition-colors" />
                   <div>
                     <p className="text-sm font-bold">{mentor.name}</p>
                     <p className="text-[10px] text-white/50">{mentor.role}</p>
@@ -345,7 +447,9 @@ export default function Dashboard() {
         </ScrollReveal>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {subjects.map((subject, i) => (
+          {activeSubjects.map((subject, i) => {
+            const Icon = ICON_MAP[subject.iconStr] || Sparkles
+            return (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 30 }}
@@ -356,7 +460,7 @@ export default function Dashboard() {
             >
               <div className="flex items-center gap-4 mb-6">
                 <div className={`w-12 h-12 rounded-2xl ${subject.color} flex items-center justify-center transition-transform group-hover:scale-110`}>
-                  <subject.icon className={`w-6 h-6 ${subject.textColor}`} />
+                  <Icon className={`w-6 h-6 ${subject.textColor}`} />
                 </div>
                 <div className="flex-1">
                   <h4 className="font-bold text-lg leading-none mb-1">{subject.name}</h4>
@@ -379,7 +483,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </motion.div>
-          ))}
+          )})}
         </div>
       </section>
     </>

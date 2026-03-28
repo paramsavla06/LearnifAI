@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
@@ -6,7 +6,44 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 import { GlassCard } from './ui/GlassCard'
 import { ScrollReveal } from './ui/ScrollReveal'
-import { X, Map, Layers, Building2, AlignLeft } from 'lucide-react'
+import { X, Map, Layers, Building2, AlignLeft, BookOpen, MapPin, ExternalLink } from 'lucide-react'
+import conceptsData from '../data/concepts.json'
+
+// ── Library section helpers ────────────────────────────────────────────────────
+function inferFloor(section) {
+    if (!section) return 'Ground Floor'
+    const code = section.replace('Section ', '').trim().toUpperCase().charCodeAt(0) - 65
+    if (code <= 5)  return 'Ground Floor'
+    if (code <= 11) return 'First Floor'
+    if (code <= 17) return 'Second Floor'
+    return 'Third Floor'
+}
+
+const FLOOR_COLORS = {
+    'Ground Floor': { text: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/20', dot: 'bg-emerald-400' },
+    'First Floor':  { text: 'text-blue-400',    bg: 'bg-blue-400/10',    border: 'border-blue-400/20',    dot: 'bg-blue-400' },
+    'Second Floor': { text: 'text-violet-400',  bg: 'bg-violet-400/10',  border: 'border-violet-400/20',  dot: 'bg-violet-400' },
+    'Third Floor':  { text: 'text-orange-400',  bg: 'bg-orange-400/10',  border: 'border-orange-400/20',  dot: 'bg-orange-400' },
+}
+
+// Build section summary from concepts.json
+function buildLibrarySections() {
+    const sectionMap = {}
+    for (const subject of conceptsData.subjects) {
+        for (const concept of subject.concepts) {
+            const sec = concept.library_section
+            if (!sec) continue
+            if (!sectionMap[sec]) sectionMap[sec] = { section: sec, concepts: [], subjects: new Set() }
+            sectionMap[sec].concepts.push(concept)
+            sectionMap[sec].subjects.add(subject.name)
+        }
+    }
+    return Object.values(sectionMap)
+        .map(s => ({ ...s, subjects: [...s.subjects] }))
+        .sort((a, b) => a.section.localeCompare(b.section))
+}
+
+const LIBRARY_SECTIONS = buildLibrarySections()
 
 /* ── Building data (from SmartCampus/src/data/buildings.json) ── */
 const BUILDINGS = [
@@ -402,7 +439,7 @@ export default function NavigationSection() {
                                     </p>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-white/5">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-white/5 mb-8">
                                     <div>
                                         <p className="text-[10px] font-bold tracking-widest uppercase text-text-secondary/60 mb-4">Resident Departments</p>
                                         <div className="flex flex-col gap-3">
@@ -425,6 +462,63 @@ export default function NavigationSection() {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* ── Central Library: show all book sections ── */}
+                                {selectedBuilding.id === 'bldg-003' && (
+                                    <div className="pt-6 border-t border-white/5">
+                                        <div className="flex items-center justify-between mb-5">
+                                            <p className="text-[10px] font-bold tracking-widest uppercase text-primary-accent flex items-center gap-2">
+                                                <BookOpen className="w-4 h-4" /> Library Sections ({LIBRARY_SECTIONS.length} sections)
+                                            </p>
+                                            <a href="/#library"
+                                                className="flex items-center gap-1.5 text-[10px] font-bold text-primary-accent hover:underline"
+                                                onClick={() => setSelected(null)}>
+                                                Browse Full Library <ExternalLink className="w-3 h-3" />
+                                            </a>
+                                        </div>
+
+                                        {/* Floor legend */}
+                                        <div className="flex flex-wrap gap-3 mb-5">
+                                            {Object.entries(FLOOR_COLORS).map(([floor, clr]) => (
+                                                <div key={floor} className="flex items-center gap-1.5">
+                                                    <div className={`w-2 h-2 rounded-full ${clr.dot}`} />
+                                                    <span className={`text-[10px] font-bold ${clr.text}`}>{floor}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[420px] overflow-y-auto pr-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                                            {LIBRARY_SECTIONS.map((sec, idx) => {
+                                                const floor = inferFloor(sec.section)
+                                                const clr = FLOOR_COLORS[floor] || FLOOR_COLORS['Ground Floor']
+                                                return (
+                                                    <motion.a
+                                                        key={sec.section}
+                                                        href="/#library"
+                                                        onClick={() => setSelected(null)}
+                                                        initial={{ opacity: 0, y: 8 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: idx * 0.03 }}
+                                                        className={`block p-4 rounded-xl border ${clr.border} ${clr.bg} hover:brightness-110 transition-all cursor-pointer group`}
+                                                    >
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <span className={`text-sm font-black ${clr.text}`}>{sec.section}</span>
+                                                            <span className="text-[10px] font-bold text-text-secondary bg-white/5 px-2 py-0.5 rounded-full">
+                                                                {sec.concepts.length} {sec.concepts.length === 1 ? 'book' : 'books'}
+                                                            </span>
+                                                        </div>
+                                                        <p className={`text-[10px] font-bold uppercase tracking-widest ${clr.text} opacity-70 mb-1.5`}>
+                                                            {floor}
+                                                        </p>
+                                                        <p className="text-[10px] text-text-secondary leading-relaxed line-clamp-2">
+                                                            {sec.subjects.slice(0, 2).join(', ')}{sec.subjects.length > 2 ? ` +${sec.subjects.length - 2} more` : ''}
+                                                        </p>
+                                                    </motion.a>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     )}

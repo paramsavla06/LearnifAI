@@ -10,6 +10,7 @@ const TestsPage = lazy(() => import('./pages/TestsPage'))
 const LibraryPage = lazy(() => import('./pages/LibraryPage'))
 const ProfessorsPage = lazy(() => import('./pages/ProfessorsPage'))
 const AIPage = lazy(() => import('./pages/AIPage'))
+const AuthPage = lazy(() => import('./pages/AuthPage'))
 
 function ScrollToTop() {
     const { pathname } = useLocation()
@@ -64,6 +65,7 @@ function App() {
                     <Suspense fallback={<LoadingFallback />}>
                         <Routes>
                             <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                            <Route path="/auth" element={<AuthPage />} />
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/map" element={<MapPage />} />
                             <Route path="/tests" element={<TestsPage />} />

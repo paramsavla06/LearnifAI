@@ -1,0 +1,126 @@
+{
+  "subjects": [
+    {
+      "name": "Engineering Mathematics",
+      "description": "MU Engineering Mathematics I–IV (FE SEM 1-2, SE SEM 3-4) — common to all branches",
+      "branch": "Common",
+      "concepts": [
+        { "slug": "arithmetic", "name": "Arithmetic & Number Systems", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section A", "shelf": "Shelf 1", "book_title": "Elementary Mathematics", "book_isbn": "978-81-000-0001-0" },
+        { "slug": "trigonometry", "name": "Trigonometry", "difficulty": 2, "semester": "FE SEM 1", "library_section": "Section A", "shelf": "Shelf 2", "book_title": "Trigonometry Unlocked", "book_isbn": "978-81-000-0003-0" },
+        { "slug": "complex-numbers", "name": "Complex Numbers", "difficulty": 2, "semester": "FE SEM 1", "library_section": "Section A", "shelf": "Shelf 2", "book_title": "Engineering Maths Vol 1 (Grewal)", "book_isbn": "978-81-000-0005-0" },
+        { "slug": "matrices-determinants", "name": "Matrices & Determinants", "difficulty": 2, "semester": "FE SEM 1", "library_section": "Section A", "shelf": "Shelf 3", "book_title": "Engineering Maths Vol 1 (Grewal)", "book_isbn": "978-81-000-0005-0" },
+        { "slug": "differential-calculus", "name": "Differential Calculus", "difficulty": 3, "semester": "FE SEM 1", "library_section": "Section A", "shelf": "Shelf 3", "book_title": "Calculus (Thomas & Finney)", "book_isbn": "978-81-000-0006-0" },
+        { "slug": "integral-calculus", "name": "Integral Calculus", "difficulty": 3, "semester": "FE SEM 2", "library_section": "Section A", "shelf": "Shelf 4", "book_title": "Integral Calculus (Gorakh Prasad)", "book_isbn": "978-81-000-0007-0" },
+        { "slug": "vector-calculus", "name": "Vector Calculus", "difficulty": 3, "semester": "FE SEM 2", "library_section": "Section A", "shelf": "Shelf 4", "book_title": "Vector Analysis (Spiegel)", "book_isbn": "978-81-000-0008-0" },
+        { "slug": "laplace-transform", "name": "Laplace Transform", "difficulty": 3, "semester": "SE SEM 3", "library_section": "Section B", "shelf": "Shelf 1", "book_title": "Higher Engg Maths (Grewal)", "book_isbn": "978-81-000-0012-0" },
+        { "slug": "fourier-series", "name": "Fourier Series & Transform", "difficulty": 3, "semester": "SE SEM 3", "library_section": "Section B", "shelf": "Shelf 1", "book_title": "Higher Engg Maths (Grewal)", "book_isbn": "978-81-000-0012-0" },
+        { "slug": "probability-statistics", "name": "Probability & Statistics", "difficulty": 3, "semester": "SE SEM 3", "library_section": "Section B", "shelf": "Shelf 2", "book_title": "Probability & Statistics (Walpole)", "book_isbn": "978-81-000-0011-0" },
+        { "slug": "linear-algebra", "name": "Linear Algebra", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section B", "shelf": "Shelf 2", "book_title": "Linear Algebra (Gilbert Strang)", "book_isbn": "978-81-000-0009-0" },
+        { "slug": "ode", "name": "Ordinary Differential Equations", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section B", "shelf": "Shelf 3", "book_title": "ODE (Tenenbaum & Pollard)", "book_isbn": "978-81-000-0010-0" },
+        { "slug": "numerical-methods", "name": "Numerical Methods", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section B", "shelf": "Shelf 3", "book_title": "Numerical Methods (S.S. Sastry)", "book_isbn": "978-81-000-0014-0" }
+      ]
+    },
+    {
+      "name": "Computer Science",
+      "description": "Computer Engineering branch (MU) — SEM 3 to SEM 8",
+      "branch": "CE",
+      "concepts": [
+        { "slug": "c-programming", "name": "C Programming", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section H", "shelf": "Shelf 1", "book_title": "Let Us C (Kanetkar)", "book_isbn": "978-81-000-0060-0" },
+        { "slug": "discrete-math", "name": "Discrete Mathematics", "difficulty": 2, "semester": "SE SEM 3", "library_section": "Section H", "shelf": "Shelf 1", "book_title": "Discrete Mathematics (Kenneth Rosen)", "book_isbn": "978-81-000-0061-0" },
+        { "slug": "graph-theory", "name": "Graph Theory", "difficulty": 3, "semester": "SE SEM 3", "library_section": "Section H", "shelf": "Shelf 1", "book_title": "Graph Theory (Narsingh Deo)", "book_isbn": "978-81-000-0015-0" },
+        { "slug": "dsa", "name": "Data Structures & Algorithms", "difficulty": 2, "semester": "SE SEM 3", "library_section": "Section H", "shelf": "Shelf 2", "book_title": "Introduction to Algorithms (CLRS)", "book_isbn": "978-81-000-0062-0" },
+        { "slug": "computer-org-arch", "name": "Computer Organization & Architecture", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section H", "shelf": "Shelf 2", "book_title": "Computer Organization (Hamacher)", "book_isbn": "978-81-000-0063-0" },
+        { "slug": "analysis-of-algorithms", "name": "Analysis of Algorithms", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section H", "shelf": "Shelf 3", "book_title": "Algorithm Design (Kleinberg & Tardos)", "book_isbn": "978-81-000-0063-1" },
+        { "slug": "operating-systems", "name": "Operating Systems", "difficulty": 3, "semester": "TE SEM 5", "library_section": "Section H", "shelf": "Shelf 3", "book_title": "Operating System Concepts (Silberschatz)", "book_isbn": "978-81-000-0064-0" },
+        { "slug": "dbms", "name": "Database Management Systems", "difficulty": 2, "semester": "TE SEM 5", "library_section": "Section H", "shelf": "Shelf 4", "book_title": "DBMS (Ramakrishnan & Gehrke)", "book_isbn": "978-81-000-0042-0" },
+        { "slug": "computer-networks", "name": "Computer Networks", "difficulty": 3, "semester": "TE SEM 6", "library_section": "Section I", "shelf": "Shelf 1", "book_title": "Computer Networks (Tanenbaum)", "book_isbn": "978-81-000-0065-0" },
+        { "slug": "theory-of-computation", "name": "Theory of Computation", "difficulty": 4, "semester": "TE SEM 6", "library_section": "Section I", "shelf": "Shelf 1", "book_title": "Introduction to Theory of Computation (Sipser)", "book_isbn": "978-81-000-0066-0" },
+        { "slug": "software-engineering", "name": "Software Engineering", "difficulty": 3, "semester": "TE SEM 5", "library_section": "Section H", "shelf": "Shelf 4", "book_title": "Software Engineering (Pressman)", "book_isbn": "978-81-000-0067-0" },
+        { "slug": "machine-learning", "name": "Machine Learning", "difficulty": 4, "semester": "BE SEM 7", "library_section": "Section I", "shelf": "Shelf 2", "book_title": "Hands-On ML (Aurélien Géron)", "book_isbn": "978-81-000-0047-0" },
+        { "slug": "compiler-design", "name": "Compiler Design", "difficulty": 4, "semester": "TE SEM 6", "library_section": "Section I", "shelf": "Shelf 2", "book_title": "Compilers — Dragon Book (Aho)", "book_isbn": "978-81-000-0069-0" },
+        { "slug": "distributed-systems", "name": "Distributed Systems", "difficulty": 4, "semester": "BE SEM 7", "library_section": "Section I", "shelf": "Shelf 3", "book_title": "Distributed Systems (Tanenbaum)", "book_isbn": "978-81-000-0070-0" },
+        { "slug": "cybersecurity", "name": "Cyber Security & Cryptography", "difficulty": 4, "semester": "BE SEM 7", "library_section": "Section I", "shelf": "Shelf 3", "book_title": "Cryptography & Network Security (Stallings)", "book_isbn": "978-81-000-0071-0" },
+        { "slug": "cloud-computing", "name": "Cloud Computing", "difficulty": 4, "semester": "BE SEM 8", "library_section": "Section I", "shelf": "Shelf 4", "book_title": "Cloud Computing (Buyya)", "book_isbn": "978-81-000-0072-0" },
+        { "slug": "big-data", "name": "Big Data Analytics", "difficulty": 4, "semester": "BE SEM 8", "library_section": "Section I", "shelf": "Shelf 4", "book_title": "Hadoop: The Definitive Guide (Tom White)", "book_isbn": "978-81-000-0073-0" }
+      ]
+    },
+    {
+      "name": "Electronics",
+      "description": "Electronics & EXTC branch core",
+      "branch": "Electronics / EXTC",
+      "concepts": [
+        { "slug": "charge-current-voltage", "name": "Charge, Current & Voltage", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section C", "shelf": "Shelf 1", "book_title": "Fundamentals of Electric Circuits (Alexander)", "book_isbn": "978-81-000-0020-0" },
+        { "slug": "digital-logic", "name": "Digital Logic Design", "difficulty": 2, "semester": "SE SEM 3", "library_section": "Section C", "shelf": "Shelf 2", "book_title": "Digital Design (Morris Mano)", "book_isbn": "978-81-000-0029-0" },
+        { "slug": "phasor-analysis", "name": "Phasor Analysis", "difficulty": 3, "semester": "SE SEM 3", "library_section": "Section C", "shelf": "Shelf 3", "book_title": "AC Circuit Analysis (Franklin)", "book_isbn": "978-81-000-0023-0" },
+        { "slug": "ac-circuit-analysis", "name": "AC Circuit Analysis", "difficulty": 3, "semester": "SE SEM 3", "library_section": "Section C", "shelf": "Shelf 3", "book_title": "AC Circuit Analysis (Franklin)", "book_isbn": "978-81-000-0023-0" },
+        { "slug": "diodes-rectifiers", "name": "Diodes & Rectifiers", "difficulty": 2, "semester": "SE SEM 3", "library_section": "Section C", "shelf": "Shelf 4", "book_title": "Electronic Devices (Floyd)", "book_isbn": "978-81-000-0024-0" },
+        { "slug": "bjt-transistors", "name": "BJT Transistors", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section C", "shelf": "Shelf 4", "book_title": "Electronic Devices (Floyd)", "book_isbn": "978-81-000-0024-0" },
+        { "slug": "fet-mosfet", "name": "FET & MOSFET", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section D", "shelf": "Shelf 1", "book_title": "Microelectronics (Sedra & Smith)", "book_isbn": "978-81-000-0025-0" },
+        { "slug": "opamp-fundamentals", "name": "Op-Amp Fundamentals", "difficulty": 3, "semester": "TE SEM 5", "library_section": "Section D", "shelf": "Shelf 1", "book_title": "Op-Amp & Linear ICs (Gayakwad)", "book_isbn": "978-81-000-0026-0" },
+        { "slug": "active-filter-design", "name": "Active Filter Design", "difficulty": 4, "semester": "TE SEM 5", "library_section": "Section D", "shelf": "Shelf 2", "book_title": "Active Filter Design (Wai-Kai Chen)", "book_isbn": "978-81-000-0027-0" },
+        { "slug": "signals-systems", "name": "Signals & Systems", "difficulty": 4, "semester": "TE SEM 5", "library_section": "Section D", "shelf": "Shelf 3", "book_title": "Signals & Systems (Oppenheim)", "book_isbn": "978-81-000-0028-0" },
+        { "slug": "microcontrollers", "name": "Microcontrollers (8051/ARM)", "difficulty": 3, "semester": "TE SEM 5", "library_section": "Section D", "shelf": "Shelf 4", "book_title": "The 8051 Microcontroller (Mazidi)", "book_isbn": "978-81-000-0030-0" },
+        { "slug": "communication-systems", "name": "Communication Systems", "difficulty": 4, "semester": "TE SEM 6", "library_section": "Section E", "shelf": "Shelf 2", "book_title": "Communication Systems (Haykin)", "book_isbn": "978-81-000-0035-0" }
+      ]
+    },
+    {
+      "name": "Information Technology",
+      "description": "IT branch (MU)",
+      "branch": "IT",
+      "concepts": [
+        { "slug": "web-technology", "name": "Web Technology (HTML/CSS/JS)", "difficulty": 1, "semester": "SE SEM 3", "library_section": "Section J", "shelf": "Shelf 1", "book_title": "HTML & CSS (Jon Duckett)", "book_isbn": "978-81-000-0080-0" },
+        { "slug": "java-programming", "name": "Java Programming", "difficulty": 2, "semester": "SE SEM 3", "library_section": "Section J", "shelf": "Shelf 1", "book_title": "Java — The Complete Reference (Schildt)", "book_isbn": "978-81-000-0081-0" },
+        { "slug": "sql-databases", "name": "SQL & Relational Databases", "difficulty": 2, "semester": "SE SEM 4", "library_section": "Section J", "shelf": "Shelf 2", "book_title": "Learning SQL (Alan Beaulieu)", "book_isbn": "978-81-000-0043-0" },
+        { "slug": "nosql-databases", "name": "NoSQL Databases", "difficulty": 3, "semester": "TE SEM 5", "library_section": "Section J", "shelf": "Shelf 3", "book_title": "NoSQL Distilled (Fowler)", "book_isbn": "978-81-000-0044-0" },
+        { "slug": "python-programming", "name": "Programming in Python", "difficulty": 1, "semester": "SE SEM 3", "library_section": "Section J", "shelf": "Shelf 2", "book_title": "Automate the Boring Stuff with Python", "book_isbn": "978-81-000-0040-0" },
+        { "slug": "deep-learning", "name": "Deep Learning & Neural Networks", "difficulty": 4, "semester": "BE SEM 7", "library_section": "Section G", "shelf": "Shelf 2", "book_title": "Deep Learning (Goodfellow)", "book_isbn": "978-81-000-0049-0" },
+        { "slug": "nlp", "name": "Natural Language Processing", "difficulty": 4, "semester": "BE SEM 7", "library_section": "Section G", "shelf": "Shelf 2", "book_title": "Speech & Language Processing (Jurafsky)", "book_isbn": "978-81-000-0050-0" },
+        { "slug": "iot", "name": "Internet of Things", "difficulty": 3, "semester": "BE SEM 7", "library_section": "Section J", "shelf": "Shelf 4", "book_title": "IoT — A Hands-On Approach (Bahga)", "book_isbn": "978-81-000-0087-0" },
+        { "slug": "blockchain", "name": "Blockchain Technology", "difficulty": 4, "semester": "BE SEM 8", "library_section": "Section K", "shelf": "Shelf 1", "book_title": "Mastering Blockchain (Bashir)", "book_isbn": "978-81-000-0089-0" }
+      ]
+    },
+    {
+      "name": "Civil Engineering",
+      "description": "Civil Engineering branch (MU)",
+      "branch": "CE Civil",
+      "concepts": [
+        { "slug": "engineering-mechanics", "name": "Engineering Mechanics (Statics)", "difficulty": 2, "semester": "FE SEM 1", "library_section": "Section L", "shelf": "Shelf 1", "book_title": "Engineering Mechanics (Beer & Johnston)", "book_isbn": "978-81-000-0090-0" },
+        { "slug": "strength-of-materials", "name": "Strength of Materials", "difficulty": 3, "semester": "SE SEM 3", "library_section": "Section L", "shelf": "Shelf 1", "book_title": "Strength of Materials (Sadhu Singh)", "book_isbn": "978-81-000-0091-0" },
+        { "slug": "fluid-mechanics", "name": "Fluid Mechanics", "difficulty": 3, "semester": "SE SEM 3", "library_section": "Section L", "shelf": "Shelf 3", "book_title": "Fluid Mechanics (Modi & Seth)", "book_isbn": "978-81-000-0093-0" },
+        { "slug": "surveying", "name": "Surveying", "difficulty": 2, "semester": "SE SEM 3", "library_section": "Section M", "shelf": "Shelf 2", "book_title": "Surveying (B.C. Punmia)", "book_isbn": "978-81-000-0100-0" },
+        { "slug": "structural-analysis-1", "name": "Structural Analysis I", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section L", "shelf": "Shelf 2", "book_title": "Structural Analysis (Bhavikatti)", "book_isbn": "978-81-000-0092-0" },
+        { "slug": "soil-mechanics", "name": "Soil Mechanics & Geotechnics", "difficulty": 3, "semester": "TE SEM 5", "library_section": "Section L", "shelf": "Shelf 4", "book_title": "Soil Mechanics (Arora)", "book_isbn": "978-81-000-0095-0" },
+        { "slug": "rcc-design", "name": "RCC Design", "difficulty": 4, "semester": "TE SEM 5", "library_section": "Section M", "shelf": "Shelf 1", "book_title": "Limit State Design of RCC (Pillai & Menon)", "book_isbn": "978-81-000-0098-0" }
+      ]
+    },
+    {
+      "name": "Mechanical Engineering",
+      "description": "Mechanical Engineering branch (MU)",
+      "branch": "Mech",
+      "concepts": [
+        { "slug": "thermodynamics", "name": "Thermodynamics", "difficulty": 3, "semester": "SE SEM 3", "library_section": "Section N", "shelf": "Shelf 2", "book_title": "Engineering Thermodynamics (P.K. Nag)", "book_isbn": "978-81-000-0112-0" },
+        { "slug": "manufacturing-processes", "name": "Manufacturing Processes", "difficulty": 2, "semester": "SE SEM 3", "library_section": "Section N", "shelf": "Shelf 3", "book_title": "Manufacturing Engineering (Kalpakjian)", "book_isbn": "978-81-000-0114-0" },
+        { "slug": "theory-of-machines", "name": "Theory of Machines", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section N", "shelf": "Shelf 3", "book_title": "Theory of Machines (Rattan)", "book_isbn": "978-81-000-0115-0" },
+        { "slug": "machine-design", "name": "Machine Design", "difficulty": 4, "semester": "TE SEM 5", "library_section": "Section N", "shelf": "Shelf 4", "book_title": "Machine Design (Shigley)", "book_isbn": "978-81-000-0116-0" },
+        { "slug": "heat-transfer", "name": "Heat Transfer", "difficulty": 3, "semester": "TE SEM 5", "library_section": "Section N", "shelf": "Shelf 4", "book_title": "Heat Transfer (Cengel)", "book_isbn": "978-81-000-0117-0" },
+        { "slug": "industrial-engg-mgmt", "name": "Industrial Engineering & Mgmt", "difficulty": 3, "semester": "TE SEM 6", "library_section": "Section O", "shelf": "Shelf 1", "book_title": "Industrial Engineering (O.P. Khanna)", "book_isbn": "978-81-000-0119-0" }
+      ]
+    },
+    {
+      "name": "Electrical Engineering",
+      "description": "Electrical Engineering branch (MU)",
+      "branch": "EE",
+      "concepts": [
+        { "slug": "basic-electrical-engg", "name": "Basic Electrical Engineering", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section P", "shelf": "Shelf 1", "book_title": "Basic Electrical Engineering (Kothari & Nagrath)", "book_isbn": "978-81-000-0130-0" },
+        { "slug": "ac-machines", "name": "AC Machines (Transformers & Induction)", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section P", "shelf": "Shelf 3", "book_title": "Electrical Machines (Nagrath & Kothari)", "book_isbn": "978-81-000-0133-0" },
+        { "slug": "control-systems", "name": "Control Systems", "difficulty": 4, "semester": "TE SEM 5", "library_section": "Section P", "shelf": "Shelf 4", "book_title": "Control Systems Engineering (Nise)", "book_isbn": "978-81-000-0136-0" },
+        { "slug": "power-systems-1", "name": "Power Systems I", "difficulty": 3, "semester": "TE SEM 5", "library_section": "Section P", "shelf": "Shelf 3", "book_title": "Power System Engineering (Nagrath & Kothari)", "book_isbn": "978-81-000-0134-0" },
+        { "slug": "power-electronics", "name": "Power Electronics", "difficulty": 4, "semester": "TE SEM 6", "library_section": "Section Q", "shelf": "Shelf 1", "book_title": "Power Electronics (Rashid)", "book_isbn": "978-81-000-0137-0" },
+        { "slug": "switchgear-protection", "name": "Switchgear & Protection", "difficulty": 4, "semester": "BE SEM 7", "library_section": "Section Q", "shelf": "Shelf 2", "book_title": "Switchgear & Protection (Sukhija)", "book_isbn": "978-81-000-0139-0" },
+        { "slug": "plc-automation", "name": "PLC & Industrial Automation", "difficulty": 3, "semester": "BE SEM 7", "library_section": "Section Q", "shelf": "Shelf 3", "book_title": "Programmable Logic Controllers (Petruzella)", "book_isbn": "978-81-000-0142-0" },
+        { "slug": "renewable-energy", "name": "Renewable Energy Systems", "difficulty": 3, "semester": "BE SEM 8", "library_section": "Section Q", "shelf": "Shelf 3", "book_title": "Renewable Energy (Boyle)", "book_isbn": "978-81-000-0141-0" },
+        { "slug": "drives-control", "name": "Drives & Control", "difficulty": 4, "semester": "BE SEM 7", "library_section": "Section Q", "shelf": "Shelf 1", "book_title": "Electric Motor Drives (Mohan)", "book_isbn": "978-81-000-0138-0" }
+      ]
+    }
+  ]
+}

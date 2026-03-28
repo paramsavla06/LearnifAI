@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-networkx
-google-generativeai
-pydantic
-watchfiles
-python-dotenv

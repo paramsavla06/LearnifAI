@@ -165,6 +165,90 @@ async function rebuildPerformance(userId) {
     }
 }
 
+// Exported helper — called directly from testController (no req/res)
+export async function rebuildGraph(userId) {
+    if (!userId) return;
+    try {
+        // Rebuild performance first
+        await rebuildPerformance(userId);
+
+        const { data: performances } = await supabase
+            .from('concept_performance')
+            .select(`concept_slug, accuracy, attempts, test_type, concepts!inner(name, subject_id, subjects(name))`)
+            .eq('user_id', userId);
+
+        if (!performances || performances.length === 0) return;
+
+        const nodeIds = new Set(performances.map(p => p.concept_slug));
+        const nodes = performances.map(p => ({
+            id: p.concept_slug,
+            label: p.concepts?.name || p.concept_slug,
+            subject: p.concepts?.subjects?.name || 'Unknown',
+            status: classifyAccuracy(p.accuracy ?? 0),
+            accuracy: parseFloat((p.accuracy ?? 0).toFixed(3)),
+            attempts: p.attempts,
+            test_type: p.test_type || 'surface',
+            bottleneck_score: 0
+        }));
+
+        const weakSlugs = nodes.filter(n => n.status === 'weak').map(n => n.id);
+        let prereqEdges = [];
+        if (weakSlugs.length > 0) {
+            const { data: prereqs } = await supabase
+                .from('concept_prerequisites')
+                .select('concept_slug, prerequisite_slug')
+                .in('concept_slug', weakSlugs);
+            prereqEdges = (prereqs || []).map(p => ({
+                id: `prereq-${p.concept_slug}-${p.prerequisite_slug}`,
+                source: p.concept_slug,
+                target: p.prerequisite_slug,
+                type: 'prerequisite'
+            }));
+        }
+
+        const rootCauseEdges = prereqEdges
+            .filter(e => nodeIds.has(e.target))
+            .map(e => ({ id: `rootcause-${e.source}-${e.target}`, source: e.source, target: e.target, type: 'root_cause' }));
+
+        const slugArray = Array.from(nodeIds);
+        let similarityEdges = [];
+        if (slugArray.length > 0) {
+            const { data: similarities } = await supabase
+                .from('concept_similarity')
+                .select('concept_a, concept_b, weight')
+                .in('concept_a', slugArray);
+            similarityEdges = (similarities || [])
+                .filter(s => nodeIds.has(s.concept_b))
+                .map(s => ({ id: `similar-${s.concept_a}-${s.concept_b}`, source: s.concept_a, target: s.concept_b, type: 'similar', weight: s.weight }));
+        }
+
+        const bottleneckMap = {};
+        for (const e of prereqEdges) {
+            if (weakSlugs.includes(e.target)) bottleneckMap[e.target] = (bottleneckMap[e.target] || 0) + 1;
+        }
+        nodes.forEach(n => { n.bottleneck_score = bottleneckMap[n.id] || 0; });
+
+        let cooccEdges = [];
+        const { data: coocc } = await supabase
+            .from('concept_cooccurrence')
+            .select('concept_a, concept_b, wrong_together')
+            .eq('user_id', userId);
+        cooccEdges = (coocc || [])
+            .filter(c => nodeIds.has(c.concept_a) && nodeIds.has(c.concept_b))
+            .map(c => ({ id: `coocc-${c.concept_a}-${c.concept_b}`, source: c.concept_a, target: c.concept_b, type: 'cooccurrence', weight: c.wrong_together }));
+
+        const edges = [...prereqEdges, ...rootCauseEdges, ...similarityEdges, ...cooccEdges];
+
+        await supabase.from('user_graph').upsert(
+            { user_id: userId, nodes, edges, updated_at: new Date().toISOString() },
+            { onConflict: 'user_id' }
+        );
+        console.log(`[Graph] Rebuilt graph for user ${userId}: ${nodes.length} nodes, ${edges.length} edges`);
+    } catch (err) {
+        console.warn('[Graph] rebuildGraph error:', err.message);
+    }
+}
+
 // MOSTLY UNCHANGED: buildGraph — additions marked NEW
 export async function buildGraph(req, res) {
     const { userId, rebuild } = req.query;

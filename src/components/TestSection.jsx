@@ -107,9 +107,10 @@ function pickQuestions(subjectName, sem, count = 5) {
 
 // ─── STEP indicator ────────────────────────────────────────────────────────────
 const STEPS = [
-    { id: 1, label: 'Setup', icon: User },
+    { id: 1, label: 'Setup',    icon: User },
     { id: 2, label: 'Diagnostic', icon: Brain },
-    { id: 3, label: 'Results', icon: BarChart2 },
+    { id: 3, label: 'Results',  icon: BarChart2 },
+    { id: 4, label: 'Deep Dive',icon: Zap },
 ]
 
 function StepBar({ current }) {
@@ -528,7 +529,7 @@ function DiagnosticStep({ profile, onFinish }) {
 }
 
 // ─── Step 3 — Results ─────────────────────────────────────────────────────────
-function ResultsStep({ result, profile, wrongAnswers = [], onRetake }) {
+function ResultsStep({ result, profile, wrongAnswers = [], onRetake, onStartTest2 = null }) {
     const { weak_topics = [], strong_topics = [], mastery_summary = {}, analysis_text = '' } = result || {}
     const pct = mastery_summary.overall_pct ?? 0
     const [activeTab, setActiveTab] = useState('analysis')
@@ -712,10 +713,303 @@ function ResultsStep({ result, profile, wrongAnswers = [], onRetake }) {
                 </div>
             )}
 
+            {/* Test 2 CTA — only shown when weak concepts exist */}
+            {weak_topics.length > 0 && typeof onStartTest2 === 'function' && (
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="mb-3 p-5 rounded-2xl border border-amber-500/30 bg-amber-500/5"
+                >
+                    <div className="flex items-start gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                            <Zap className="w-5 h-5 text-amber-400" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-white text-sm">Root Cause Deep Dive Available</p>
+                            <p className="text-xs text-text-secondary mt-0.5">
+                                You have <span className="text-amber-400 font-bold">{weak_topics.length} weak concept{weak_topics.length > 1 ? 's' : ''}</span>.
+                                Test 2 drills into the foundational gaps behind them — fix the root, fix the branch.
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={onStartTest2}
+                        className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-amber-500 text-black font-bold text-sm hover:opacity-90 transition-opacity shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+                    >
+                        <Zap className="w-4 h-4" /> Start Root Cause Test (Test 2)
+                    </button>
+                </motion.div>
+            )}
+
             <button onClick={onRetake}
                 className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-full border border-white/20 text-text-secondary font-bold text-sm hover:bg-white/5 hover:text-white transition-all">
                 <ChevronLeft className="w-5 h-5" /> Retake Diagnostic
             </button>
+        </motion.div>
+    )
+}
+
+// ─── Step 4 — Root Cause Test (Test 2) ────────────────────────────────────────
+function RootCauseStep({ userId, onFinish, onBack }) {
+    const [loading, setLoading]     = useState(true)
+    const [error, setError]         = useState(null)
+    const [questions, setQuestions] = useState([])
+    const [rootConcepts, setRootConcepts] = useState([])
+    const [qIdx, setQIdx]           = useState(0)
+    const [selected, setSelected]   = useState(null)
+    const [answered, setAnswered]   = useState(false)
+    const [allAnswers, setAllAnswers] = useState([])
+    const [submitting, setSubmitting] = useState(false)
+    const [done, setDone]           = useState(false)
+    const [summary, setSummary]     = useState(null)
+
+    useEffect(() => {
+        async function fetchTest2() {
+            setLoading(true)
+            setError(null)
+            try {
+                const res  = await fetch(`${API_BASE}/test2?userId=${encodeURIComponent(userId)}`)
+                const data = await res.json()
+                if (data.error) throw new Error(data.error)
+                if (!data.questions || data.questions.length === 0) {
+                    setError(data.message || 'No root cause questions found for your weak concepts.')
+                    setLoading(false)
+                    return
+                }
+                setQuestions(data.questions)
+                setRootConcepts(data.rootConcepts || [])
+            } catch (e) {
+                setError(e.message)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchTest2()
+    }, [userId])
+
+    const q = questions[qIdx]
+    const totalQs = questions.length
+    const progress = totalQs > 0 ? (qIdx / totalQs) * 100 : 0
+    const optionLabels = ['a', 'b', 'c', 'd']
+
+    function chooseOption(opt) {
+        if (answered) return
+        setSelected(opt)
+        setAnswered(true)
+        const answerRecord = {
+            question_id:     q.id || 0,
+            concept_slug:    q.concept_slug,
+            selected_option: opt,
+            is_correct:      false,
+            slug:            q.concept_slug,
+            question_text:   q.question_text,
+            selectedOption:  opt,
+            correctOption:   null,
+            selectedText:    q[`option_${opt}`],
+            correctText:     null,
+            concept_name:    q.concept_slug,
+            difficulty:      q.difficulty || 2
+        }
+        setAllAnswers(prev => [...prev, answerRecord])
+    }
+
+    function nextQuestion() {
+        if (qIdx < totalQs - 1) {
+            setQIdx(i => i + 1); setSelected(null); setAnswered(false)
+        } else {
+            submitTest2()
+        }
+    }
+
+    async function submitTest2() {
+        setSubmitting(true)
+        try {
+            const payload = {
+                userId,
+                answers: allAnswers,
+                testType: 'diagnostic'
+            }
+            const res  = await fetch(`${API_BASE}/submit-test`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            const data = await res.json()
+            setSummary({
+                weak:     data.weak_topics   || [],
+                strong:   data.strong_topics || [],
+                pct:      data.mastery_summary?.overall_pct ?? 0,
+                analysis: data.analysis_text || data.ai_analysis || ''
+            })
+            setDone(true)
+        } catch (e) {
+            console.error('[Test2] submit error:', e)
+            setDone(true)
+            setSummary({ weak: [], strong: [], pct: 0, analysis: 'Submission error — results may not be saved.' })
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
+    if (loading) return (
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <Loader2 className="w-10 h-10 text-amber-400 animate-spin" />
+            <p className="text-amber-400 font-bold tracking-widest uppercase text-xs animate-pulse">Loading Root Cause Questions…</p>
+        </div>
+    )
+
+    if (error) return (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12">
+            <AlertTriangle className="w-10 h-10 text-amber-400 mx-auto mb-3" />
+            <p className="text-white font-bold mb-2">Root Cause Test Unavailable</p>
+            <p className="text-sm text-text-secondary mb-6">{error}</p>
+            <button onClick={onBack} className="px-6 py-3 rounded-full border border-white/20 text-text-secondary text-sm font-bold hover:text-white hover:border-white/40 transition-all">
+                ← Back to Results
+            </button>
+        </motion.div>
+    )
+
+    if (submitting) return (
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="relative">
+                <Loader2 className="w-12 h-12 text-amber-400 animate-spin" />
+                <Zap className="w-5 h-5 text-primary-accent absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+            </div>
+            <p className="text-primary-accent font-bold tracking-widest uppercase text-xs animate-pulse">Analysing Root Cause Results…</p>
+        </div>
+    )
+
+    if (done && summary) return (
+        <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}>
+            <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                    <CheckCircle className="w-6 h-6 text-amber-400" />
+                </div>
+                <div>
+                    <h3 className="text-xl font-bold text-white">Root Cause Test Complete</h3>
+                    <p className="text-xs text-text-secondary">Foundational mastery updated · {rootConcepts.length} root concept(s) tested</p>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mb-6">
+                {[
+                    { label: 'Root Mastery', val: `${summary.pct}%`, color: summary.pct >= 60 ? 'text-emerald-400' : 'text-amber-400' },
+                    { label: 'Strong Roots', val: summary.strong.length, color: 'text-emerald-400' },
+                    { label: 'Still Weak',   val: summary.weak.length,   color: 'text-red-400' },
+                ].map(s => (
+                    <div key={s.label} className="p-4 rounded-xl bg-white/5 border border-white/10 text-center">
+                        <p className={`text-2xl font-black ${s.color}`}>{s.val}</p>
+                        <p className="text-[10px] text-text-secondary uppercase tracking-widest mt-1">{s.label}</p>
+                    </div>
+                ))}
+            </div>
+
+            {summary.analysis && (
+                <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 mb-6">
+                    <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-2">AI Root Cause Analysis</p>
+                    <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-line">{summary.analysis}</p>
+                </div>
+            )}
+
+            {summary.weak.length > 0 && (
+                <div className="mb-6">
+                    <p className="text-xs font-bold text-red-400 uppercase tracking-widest mb-3">Concepts Still Needing Work</p>
+                    <div className="flex flex-wrap gap-2">
+                        {summary.weak.map(t => (
+                            <span key={t.slug} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-xs font-bold text-red-300">
+                                <AlertTriangle className="w-3 h-3" />{t.name}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <button
+                onClick={onFinish}
+                className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-primary-accent text-black font-bold text-sm hover:opacity-90 transition-opacity"
+            >
+                <BarChart2 className="w-5 h-5" /> Back to Full Results
+            </button>
+        </motion.div>
+    )
+
+    if (!q) return (
+        <div className="text-center py-12 text-text-secondary">
+            <p>No questions available. Please try again.</p>
+        </div>
+    )
+
+    return (
+        <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
+            <div className="flex items-center gap-3 mb-5">
+                <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                    <Zap className="w-4 h-4 text-amber-400" />
+                </div>
+                <div>
+                    <p className="text-xs font-bold text-amber-400 uppercase tracking-widest">Root Cause Test — Test 2</p>
+                    <p className="text-[10px] text-text-secondary">Foundational questions on prerequisite concepts</p>
+                </div>
+            </div>
+
+            <div className="mb-6">
+                <div className="flex justify-between text-xs font-bold text-text-secondary mb-2">
+                    <span>Q{qIdx + 1} of {totalQs} — <span className="text-amber-400">{q.concept_slug}</span></span>
+                    <span>{Math.round(progress)}%</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                    <motion.div className="h-full bg-amber-400 rounded-full" initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 0.5 }} />
+                </div>
+            </div>
+
+            <div className="mb-4">
+                <span className="text-[10px] font-bold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full uppercase tracking-widest">
+                    Difficulty {q.difficulty} · {q.test_level === 'root' ? 'Root Cause' : 'Foundational'}
+                </span>
+            </div>
+
+            <AnimatePresence mode="wait">
+                <motion.div key={qIdx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
+                    <h3 className="text-xl font-bold text-white mb-6 leading-relaxed">{q.question_text}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                        {optionLabels.map(label => {
+                            const text = q[`option_${label}`]
+                            if (!text) return null
+                            const isSelected = label === selected
+                            const variant = answered && isSelected ? 'selected-done' : isSelected ? 'selected' : 'default'
+                            const styles = {
+                                default:         'border-white/10 bg-white/5 text-text-secondary hover:bg-white/10 hover:border-white/20 hover:text-white cursor-pointer',
+                                selected:        'border-amber-400/60 bg-amber-400/10 text-white cursor-pointer',
+                                'selected-done': 'border-amber-400/60 bg-amber-400/10 text-white',
+                            }
+                            return (
+                                <button key={label} onClick={() => chooseOption(label)} disabled={answered}
+                                    className={`flex items-start gap-3 p-4 rounded-xl border transition-all duration-200 text-left ${styles[variant]}`}>
+                                    <span className={`shrink-0 w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold mt-0.5 ${
+                                        isSelected ? 'border-amber-400 text-amber-400' : 'border-white/20 text-text-secondary'
+                                    }`}>{label.toUpperCase()}</span>
+                                    <span className="text-sm font-medium leading-relaxed">{text}</span>
+                                </button>
+                            )
+                        })}
+                    </div>
+                </motion.div>
+            </AnimatePresence>
+
+            {answered && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                    <div className="mb-4 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                        <p className="text-xs text-amber-400 font-medium">✓ Answer recorded — results evaluated server-side on submission.</p>
+                    </div>
+                    <button onClick={nextQuestion}
+                        className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-amber-500 text-black font-bold text-sm hover:opacity-90 transition-opacity">
+                        {qIdx < totalQs - 1
+                            ? <><span>Next Question</span><ChevronRight className="w-5 h-5" /></>
+                            : <><span>Submit Test 2</span><BarChart2 className="w-5 h-5" /></>
+                        }
+                    </button>
+                </motion.div>
+            )}
         </motion.div>
     )
 }
@@ -823,6 +1117,8 @@ export default function TestSection() {
         setResult(null)
     }
     function handleGoToSetup() { setStep(1) }
+    function handleStartTest2() { setStep(4) }
+    function handleTest2Finish() { setStep(3) }
 
     return (
         <section id="tests" className="relative py-24 md:py-32">
@@ -855,7 +1151,22 @@ export default function TestSection() {
                                     <DiagnosticStep key="diagnostic" profile={profile} onFinish={handleDiagnosticFinish} />
                                 )}
                                 {step === 3 && (
-                                    <ResultsStep key="results" result={resultData?.result} profile={profile} wrongAnswers={resultData?.wrongAnswers || []} onRetake={handleRetake} />
+                                    <ResultsStep
+                                        key="results"
+                                        result={resultData?.result}
+                                        profile={profile}
+                                        wrongAnswers={resultData?.wrongAnswers || []}
+                                        onRetake={handleRetake}
+                                        onStartTest2={resultData?.result?.weak_topics?.length > 0 ? handleStartTest2 : null}
+                                    />
+                                )}
+                                {step === 4 && (
+                                    <RootCauseStep
+                                        key="rootcause"
+                                        userId={resultData?.userId || profile.roll_no || localStorage.getItem('learnifai_user_id')}
+                                        onFinish={handleTest2Finish}
+                                        onBack={() => setStep(3)}
+                                    />
                                 )}
                             </AnimatePresence>
                             {step === 2 && profile._fromSession && (

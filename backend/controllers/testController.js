@@ -19,7 +19,9 @@ export async function submitTest(req, res) {
                 year: userProfile.year,
                 branch: userProfile.branch,
                 roll_no: userProfile.roll_no,
-                email: userProfile.email 
+                email: userProfile.email,
+                program: userProfile.program || 'btech',
+                field:   userProfile.field   || 'Science'
             }, { onConflict: 'id' })
         
         if (userErr) {
@@ -27,12 +29,12 @@ export async function submitTest(req, res) {
         }
     }
 
-    // Ensure testType fits database constraints (schema: 'subject' | 'deep_diagnostic' | 'profile')
+    // Ensure testType fits database constraints (schema: 'profile' | 'subject' | 'diagnostic')
     const validTypes = {
         'profile':         'profile',
         'subject':         'subject',
-        'diagnostic':      'subject',      // 'diagnostic' is not in the schema enum — map to 'subject'
-        'deep_diagnostic': 'deep_diagnostic'
+        'diagnostic':      'diagnostic',   // maps to 'diagnostic' CHECK constraint
+        'deep_diagnostic': 'subject'        // deep_diagnostic not in schema — map to 'subject'
     };
     const safeTestType = validTypes[testType] || 'subject';
     console.log("[DEBUG] TEST TYPE BEING SENT TO DB:", safeTestType);
@@ -210,19 +212,23 @@ export async function submitTest(req, res) {
 
     // ── 5. Persist result to Supabase ──────────────────────────────────────────
     await supabase.from('results').upsert({
-        user_id:       userId,
-        weak_topics:   result.weak_topics,
-        strong_topics: result.strong_topics,
-        root_causes:   result.root_causes, // New column handling
-        mastery_pct:   result.mastery_summary.overall_pct,
-        analysis_text: result.analysis_text,
-        generated_at:  result.generatedAt
+        user_id:           userId,
+        weak_topics:       result.weak_topics,
+        strong_topics:     result.strong_topics,
+        root_causes:       result.root_causes,
+        mastery_pct:       result.mastery_summary.overall_pct,
+        analysis_text:     result.analysis_text,
+        generated_at:      result.generatedAt,
+        recommended_books: result.weak_topics?.flatMap(t => t.books || []) || [],
+        improvement_plan:  result.analysis_text || null,
+        confidence_score:  result.mastery_summary?.confidence || null
     }, { onConflict: 'user_id' })
 
     // ── 6. Fire-and-forget: rebuild knowledge graph for this student ───────────
-    // Does NOT block the response — runs in background
-    fetch(`http://localhost:3002/api/graph?userId=${encodeURIComponent(userId)}&rebuild=true`)
-        .catch(e => console.warn('[Graph] Background rebuild failed (non-fatal):', e.message))
+    // Does NOT block the response — runs in background via direct function call
+    import('../controllers/graphController.js')
+        .then(({ rebuildGraph }) => rebuildGraph(userId))
+        .catch(e => console.warn('[Graph] rebuild failed:', e.message))
 
     return res.json({
         success:          true,

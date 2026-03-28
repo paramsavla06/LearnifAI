@@ -31,6 +31,7 @@ import dashboardRoutes from "./routes/dashboardRoutes.js";
 import graphRouter from './routes/graph.js'
 import programRoutes from './routes/programs.js'
 import studyPlanRoutes from './routes/studyPlan.js'
+import test2Routes from './routes/test2.js'
 
 const app = express()
 const PORT = 3002
@@ -56,6 +57,7 @@ app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/graph', graphRouter)
 app.use('/api/programs', programRoutes)
 app.use('/api/study-plan', studyPlanRoutes)
+app.use('/api/test2', test2Routes)
 
 // ── Health ─────────────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) =>
@@ -156,6 +158,9 @@ async function syncQuestionsToSupabase(questions) {
         console.log(`   - Result:    GET  /api/result/:userId`)
         console.log(`   - Books:     GET  /api/books/:slug`)
         console.log(`   - Library:   GET  /api/library/:slug`)
-        console.log(`   - Graph:     GET  /api/graph?userId=xxx\n`)
+        console.log(`   - Graph:     GET  /api/graph?userId=xxx`)
+        console.log(`   - StudyPlan: GET  /api/study-plan?userId=xxx`)
+        console.log(`   - Programs:  GET  /api/programs`)
+        console.log(`   - Test2:     GET  /api/test2?userId=xxx\n`)
     })
 })()

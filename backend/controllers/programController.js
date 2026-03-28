@@ -30,7 +30,7 @@ export async function getSubjectsForUser(req, res) {
 
         const { data, error } = await supabase
             .from('subjects')
-            .select('id, name, slug_prefix')
+            .select('id, name')
             .eq('branch', field)
 
         if (error) return res.status(500).json({ error: error.message })

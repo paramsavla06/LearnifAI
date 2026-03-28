@@ -13,7 +13,7 @@ export default function Footer() {
                         <span className="text-2xl font-bold tracking-tight">Learnif<span className="text-white">AI</span></span>
                     </div>
                     <p className="text-text-secondary max-w-sm leading-relaxed font-medium">
-                        Empowering students through AI-driven conceptual mastery. We don't just teach; we diagnose and heal learning gaps. 
+                        Empowering students through AI-driven conceptual mastery. 
                         Tailored for Mumbai University engineering students.
                     </p>
                 </div>
@@ -29,25 +29,16 @@ export default function Footer() {
                 </div>
                 
                 <div>
-                    <h4 className="font-bold text-white mb-6">Academics</h4>
+                    <h4 className="font-bold text-white mb-6">Social</h4>
                     <ul className="space-y-4 text-text-secondary text-sm font-medium">
-                        <li><Link to="/professors" className="hover:text-white transition-colors">Faculty Directory</Link></li>
-                        <li><Link to="/ai" className="hover:text-white transition-colors">AI Consultant</Link></li>
-                        <li><Link to="#" className="hover:text-white transition-colors">Mumbai University</Link></li>
-                        <li><Link to="#" className="hover:text-white transition-colors">CE Department</Link></li>
+                        <li><span className="text-text-secondary/40">Twitter</span></li>
+                        <li><span className="text-text-secondary/40">GitHub</span></li>
+                        <li><span className="text-text-secondary/40">LinkedIn</span></li>
                     </ul>
                 </div>
             </div>
-            
-            <div className="max-w-7xl mx-auto pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
-                <div className="flex gap-8 text-sm text-text-secondary font-bold uppercase tracking-widest">
-                    <Link to="#" className="hover:text-white transition-colors">Twitter</Link>
-                    <Link to="#" className="hover:text-white transition-colors">GitHub</Link>
-                    <Link to="#" className="hover:text-white transition-colors">LinkedIn</Link>
-                </div>
-                <div className="text-sm text-text-secondary font-medium tracking-wide">
-                    © 2026 LearnifAI. All rights reserved.
-                </div>
+            <div className="max-w-7xl mx-auto pt-12 border-t border-white/5 flex justify-between items-center text-sm text-text-secondary font-medium">
+                © 2026 LearnifAI. All rights reserved.
             </div>
         </footer>
     )

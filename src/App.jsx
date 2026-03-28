@@ -4,7 +4,6 @@ import Lenis from 'lenis'
 import Preloader from './components/Preloader'
 import MainLayout from './components/layout/MainLayout'
 
-const LandingPage = lazy(() => import('./pages/LandingPage'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const MapPage = lazy(() => import('./pages/MapPage'))
 const TestsPage = lazy(() => import('./pages/TestsPage'))
@@ -12,7 +11,9 @@ const LibraryPage = lazy(() => import('./pages/LibraryPage'))
 const ProfessorsPage = lazy(() => import('./pages/ProfessorsPage'))
 const AIPage = lazy(() => import('./pages/AIPage'))
 const AuthPage = lazy(() => import('./pages/AuthPage'))
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const GraphPage = lazy(() => import('./pages/GraphPage'))
+const LandingPage = lazy(() => import('./pages/LandingPage'))
 
 function ScrollToTop() {
     const { pathname } = useLocation()
@@ -24,13 +25,8 @@ function ScrollToTop() {
 
 function LoadingFallback() {
     return (
-        <div className="min-h-screen flex items-center justify-center pt-20 bg-background-base">
-            <div className="flex flex-col items-center gap-4">
-                <div className="w-10 h-10 border border-primary-accent/40 rotate-45 flex items-center justify-center animate-spin">
-                    <div className="w-3 h-3 bg-primary-accent" style={{ boxShadow: '0 0 10px #FFD85F' }} />
-                </div>
-                <span className="font-mono text-xs text-primary-accent tracking-[0.2em] animate-pulse uppercase">INIT_SEQ...</span>
-            </div>
+        <div className="min-h-screen flex items-center justify-center pt-20 bg-background-base text-primary-accent font-mono text-xs">
+            INIT_SEQ...
         </div>
     )
 }
@@ -45,15 +41,12 @@ function App() {
                 easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
                 smooth: true,
             })
-
             function raf(time) {
                 lenis.raf(time)
                 requestAnimationFrame(raf)
             }
             requestAnimationFrame(raf)
-
             document.documentElement.style.overflow = ''
-
             return () => lenis.destroy()
         }
     }, [loading])
@@ -74,6 +67,7 @@ function App() {
                             <Route path="/library" element={<LibraryPage />} />
                             <Route path="/professors" element={<ProfessorsPage />} />
                             <Route path="/ai" element={<AIPage />} />
+                            <Route path="/admin" element={<AdminDashboard />} />
                             <Route path="/graph" element={<GraphPage />} />
                         </Routes>
                     </Suspense>

@@ -71,13 +71,40 @@ for (const subj of conceptsData.subjects) {
     }
 }
 
-// Returns subjects that have at least 1 concept in the given semester
-// Fallback: If no concepts exist for the new semester (e.g. MBA "Year 1 Sem 1"), return all subjects
-function getSubjectsForSem(sem) {
-    const matched = conceptsData.subjects.filter(s =>
+// Map user branch to concepts.json branch strings
+function mapUserBranchToSubjectBranches(program, branch, yearStr) {
+    if (program === 'mba') return ['General MBA', 'MBA Finance', 'MBA HR', 'MBA Marketing']
+    
+    // First year engineering is Common
+    if (program === 'btech' && (yearStr === 'FE' || String(yearStr) === '1')) return ['Common', 'General']
+
+    const b = branch?.toUpperCase() || ''
+    if (b === 'CSE' || b === 'CS') return ['CE', 'Common']
+    if (b === 'IT') return ['IT', 'Common']
+    if (b === 'ECE' || b === 'EXTC') return ['Electronics / EXTC', 'Common']
+    if (b === 'ME' || b === 'MECH') return ['Mech', 'Common']
+    if (b === 'CE' || b === 'CIVIL') return ['CE Civil', 'Common']
+    if (b === 'EE') return ['EE', 'Common']
+
+    // If no exact match, allow all non-MBA
+    return ['ALL_NON_MBA']
+}
+
+// Returns subjects filtered by program/branch, and then by semester
+function getSubjectsForUser(sem, program, branch, yearStr) {
+    const allowedBranches = mapUserBranchToSubjectBranches(program, branch, yearStr)
+    
+    let filtered = conceptsData.subjects
+    if (!allowedBranches.includes('ALL_NON_MBA')) {
+        filtered = filtered.filter(s => s.branch && allowedBranches.some(ab => s.branch.includes(ab)))
+    } else if (program !== 'mba') {
+        filtered = filtered.filter(s => !(s.branch && s.branch.includes('MBA')))
+    }
+
+    const matched = filtered.filter(s =>
         s.concepts.some(c => c.semester === sem)
     )
-    return matched.length > 0 ? matched : conceptsData.subjects
+    return matched.length > 0 ? matched : filtered
 }
 
 function inferFloor(section) {
@@ -148,8 +175,10 @@ function SetupStep({ profile, setProfile, onNext }) {
     const [err, setErr] = useState('')
     const program = profile.program || 'btech'
     const yearOptions = getYearsForProgram(program)
-    const sems = getSemsForYear(program, profile.year || yearOptions[0])
-    const availableSubjects = getSubjectsForSem(profile.semester)
+    const currentYear = profile.year || yearOptions[0]
+    const sems = getSemsForYear(program, currentYear)
+    const currentSem = profile.semester || sems[0]
+    const availableSubjects = getSubjectsForUser(currentSem, program, profile.branch, currentYear)
 
     // Auto-update semester when year changes
     const handleYearChange = (y) => {

@@ -1,37 +1,4 @@
-# 🛡️ Project Security
+node_modules
 .env
-
-# 📦 Local Database
-*.db
-*.db-journal
-
-# 🐍 Python Artifacts
-__pycache__/
-*.py[cod]
-*$py.class
-venv/
-.venv/
-env/
-
-# 🛠️ Development Tools
-.vscode/
-.idea/
-.gemini/
-
-# 🖥️ System Files
-Thumbs.db
-.DS_Store
-
-# 🟢 Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.npm/
-.yarn/
-
-# 🛠️ Builds
-dist/
-build/
-.next/
-out/
+.env.local
+dist

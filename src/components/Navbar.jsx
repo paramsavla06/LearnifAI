@@ -10,6 +10,7 @@ const navLinks = [
     { label: 'Library', to: '/library' },
     { label: 'Professors', to: '/professors' },
     { label: 'AI', to: '/ai' },
+    { label: 'Graph', to: '/graph' },
 ]
 
 export default function Navbar() {
@@ -44,6 +45,10 @@ export default function Navbar() {
     const handleLogout = () => {
         localStorage.removeItem('learnifai_user_id')
         localStorage.removeItem('learnifai_user_name')
+        localStorage.removeItem('learnifai_user_year')
+        localStorage.removeItem('learnifai_user_branch')
+        localStorage.removeItem('learnifai_user_program')
+        localStorage.removeItem('learnifai_user_field')
         window.location.href = '/auth'
     }
 

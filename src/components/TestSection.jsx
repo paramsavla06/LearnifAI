@@ -11,7 +11,45 @@ import questionsRaw from '../data/questions.json'
 
 const API_BASE = 'http://localhost:3002/api'
 
-// ─── Semester map ──────────────────────────────────────────────────────────────
+// ─── Program definitions (mirrors AuthPage fallback) ─────────────────────────
+const PROGRAM_META = {
+    btech:   { label: 'B.Tech', years: 4, semLabel: (y, s) => `${['FE','SE','TE','BE'][y-1]} SEM ${(y-1)*2+s}` },
+    bsc:     { label: 'B.Sc',   years: 3, semLabel: (y, s) => `Year ${y} Sem ${s}` },
+    bcom:    { label: 'B.Com',  years: 3, semLabel: (y, s) => `Year ${y} Sem ${s}` },
+    ba:      { label: 'B.A.',   years: 3, semLabel: (y, s) => `Year ${y} Sem ${s}` },
+    bba:     { label: 'BBA',    years: 3, semLabel: (y, s) => `Year ${y} Sem ${s}` },
+    bca:     { label: 'BCA',    years: 3, semLabel: (y, s) => `Year ${y} Sem ${s}` },
+    mba:     { label: 'MBA',    years: 2, semLabel: (y, s) => `Year ${y} Sem ${s}` },
+    mtech:   { label: 'M.Tech', years: 2, semLabel: (y, s) => `Year ${y} Sem ${s}` },
+    msc:     { label: 'M.Sc',   years: 2, semLabel: (y, s) => `Year ${y} Sem ${s}` },
+    mca:     { label: 'MCA',    years: 2, semLabel: (y, s) => `Year ${y} Sem ${s}` },
+    diploma: { label: 'Diploma',years: 3, semLabel: (y, s) => `Year ${y} Sem ${s}` },
+    general: { label: 'General',years: 4, semLabel: (y, s) => `Year ${y} Sem ${s}` },
+}
+
+// Build YEARS_FOR_PROGRAM: ['FE','SE','TE','BE'] for btech, ['Year 1','Year 2',...] for others
+function getYearsForProgram(program) {
+    const meta = PROGRAM_META[program] || PROGRAM_META.btech
+    if (program === 'btech') return ['FE', 'SE', 'TE', 'BE']
+    return Array.from({ length: meta.years }, (_, i) => `Year ${i + 1}`)
+}
+
+// Build semesters for a year+program combo
+function getSemsForYear(program, year) {
+    const meta = PROGRAM_META[program] || PROGRAM_META.btech
+    if (program === 'btech') {
+        // legacy: FE→[1,2], SE→[3,4], TE→[5,6], BE→[7,8]
+        const idx = ['FE','SE','TE','BE'].indexOf(year)
+        if (idx === -1) return []
+        const base = idx * 2 + 1
+        return [meta.semLabel(idx+1,1), meta.semLabel(idx+1,2)]
+            .map((_, i) => `${year} SEM ${base + i}`)
+    }
+    const yNum = parseInt(year.replace('Year ', '')) || 1
+    return [1, 2].map(s => meta.semLabel(yNum, s))
+}
+
+// Legacy map kept for backward compat with non-btech semester display
 const SEMS_BY_YEAR = {
     FE: ['FE SEM 1', 'FE SEM 2'],
     SE: ['SE SEM 3', 'SE SEM 4'],
@@ -34,10 +72,12 @@ for (const subj of conceptsData.subjects) {
 }
 
 // Returns subjects that have at least 1 concept in the given semester
+// Fallback: If no concepts exist for the new semester (e.g. MBA "Year 1 Sem 1"), return all subjects
 function getSubjectsForSem(sem) {
-    return conceptsData.subjects.filter(s =>
+    const matched = conceptsData.subjects.filter(s =>
         s.concepts.some(c => c.semester === sem)
     )
+    return matched.length > 0 ? matched : conceptsData.subjects
 }
 
 function inferFloor(section) {
@@ -106,12 +146,14 @@ function StepBar({ current }) {
 // ─── Step 1 — Setup (pre-filled from session) ─────────────────────────────────
 function SetupStep({ profile, setProfile, onNext }) {
     const [err, setErr] = useState('')
-    const sems = SEMS_BY_YEAR[profile.year] || []
+    const program = profile.program || 'btech'
+    const yearOptions = getYearsForProgram(program)
+    const sems = getSemsForYear(program, profile.year || yearOptions[0])
     const availableSubjects = getSubjectsForSem(profile.semester)
 
     // Auto-update semester when year changes
     const handleYearChange = (y) => {
-        const newSems = SEMS_BY_YEAR[y] || []
+        const newSems = getSemsForYear(program, y)
         setProfile(p => ({ ...p, year: y, semester: newSems[0] || '', selectedSubjects: [] }))
     }
 
@@ -191,12 +233,12 @@ function SetupStep({ profile, setProfile, onNext }) {
                 <div>
                     <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Year</label>
                     <select
-                        value={profile.year || 'FE'}
+                        value={profile.year || yearOptions[0]}
                         onChange={e => handleYearChange(e.target.value)}
                         disabled={isLoggedIn}
                         className="w-full bg-surface-elevation-1 border border-white/10 rounded-xl px-5 py-3.5 text-sm font-medium text-white focus:outline-none focus:border-primary-accent/60 transition-all disabled:opacity-60"
                     >
-                        {['FE', 'SE', 'TE', 'BE'].map(y => <option key={y} value={y}>{y}</option>)}
+                        {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
                     </select>
                 </div>
 
@@ -287,8 +329,11 @@ function DiagnosticStep({ profile, onFinish }) {
         for (const subjectName of subjects) {
             const subj = conceptsData.subjects.find(s => s.name === subjectName)
             if (!subj) continue
+            // Check if this subject has specific concepts tagged for this semester
+            const hasExactSem = subj.concepts.some(c => c.semester === sem)
             for (const concept of subj.concepts) {
-                if (concept.semester !== sem) continue
+                // Ignore semester filter for newly added programs (MBA, B.Sc) that lack mapped semesters
+                if (hasExactSem && concept.semester !== sem) continue
                 const qs = questionsBySlug[concept.slug] || []
                 for (const q of qs) pool.push({ ...q, concept_name: concept.name, subject_name: subjectName })
             }
@@ -731,18 +776,36 @@ export default function TestSection() {
 
     // Try to load session from localStorage
     const [profile, setProfile] = useState(() => {
-        const id   = localStorage.getItem('learnifai_user_id') || ''
-        const name = localStorage.getItem('learnifai_user_name') || ''
-        const year = localStorage.getItem('learnifai_user_year') || 'FE'
-        const branch = localStorage.getItem('learnifai_user_branch') || ''
+        const id      = localStorage.getItem('learnifai_user_id') || ''
+        const name    = localStorage.getItem('learnifai_user_name') || ''
+        const program = localStorage.getItem('learnifai_user_program') || 'btech'
+        const branch  = localStorage.getItem('learnifai_user_branch') || ''
         const fromSession = !!(id && name)
-        const defaultSem = (SEMS_BY_YEAR[year] || ['FE SEM 1'])[0]
+
+        // Build correct year/semester based on program
+        const yearOptions  = getYearsForProgram(program)
+        let storedYear     = localStorage.getItem('learnifai_user_year') || yearOptions[0]
+        
+        // Convert internal numeric years like "1" back to UI strings ("FE" or "Year 1")
+        if (/^\d+$/.test(storedYear)) {
+            storedYear = program === 'btech' 
+                ? (['FE','SE','TE','BE'][parseInt(storedYear) - 1] || 'FE') 
+                : `Year ${storedYear}`
+        }
+
+        // Validate: if stored year is a BTech key (FE/SE/TE/BE) but program is not btech, reset
+        const isBtechYear  = ['FE','SE','TE','BE'].includes(storedYear)
+        const year         = (program === 'btech' || !isBtechYear) && yearOptions.includes(storedYear) ? storedYear : yearOptions[0]
+        const sems         = getSemsForYear(program, year)
+        const defaultSem   = sems[0] || 'Year 1 Sem 1'
+
         return {
             name,
             roll_no: id,
             email: '',
             year,
             branch,
+            program,
             semester: defaultSem,
             questionCount: 5,
             _fromSession: fromSession

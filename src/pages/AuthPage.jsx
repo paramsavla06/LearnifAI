@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { Brain, ArrowRight, User, Mail, GraduationCap, Building2, Lock, Loader2, AlertTriangle } from 'lucide-react'
+import { Brain, ArrowRight, User, Mail, GraduationCap, Building2, Lock, Loader2, AlertTriangle, BookOpen, Layers } from 'lucide-react'
 import { ScrollReveal } from '../components/ui/ScrollReveal'
 
 const API_BASE = 'http://localhost:3002/api'
@@ -9,19 +9,69 @@ const API_BASE = 'http://localhost:3002/api'
 export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true)
     const [loading, setLoading] = useState(false)
-    const [error, setError]     = useState('')
+    const [error, setError] = useState('')
     const navigate = useNavigate()
+
+    // Program list — static fallback so dropdown always shows options,
+    // overwritten by the API if the backend is running
+    const FALLBACK_PROGRAMS = [
+        { value: 'btech', label: 'B.Tech / B.E.', years: 4, field: 'Science', branches: ['CSE', 'ECE', 'ME', 'CE', 'EE', 'IT', 'Chemical', 'Civil'] },
+        { value: 'bsc', label: 'B.Sc', years: 3, field: 'Science', branches: ['Physics', 'Chemistry', 'Mathematics', 'Biology', 'CS'] },
+        { value: 'bcom', label: 'B.Com', years: 3, field: 'Commerce', branches: ['General', 'Hons', 'Banking'] },
+        { value: 'ba', label: 'B.A.', years: 3, field: 'Arts', branches: ['History', 'Economics', 'Political Science', 'Psychology', 'Sociology'] },
+        { value: 'bba', label: 'BBA', years: 3, field: 'Commerce', branches: ['General', 'Finance', 'Marketing', 'HR'] },
+        { value: 'bca', label: 'BCA', years: 3, field: 'Science', branches: ['General'] },
+        { value: 'mba', label: 'MBA', years: 2, field: 'Commerce', branches: ['Finance', 'Marketing', 'HR', 'Operations', 'IT'] },
+        { value: 'mtech', label: 'M.Tech / M.E.', years: 2, field: 'Science', branches: ['CSE', 'ECE', 'ME', 'CE', 'EE', 'IT'] },
+        { value: 'msc', label: 'M.Sc', years: 2, field: 'Science', branches: ['Physics', 'Chemistry', 'Mathematics', 'Biology', 'CS'] },
+        { value: 'mca', label: 'MCA', years: 2, field: 'Science', branches: ['General'] },
+        { value: 'diploma', label: 'Diploma', years: 3, field: 'General', branches: ['CSE', 'ECE', 'ME', 'CE', 'EE'] },
+        { value: 'general', label: 'General / Other', years: 4, field: 'General', branches: ['General'] },
+    ]
+    const [programs, setPrograms] = useState(FALLBACK_PROGRAMS)
+
+    useEffect(() => {
+        fetch(`${API_BASE}/programs`)
+            .then(r => r.json())
+            .then(data => { if (Array.isArray(data) && data.length > 0) setPrograms(data) })
+            .catch(() => { }) // keep fallback silently on network error
+    }, [])
 
     const [form, setForm] = useState({
         roll_no: '',
         password: '',
         name: '',
         email: '',
-        year: 'FE',
-        branch: 'Computer Science'
+        year: '1',
+        branch: '',
+        program: 'btech',
+        field: 'Science'
     })
 
     const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }))
+
+    // When program changes: update field, reset branch + year
+    const handleProgramChange = (e) => {
+        const prog = programs.find(p => p.value === e.target.value)
+        if (!prog) return
+        setForm(p => ({
+            ...p,
+            program: prog.value,
+            field: prog.field,
+            year: '1',
+            branch: prog.branches[0] === 'General' ? '' : prog.branches[0]
+        }))
+    }
+
+    const selectedProgram = programs.find(p => p.value === form.program)
+    const branchOptions = selectedProgram?.branches || []
+    const yearCount = selectedProgram?.years || 4
+    const fieldColor = {
+        Science: 'text-blue-400  bg-blue-400/10  border-blue-400/20',
+        Commerce: 'text-green-400 bg-green-400/10 border-green-400/20',
+        Arts: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
+        General: 'text-gray-400  bg-gray-400/10  border-gray-400/20',
+    }[form.field] || 'text-gray-400 bg-gray-400/10 border-gray-400/20'
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -29,7 +79,7 @@ export default function AuthPage() {
         setLoading(true)
 
         const endpoint = isLogin ? '/auth/login' : '/auth/register'
-        
+
         try {
             const res = await fetch(`${API_BASE}${endpoint}`, {
                 method: 'POST',
@@ -48,12 +98,14 @@ export default function AuthPage() {
             // Success! Save full session profile
             localStorage.setItem('learnifai_user_id', data.user.id)
             localStorage.setItem('learnifai_user_name', data.user.name)
-            localStorage.setItem('learnifai_user_year', data.user.year || 'FE')
+            localStorage.setItem('learnifai_user_year', data.user.year || '1')
             localStorage.setItem('learnifai_user_branch', data.user.branch || '')
-            
+            localStorage.setItem('learnifai_user_program', data.user.program || 'btech')
+            localStorage.setItem('learnifai_user_field', data.user.field || 'Science')
+
             // Dispatch event for other tabs/components
             window.dispatchEvent(new Event('storage'))
-            
+
             navigate('/dashboard')
         } catch (err) {
             setError('Network error. Please try again.')
@@ -81,7 +133,7 @@ export default function AuthPage() {
                     </div>
 
                     <h1 className="text-5xl xl:text-6xl font-black text-white leading-[1.1] tracking-tight mb-8">
-                        The future of <br/>
+                        The future of <br />
                         <span className="text-primary-accent">personalised</span> learning.
                     </h1>
 
@@ -95,7 +147,7 @@ export default function AuthPage() {
                             { title: 'Physical Library Map', desc: 'Locate books down to the exact shelf' },
                             { title: 'Gamified Syllabus', desc: 'Visualize the dependencies between subjects' }
                         ].map((ft, i) => (
-                            <motion.div 
+                            <motion.div
                                 key={i}
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
@@ -117,7 +169,7 @@ export default function AuthPage() {
 
             {/* Right Col - Form */}
             <div className="flex-1 flex flex-col justify-center px-6 lg:px-16 relative z-10">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="w-full max-w-md mx-auto"
@@ -158,6 +210,7 @@ export default function AuthPage() {
                                         exit={{ opacity: 0, height: 0 }}
                                         className="space-y-5 overflow-hidden"
                                     >
+                                        {/* Full Name */}
                                         <div>
                                             <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Full Name</label>
                                             <div className="relative">
@@ -165,25 +218,63 @@ export default function AuthPage() {
                                                 <input type="text" name="name" value={form.name} onChange={handleChange} required={!isLogin} className="w-full bg-black/40 border border-white/10 rounded-full pl-11 pr-5 py-3.5 text-sm font-medium text-white placeholder:text-text-secondary/50 focus:outline-none focus:border-primary-accent/50 focus:ring-1 focus:ring-primary-accent/40 transition-all" placeholder="John Doe" />
                                             </div>
                                         </div>
+
+                                        {/* Program dropdown */}
+                                        <div>
+                                            <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Program</label>
+                                            <div className="relative">
+                                                <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
+                                                <select
+                                                    name="program"
+                                                    value={form.program}
+                                                    onChange={handleProgramChange}
+                                                    className="w-full bg-black/40 border border-white/10 rounded-full pl-11 pr-5 py-3 text-sm font-medium text-white appearance-none focus:outline-none focus:border-primary-accent/50 transition-all"
+                                                >
+                                                    {programs.map(p => (
+                                                        <option key={p.value} value={p.value}>{p.label}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {/* Branch + Year row */}
                                         <div className="grid grid-cols-2 gap-4">
-                                            <div>
+                                            {/* Branch — hidden if only 'General' */}
+                                            {!(branchOptions.length === 1 && branchOptions[0] === 'General') && (
+                                                <div>
+                                                    <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Branch</label>
+                                                    <div className="relative">
+                                                        <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
+                                                        <select name="branch" value={form.branch} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-full pl-11 pr-5 py-3 text-sm font-medium text-white appearance-none focus:outline-none focus:border-primary-accent/50 transition-all">
+                                                            {branchOptions.map(b => (
+                                                                <option key={b} value={b}>{b}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Year */}
+                                            <div className={(branchOptions.length === 1 && branchOptions[0] === 'General') ? 'col-span-2' : ''}>
                                                 <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Year</label>
                                                 <div className="relative">
                                                     <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
                                                     <select name="year" value={form.year} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-full pl-11 pr-5 py-3 text-sm font-medium text-white appearance-none focus:outline-none focus:border-primary-accent/50 transition-all">
-                                                        {['FE','SE','TE','BE'].map(y => <option key={y} value={y}>{y}</option>)}
+                                                        {Array.from({ length: yearCount }, (_, i) => i + 1).map(y => (
+                                                            <option key={y} value={String(y)}>Year {y} of {yearCount}</option>
+                                                        ))}
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Branch</label>
-                                                <div className="relative">
-                                                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
-                                                    <select name="branch" value={form.branch} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-full pl-11 pr-5 py-3 text-sm font-medium text-white appearance-none focus:outline-none focus:border-primary-accent/50 transition-all">
-                                                        {['Computer Science','Mathematics','IT','EXTC'].map(b => <option key={b} value={b}>{b}</option>)}
-                                                    </select>
-                                                </div>
-                                            </div>
+                                        </div>
+
+                                        {/* Field badge — read-only */}
+                                        <div className="flex items-center gap-2">
+                                            <Layers className="w-4 h-4 text-text-secondary shrink-0" />
+                                            <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">Field:</span>
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${fieldColor}`}>
+                                                {form.field}
+                                            </span>
                                         </div>
                                     </motion.div>
                                 )}

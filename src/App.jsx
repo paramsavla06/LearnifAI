@@ -4,6 +4,7 @@ import Lenis from 'lenis'
 import Preloader from './components/Preloader'
 import MainLayout from './components/layout/MainLayout'
 
+const LandingPage = lazy(() => import('./pages/LandingPage'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const MapPage = lazy(() => import('./pages/MapPage'))
 const TestsPage = lazy(() => import('./pages/TestsPage'))
@@ -64,7 +65,7 @@ function App() {
                 <MainLayout>
                     <Suspense fallback={<LoadingFallback />}>
                         <Routes>
-                            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                            <Route path="/" element={<LandingPage />} />
                             <Route path="/auth" element={<AuthPage />} />
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/map" element={<MapPage />} />

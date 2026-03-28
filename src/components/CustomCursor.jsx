@@ -5,8 +5,6 @@ export default function CustomCursor() {
     const cursorRef = useRef(null)
     const lineVRef = useRef(null)
     const lineHRef = useRef(null)
-    const coordRef = useRef(null)
-    const [coords, setCoords] = useState({ x: 0, y: 0 })
     const [visible, setVisible] = useState(false)
 
     useEffect(() => {
@@ -29,7 +27,6 @@ export default function CustomCursor() {
                 gsap.to(lineHRef.current, { y, duration: 0.1, ease: 'none' })
             }
 
-            setCoords({ x: Math.round(x), y: Math.round(y) })
         }
 
         const onEnter = () => setVisible(true)
@@ -63,21 +60,12 @@ export default function CustomCursor() {
                 className="absolute left-0 w-full h-[1px] bg-accent/15"
                 style={{ transform: 'translateY(0px)' }}
             />
-            {/* Dot + Coords */}
+            {/* Center pointer */}
             <div
                 ref={cursorRef}
                 className="absolute"
                 style={{ transform: 'translate(0px, 0px)' }}
-            >
-                <div className="w-2 h-2 -ml-1 -mt-1 border border-accent/60 rotate-45" />
-                <div
-                    ref={coordRef}
-                    className="absolute left-4 top-2 font-mono text-[10px] text-accent/60 whitespace-nowrap tracking-wider"
-                >
-                    <div>X: {String(coords.x).padStart(4, '0')}</div>
-                    <div>Y: {String(coords.y).padStart(4, '0')}</div>
-                </div>
-            </div>
+            />
         </div>
     )
 }

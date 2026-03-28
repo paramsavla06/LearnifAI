@@ -143,19 +143,36 @@ export async function generateResult(userId, userProfile = {}) {
 
     let analysisText = ''
     try {
-        const { narrateMasteryReport } = await import('./narratorService.js')
-        analysisText = await narrateMasteryReport(
-            userProfile?.name || 'Student', 
-            subjectSummary, 
-            strongTopics, 
-            weakTopics,
-            rootCauses,
-            weakTopics.length + strongTopics.length > 0
-                ? Math.round((strongTopics.length / (weakTopics.length + strongTopics.length)) * 100)
-                : 0
-        )
+        const { generateAnalysis } = await import('./llmService.js')
+        
+        const studentName = userProfile?.name || 'Student';
+        const semester = userProfile?.year || 'Unknown Year'; // using year as semester proxy if missing
+        
+        let weakText = weakTopics.map(t => {
+            const bookInfo = t.books.length > 0 
+                ? `(Recommended Book: "${t.books[0].title}", Location: ${t.books[0].library.floor} -> ${t.books[0].library.section} -> ${t.books[0].library.shelf})` 
+                : '';
+            return `- ${t.name} (${t.mastery_pct}% mastery) ${bookInfo}`;
+        }).join('\n');
+        
+        let strongText = strongTopics.map(t => `- ${t.name}`).join('\n');
+
+        const prompt = `You are an expert personalized learning assistant. Based on the following diagnostic result, write a detailed and comprehensive encouraging analysis for the student (about 2 to 3 paragraphs). \n\nFocus on what they did well, explain theoretically why they might have struggled with their weak topics, and explicitly direct them to the recommended physical library books and floor locations to improve. Be highly specific and thorough. Do not invent details not provided.
+        
+Student Name: ${studentName}
+Semester/Year: ${semester}
+
+Strong Topics:
+${strongText || 'None yet'}
+
+Weak Topics needing improvement:
+${weakText || 'None yet'}
+
+Provide your response as a direct message to the student.`;
+
+        analysisText = await generateAnalysis(prompt)
     } catch (e) {
-        console.warn('Failed to load narratorService:', e)
+        console.warn('Failed to load llmService or generate analysis:', e)
         analysisText = buildAnalysisText(weakTopics, strongTopics, userProfile)
     }
 

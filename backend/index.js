@@ -62,6 +62,29 @@ app.get('/health', (_req, res) =>
     res.json({ status: 'ok', version: '1.0.0', engine: 'LearnifAI Diagnostic v1' })
 )
 
+app.get('/api/health/llm', async (req, res) => {
+    try {
+        const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+        const response = await fetch(`${baseUrl}/api/tags`);
+        if (!response.ok) throw new Error('Ollama not responding properly');
+        
+        const data = await response.json();
+        const models = data.models ? data.models.map(m => m.name) : [];
+        
+        res.json({ 
+            ollama: true, 
+            local_mode_enabled: process.env.USE_LOCAL_LLM === 'true',
+            models 
+        });
+    } catch (e) {
+        res.json({ 
+            ollama: false, 
+            local_mode_enabled: process.env.USE_LOCAL_LLM === 'true',
+            error: e.message 
+        });
+    }
+})
+
 // ── 404 ────────────────────────────────────────────────────────────────────────
 app.use((_req, res) => res.status(404).json({ error: 'Route not found' }))
 

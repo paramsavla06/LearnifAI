@@ -141,30 +141,34 @@ const STEPS = [
 
 function StepBar({ current }) {
     return (
-        <div className="flex items-center gap-0 mb-10">
+        <div className="flex items-start justify-between w-full mb-10">
             {STEPS.map((s, i) => {
                 const Icon = s.icon
                 const done = current > s.id
                 const active = current === s.id
-                return (
-                    <div key={s.id} className="flex items-center flex-1">
-                        <div className={`flex flex-col items-center gap-1.5 flex-1`}>
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
-                                done ? 'bg-primary-accent border-primary-accent text-black'
-                                     : active ? 'border-primary-accent text-primary-accent bg-primary-accent/10'
-                                              : 'border-white/20 text-text-secondary bg-white/5'
-                            }`}>
-                                {done ? <CheckCircle className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
-                            </div>
-                            <span className={`text-[10px] font-bold uppercase tracking-widest ${active ? 'text-primary-accent' : done ? 'text-white' : 'text-text-secondary'}`}>
-                                {s.label}
-                            </span>
+                
+                const elements = [
+                    <div key={`step-${s.id}`} className="flex flex-col items-center gap-1.5 w-28 shrink-0">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 z-10 ${
+                            done ? 'bg-primary-accent border-primary-accent text-black'
+                                 : active ? 'border-primary-accent text-primary-accent bg-primary-accent/10'
+                                          : 'border-white/20 text-text-secondary bg-white/5'
+                        }`}>
+                            {done ? <CheckCircle className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                         </div>
-                        {i < STEPS.length - 1 && (
-                            <div className={`h-[2px] flex-1 transition-all duration-700 ${done ? 'bg-primary-accent' : 'bg-white/10'}`} />
-                        )}
+                        <span className={`text-[10px] text-center font-bold uppercase tracking-widest ${active ? 'text-primary-accent' : done ? 'text-white' : 'text-text-secondary'}`}>
+                            {s.label}
+                        </span>
                     </div>
-                )
+                ]
+                
+                if (i < STEPS.length - 1) {
+                    elements.push(
+                        <div key={`line-${s.id}`} className={`h-[2px] flex-1 mt-5 mx-2 md:mx-4 transition-all duration-700 ${done ? 'bg-primary-accent' : 'bg-white/10'}`} />
+                    )
+                }
+                
+                return elements
             })}
         </div>
     )
@@ -467,8 +471,17 @@ function DiagnosticStep({ profile, onFinish }) {
         setLoading(false)
     }
 
-    const optionLabels = ['a', 'b', 'c', 'd']
+    const shuffledKeys = useMemo(() => {
+        if (!q) return ['a', 'b', 'c', 'd'];
+        const keys = ['a', 'b', 'c', 'd'];
+        for (let i = keys.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [keys[i], keys[j]] = [keys[j], keys[i]];
+        }
+        return keys;
+    }, [q]);
 
+    const displayLabels = ['a', 'b', 'c', 'd'];
     if (loading) return (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
             <div className="relative">
@@ -507,10 +520,11 @@ function DiagnosticStep({ profile, onFinish }) {
                 <motion.div key={qIdx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
                     <h3 className="text-xl font-bold text-white mb-6 leading-relaxed">{q?.q}</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                        {optionLabels.map((label) => {
-                            const text = q[label]
-                            const isCorrect = label === q?.ans
-                            const isSelected = label === selected
+                        {displayLabels.map((displayLabel, idx) => {
+                            const dataKey = shuffledKeys[idx]
+                            const text = q[dataKey]
+                            const isCorrect = dataKey === q?.ans
+                            const isSelected = dataKey === selected
                             let variant = 'default'
                             if (answered) {
                                 if (isCorrect) variant = 'correct'
@@ -523,14 +537,14 @@ function DiagnosticStep({ profile, onFinish }) {
                                 wrong:    'border-red-500/60 bg-red-500/10 text-red-300',
                             }
                             return (
-                                <button key={label} onClick={() => chooseOption(label)} disabled={answered}
+                                <button key={dataKey} onClick={() => chooseOption(dataKey)} disabled={answered}
                                     className={`flex items-start gap-3 p-4 rounded-xl border transition-all duration-200 text-left ${styles[variant]}`}>
                                     <span className={`shrink-0 w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold mt-0.5 ${
                                         variant === 'correct' ? 'border-emerald-500 text-emerald-300' :
                                         variant === 'wrong'   ? 'border-red-500 text-red-300' :
                                         variant === 'selected' ? 'border-primary-accent text-primary-accent' :
                                         'border-white/20 text-text-secondary'
-                                    }`}>{label.toUpperCase()}</span>
+                                    }`}>{displayLabel.toUpperCase()}</span>
                                     <span className="text-sm font-medium leading-relaxed">{text}</span>
                                     {answered && isCorrect && <CheckCircle className="shrink-0 w-5 h-5 text-emerald-400 ml-auto mt-0.5" />}
                                     {answered && isSelected && !isCorrect && <XCircle className="shrink-0 w-5 h-5 text-red-400 ml-auto mt-0.5" />}

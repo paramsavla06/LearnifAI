@@ -3,6 +3,7 @@ import { ScrollReveal } from '../components/ui/ScrollReveal'
 import { GitBranch } from 'lucide-react'
 
 export default function GraphPage() {
+    const userId = localStorage.getItem('learnifai_user_id') || undefined
     return (
         <section className="relative pt-28 pb-16 min-h-screen">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#FFD85F]/5 via-background-base to-background-base pointer-events-none" />
@@ -54,7 +55,7 @@ export default function GraphPage() {
                     </div>
                 </ScrollReveal>
 
-                <KnowledgeGraph />
+                <KnowledgeGraph userId={userId} />
             </div>
         </section>
     )

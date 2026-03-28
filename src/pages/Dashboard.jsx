@@ -142,8 +142,29 @@ export default function Dashboard() {
   const rotateX = useMotionValue(-20)
   const rotateY = useMotionValue(25)
   const [userName, setUserName] = useState('')
-  const [data, setData] = useState({ learningHours: [], totalHoursThisWeek: 0, subjects: [], mentors: [] })
+  const [data, setData] = useState({ learningHours: [], totalHoursThisWeek: 0, peakDay: '', subjects: [], mentors: [] })
   const navigate = useNavigate()
+
+  // Course Details State
+  const [selectedCourse, setSelectedCourse] = useState(null)
+  const [courseDetails, setCourseDetails] = useState(null)
+  const [loadingCourse, setLoadingCourse] = useState(false)
+
+  const handleCourseClick = async (courseName) => {
+    setSelectedCourse(courseName)
+    setLoadingCourse(true)
+    setCourseDetails(null)
+    const storedUserId = localStorage.getItem('learnifai_user_id')
+    try {
+      const res = await fetch(`${API_BASE}/dashboard/${storedUserId}/course/${encodeURIComponent(courseName)}`)
+      const data = await res.json()
+      setCourseDetails(data)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoadingCourse(false)
+    }
+  }
 
   useAnimationFrame((t, delta) => {
     rotateY.set(rotateY.get() + delta * 0.015)
@@ -209,31 +230,35 @@ export default function Dashboard() {
                 <h3 className="text-xl font-bold mb-1">Learning Hours</h3>
                 <p className="text-sm text-text-secondary font-medium">Your progress this week</p>
               </div>
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
                 <span className="text-2xl font-bold">{data.totalHoursThisWeek}h</span>
-                <span className="text-xs font-bold text-green-500 bg-green-100/20 px-2 py-1 rounded-full">+12%</span>
+                {data.totalHoursThisWeek > 0 && (
+                  <span className="text-xs font-bold text-green-500 bg-green-100/20 px-2 py-1 rounded-full">This Week</span>
+                )}
               </div>
             </div>
             
             <div className="flex items-end justify-between h-48 gap-2">
-              {learningHours.map((item, i) => (
+              {learningHours.map((item, i) => {
+                const isPeak = data.peakDay ? item.day === data.peakDay : false
+                return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-3 group">
                   <div className="w-full relative flex items-end justify-center h-full">
                     <motion.div 
                       initial={{ height: 0 }}
-                      whileInView={{ height: `${(item.hours / 8) * 100}%` }}
+                      whileInView={{ height: `${Math.max(2, (item.hours / Math.max(...learningHours.map(l => l.hours), 1)) * 100)}%` }}
                       transition={{ duration: 1, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                      className={`w-full max-w-[40px] rounded-t-xl transition-all duration-300 ${item.day === "Thu" ? "bg-primary-accent" : "bg-white/5 group-hover:bg-primary-accent/30"}`}
+                      className={`w-full max-w-[40px] rounded-t-xl transition-all duration-300 ${isPeak ? 'bg-primary-accent' : 'bg-white/5 group-hover:bg-primary-accent/30'}`}
                     />
-                    {item.day === "Thu" && (
+                    {isPeak && item.hours > 0 && (
                       <div className="absolute -top-8 bg-white text-black text-[10px] font-bold px-2 py-1 rounded shadow-lg">
-                        8h
+                        {item.hours}h
                       </div>
                     )}
                   </div>
                   <span className="text-xs font-bold text-text-secondary">{item.day}</span>
                 </div>
-              ))}
+              )})}
             </div>
           </GlassCard>
 
@@ -382,6 +407,7 @@ export default function Dashboard() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
                 className="subject-tile group cursor-pointer"
+                onClick={() => handleCourseClick(subject.name)}
               >
                 <div className="flex items-center gap-4 mb-6">
                   <div className={`w-12 h-12 rounded-2xl ${subject.color} flex items-center justify-center transition-transform group-hover:scale-110`}>
@@ -457,6 +483,7 @@ export default function Dashboard() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: (i % 4) * 0.1 }}
               className="subject-tile group cursor-pointer"
+              onClick={() => handleCourseClick(subject.name)}
             >
               <div className="flex items-center gap-4 mb-6">
                 <div className={`w-12 h-12 rounded-2xl ${subject.color} flex items-center justify-center transition-transform group-hover:scale-110`}>
@@ -486,6 +513,82 @@ export default function Dashboard() {
           )})}
         </div>
       </section>
+
+      {/* Course Details Modal */}
+      {selectedCourse && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+             onClick={() => setSelectedCourse(null)}>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="w-full max-w-3xl max-h-[80vh] bg-surface-elevation-1 border border-white/10 rounded-2xl overflow-hidden flex flex-col"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+              <div>
+                <h2 className="text-2xl font-bold">{selectedCourse}</h2>
+                <p className="text-sm text-text-secondary mt-1">Course Concepts and Your Progress</p>
+              </div>
+              <button 
+                onClick={() => setSelectedCourse(null)}
+                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+              >
+                <span className="text-xl leading-none">&times;</span>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+              {loadingCourse ? (
+                <div className="py-20 flex justify-center items-center">
+                  <div className="w-8 h-8 rounded-full border-2 border-primary-accent border-r-transparent animate-spin"></div>
+                </div>
+              ) : courseDetails ? (
+                <>
+                  <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                      <p className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-1">Total Concepts</p>
+                      <p className="text-2xl font-bold">{courseDetails.totalConcepts}</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                      <p className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-1">Mastered</p>
+                      <p className="text-2xl font-bold text-green-400">{courseDetails.completedConcepts}</p>
+                    </div>
+                  </div>
+
+                  {courseDetails.concepts && courseDetails.concepts.length > 0 ? (
+                    <div className="space-y-3">
+                      {courseDetails.concepts.map((c, idx) => (
+                        <div key={idx} className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center gap-4">
+                          <div className={`w-2 h-10 rounded-full ${c.progress > 70 ? 'bg-green-500' : c.progress > 40 ? 'bg-yellow-500' : 'bg-red-500'}`} />
+                          <div className="flex-1">
+                            <h4 className="font-bold">{c.name}</h4>
+                            <p className="text-xs text-text-secondary mt-1">Semester: {c.semester} • Difficulty: {c.difficulty}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-bold">{c.progress}%</p>
+                            <p className="text-[10px] text-text-secondary uppercase">Mastery</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-10 text-text-secondary">
+                      No concepts found for this subject.
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-10 text-text-secondary">
+                  Failed to load course details.
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
     </>
   )
 }

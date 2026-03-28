@@ -598,5 +598,23 @@
         ]
       }
     ]
+  },
+  {
+    "subject": "MBA Foundation",
+    "slugs": ["marketing-mix", "consumer-behavior", "accounting-principles", "financial-statements", "leadership-styles", "motivation-theories"],
+    "recommended_books": [
+      {
+        "title": "MBA Fundamentals (The Complete Guide)",
+        "author": "Pauline Graham",
+        "sections": [
+          "Module 1: Principles of Marketing",
+          "Module 2: Consumer Psychology",
+          "Module 3: Accounting Standards",
+          "Module 4: Reading Balance Sheets",
+          "Module 5: Leadership Ethics",
+          "Module 6: Human Motivation"
+        ]
+      }
+    ]
   }
 ]

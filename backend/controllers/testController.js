@@ -87,6 +87,117 @@ export async function submitTest(req, res) {
                 console.error('[user_answers] Sample row:', JSON.stringify(validRows[0], null, 2));
             } else {
                 console.log(`[user_answers] Successfully inserted ${data?.length || validRows.length} rows`);
+
+                // ── Fire-and-forget post-submit analytics ─────────────────────────
+                Promise.resolve().then(async () => {
+                    try {
+                        // (a) Co-occurrence tracking
+                        const { recordCooccurrence } = await import('../controllers/graphController.js');
+                        await recordCooccurrence(userId, attemptId);
+
+                        // (b) Accuracy history snapshot — one row per concept answered this attempt
+                        const slugsThisAttempt = [...new Set(validRows.map(r => r.concept_slug).filter(Boolean))];
+                        if (slugsThisAttempt.length > 0) {
+                            const { data: perfRows } = await supabase
+                                .from('concept_performance')
+                                .select('concept_slug, accuracy, attempts')
+                                .eq('user_id', userId)
+                                .in('concept_slug', slugsThisAttempt);
+
+                            if (perfRows && perfRows.length > 0) {
+                                const historyRows = perfRows.map(p => ({
+                                    user_id: userId,
+                                    concept_slug: p.concept_slug,
+                                    accuracy: p.accuracy,
+                                    attempts: p.attempts,
+                                    snapshot_at: new Date().toISOString()
+                                }));
+                                await supabase.from('concept_accuracy_history').insert(historyRows);
+                                console.log(`[Analytics] Snapshotted ${historyRows.length} accuracy records`);
+                            }
+                        }
+
+                        // (c) Find wrong-answer pairs and call co-occurrence RPC
+                        const wrongRows = validRows.filter(r => r.is_correct === false && r.concept_slug);
+                        const wrongSlugs = [...new Set(wrongRows.map(r => r.concept_slug))];
+                        if (wrongSlugs.length >= 2) {
+                            for (let i = 0; i < wrongSlugs.length; i++) {
+                                for (let j = i + 1; j < wrongSlugs.length; j++) {
+                                    await supabase.rpc('increment_cooccurrence', {
+                                        p_user_id: userId,
+                                        p_concept_a: wrongSlugs[i],
+                                        p_concept_b: wrongSlugs[j]
+                                    });
+                                }
+                            }
+                            console.log(`[Analytics] Co-occurrence updated for ${wrongSlugs.length} weak concepts`);
+                        }
+
+                        // (d) Recalculate bottleneck_score for each concept answered this attempt
+                        // bottleneck_score = count of concepts that list it as prerequisite AND have accuracy < 0.4
+                        if (slugsThisAttempt.length > 0) {
+                            // Fetch all concepts that have any of these slugs as prerequisites
+                            const { data: prereqLinks } = await supabase
+                                .from('concept_prerequisites')
+                                .select('concept_slug, prerequisite_slug')
+                                .in('prerequisite_slug', slugsThisAttempt);
+
+                            // For each prerequisite slug, count how many dependent concepts are weak (<0.4) for this user
+                            const bottleneckMap = {};
+                            for (const link of (prereqLinks || [])) {
+                                const depSlug = link.concept_slug;
+                                const prereqSlug = link.prerequisite_slug;
+                                // Check if the dependent concept is weak for this user
+                                const { data: depPerf } = await supabase
+                                    .from('concept_performance')
+                                    .select('accuracy')
+                                    .eq('user_id', userId)
+                                    .eq('concept_slug', depSlug)
+                                    .maybeSingle();
+                                if (depPerf && depPerf.accuracy < 0.4) {
+                                    bottleneckMap[prereqSlug] = (bottleneckMap[prereqSlug] || 0) + 1;
+                                }
+                            }
+
+                            // Update bottleneck_score in concept_performance
+                            await Promise.all(
+                                Object.entries(bottleneckMap).map(([slug, score]) =>
+                                    supabase.from('concept_performance')
+                                        .update({ bottleneck_score: score })
+                                        .eq('user_id', userId)
+                                        .eq('concept_slug', slug)
+                                )
+                            );
+                            console.log(`[Analytics] Bottleneck scores updated for ${Object.keys(bottleneckMap).length} concepts`);
+
+                            // (e) Upsert weak concepts (accuracy < 0.4) into study_plan
+                            const { data: weakPerf } = await supabase
+                                .from('concept_performance')
+                                .select('concept_slug, accuracy')
+                                .eq('user_id', userId)
+                                .in('concept_slug', slugsThisAttempt)
+                                .lt('accuracy', 0.4);
+
+                            if (weakPerf && weakPerf.length > 0) {
+                                const planRows = weakPerf.map(p => ({
+                                    user_id: userId,
+                                    concept_slug: p.concept_slug,
+                                    priority: bottleneckMap[p.concept_slug] || 0,
+                                    status: 'pending',
+                                    updated_at: new Date().toISOString()
+                                }));
+                                const { error: planErr } = await supabase
+                                    .from('study_plan')
+                                    .upsert(planRows, { onConflict: 'user_id,concept_slug' });
+                                if (planErr) console.warn('[Analytics] study_plan upsert failed:', planErr.message);
+                                else console.log(`[Analytics] Study plan updated: ${planRows.length} weak concepts`);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('[Analytics] Non-fatal post-submit analytics error:', e.message);
+                    }
+                });
+                // ── END analytics block ────────────────────────────────────────────
             }
         }
     } else {

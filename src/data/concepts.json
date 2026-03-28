@@ -121,6 +121,33 @@
         { "slug": "renewable-energy", "name": "Renewable Energy Systems", "difficulty": 3, "semester": "BE SEM 8", "library_section": "Section Q", "shelf": "Shelf 3", "book_title": "Renewable Energy (Boyle)", "book_isbn": "978-81-000-0141-0" },
         { "slug": "drives-control", "name": "Drives & Control", "difficulty": 4, "semester": "BE SEM 7", "library_section": "Section Q", "shelf": "Shelf 1", "book_title": "Electric Motor Drives (Mohan)", "book_isbn": "978-81-000-0138-0" }
       ]
+    },
+    {
+      "name": "Marketing Management",
+      "description": "MBA Core Subject",
+      "branch": "General MBA",
+      "concepts": [
+        { "slug": "marketing-mix", "name": "The Marketing Mix (4Ps)", "difficulty": 1, "semester": "Year 1 Sem 1", "library_section": "Section MKT", "shelf": "Shelf 1", "book_title": "Marketing Management (Kotler)", "book_isbn": "978-0133856460" },
+        { "slug": "consumer-behavior", "name": "Consumer Behavior", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section MKT", "shelf": "Shelf 2", "book_title": "Consumer Behavior (Schiffman)", "book_isbn": "978-0132544368" }
+      ]
+    },
+    {
+      "name": "Financial Accounting",
+      "description": "MBA Core Subject",
+      "branch": "MBA Finance",
+      "concepts": [
+        { "slug": "accounting-principles", "name": "Basic Accounting Principles", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section FIN", "shelf": "Shelf 1", "book_title": "Financial Accounting (Weygandt)", "book_isbn": "978-1118334324" },
+        { "slug": "financial-statements", "name": "Financial Statements Analysis", "difficulty": 3, "semester": "Year 1 Sem 2", "library_section": "Section FIN", "shelf": "Shelf 2", "book_title": "Financial Statement Analysis (Subramanyam)", "book_isbn": "978-0078110962" }
+      ]
+    },
+    {
+      "name": "Organizational Behavior",
+      "description": "MBA Core Subject",
+      "branch": "MBA HR",
+      "concepts": [
+        { "slug": "leadership-styles", "name": "Leadership Styles", "difficulty": 2, "semester": "Year 1 Sem 2", "library_section": "Section HR", "shelf": "Shelf 1", "book_title": "Organizational Behavior (Robbins)", "book_isbn": "978-0134103983" },
+        { "slug": "motivation-theories", "name": "Theories of Motivation", "difficulty": 3, "semester": "Year 1 Sem 2", "library_section": "Section HR", "shelf": "Shelf 2", "book_title": "Motivation and Personality (Maslow)", "book_isbn": "978-0060419875" }
+      ]
     }
   ]
 }

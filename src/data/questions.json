@@ -213,5 +213,16 @@
 
   { "slug": "power-electronics", "q": "An SCR (Silicon Controlled Rectifier) has ________ terminals.", "a": "2", "b": "3", "c": "4", "d": "5", "ans": "b", "diff": 1 },
   { "slug": "power-electronics", "q": "The process of turning OFF an SCR is called:", "a": "Triggering", "b": "Commutation", "c": "Rectification", "d": "Inversion", "ans": "b", "diff": 2 },
-  { "slug": "power-electronics", "q": "Inverters convert:", "a": "AC to DC", "b": "DC to AC", "c": "AC to AC", "d": "DC to DC", "ans": "b", "diff": 1 }
+  { "slug": "power-electronics", "q": "Inverters convert:", "a": "AC to DC", "b": "DC to AC", "c": "AC to AC", "d": "DC to DC", "ans": "b", "diff": 1 },
+
+  { "slug": "marketing-mix", "q": "Which of the following is NOT one of the 4Ps of the Marketing Mix?", "a": "Product", "b": "Price", "c": "Promotion", "d": "People", "ans": "d", "diff": 1 },
+  { "slug": "marketing-mix", "q": "In the 4Ps, 'Place' refers to:", "a": "The physical location of the factory", "b": "Where the product is distributed and sold", "c": "The psychological positioning", "d": "Where the advertisement is placed", "ans": "b", "diff": 2 },
+  { "slug": "consumer-behavior", "q": "Maslow's Hierarchy of Needs often informs which part of marketing?", "a": "Consumer Motivation", "b": "Pricing Strategy", "c": "Distribution Logistics", "d": "Accounting", "ans": "a", "diff": 2 },
+  
+  { "slug": "accounting-principles", "q": "The fundamental accounting equation is:", "a": "Assets = Liabilities + Equity", "b": "Revenue = Expenses + Profit", "c": "Assets + Liabilities = Equity", "d": "Cash = Inflow - Outflow", "ans": "a", "diff": 1 },
+  { "slug": "accounting-principles", "q": "Which of the following is not a general purpose financial statement?", "a": "Balance Sheet", "b": "Income Statement", "c": "Tax Return", "d": "Statement of Cash Flows", "ans": "c", "diff": 2 },
+  { "slug": "financial-statements", "q": "A balance sheet provides a financial snapshot at:", "a": "A given period (like a year)", "b": "A specific point in time", "c": "The end of a project", "d": "Random intervals", "ans": "b", "diff": 2 },
+  
+  { "slug": "leadership-styles", "q": "Which leadership style involves making decisions without consulting team members?", "a": "Democratic", "b": "Laissez-Faire", "c": "Autocratic", "d": "Transformational", "ans": "c", "diff": 1 },
+  { "slug": "motivation-theories", "q": "According to Herzberg's Two-Factor Theory, which of these is a 'Hygiene Factor'?", "a": "Recognition", "b": "Salary", "c": "Responsibility", "d": "Achievement", "ans": "b", "diff": 3 }
 ]

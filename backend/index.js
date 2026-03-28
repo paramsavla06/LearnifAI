@@ -29,6 +29,8 @@ import resultsRouter from './routes/results.js'
 import authRouter from './routes/auth.js'
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import graphRouter from './routes/graph.js'
+import programRoutes from './routes/programs.js'
+import studyPlanRoutes from './routes/studyPlan.js'
 
 const app = express()
 const PORT = 3002
@@ -52,6 +54,8 @@ app.use('/api', testsRouter)
 app.use('/api', resultsRouter)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/graph', graphRouter)
+app.use('/api/programs', programRoutes)
+app.use('/api/study-plan', studyPlanRoutes)
 
 // ── Health ─────────────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) =>

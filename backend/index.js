@@ -24,6 +24,7 @@ import questionsRouter from './routes/questions.js'
 import testsRouter from './routes/tests.js'
 import resultsRouter from './routes/results.js'
 import authRouter from './routes/auth.js'
+import dashboardRoutes from "./routes/dashboardRoutes.js";
 
 const app = express()
 const PORT = 3002
@@ -45,6 +46,7 @@ app.use('/api/subjects', subjectsRouter)
 app.use('/api/questions', questionsRouter)
 app.use('/api', testsRouter)
 app.use('/api', resultsRouter)
+app.use("/api/dashboard", dashboardRoutes);
 
 // ── Health ─────────────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) =>

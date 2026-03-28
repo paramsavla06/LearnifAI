@@ -6,7 +6,10 @@ import { booksBySlug, conceptBySlug } from '../services/dataLoader.js'
 export async function getResult(req, res) {
     const { userId } = req.params
 
-    // Try Supabase first
+    // Check in-memory first (freshest — just submitted this session)
+    const memResult = fetchMemResult(userId)
+
+    // Also check Supabase for persisted results
     const { data, error } = await supabase
         .from('results')
         .select('*')
@@ -15,24 +18,38 @@ export async function getResult(req, res) {
         .limit(1)
         .single()
 
+    // Prefer in-memory if available (it always has fresh analysis_text)
+    if (memResult) {
+        return res.json(memResult)
+    }
+
+    // Use Supabase result if it has analysis text
     if (!error && data) {
+        const weakTopics   = data.weak_topics   || []
+        const strongTopics = data.strong_topics || []
+
+        // Build fallback analysis if Supabase stored null/empty
+        let analysisText = data.analysis_text
+        if (!analysisText || analysisText.trim() === '') {
+            analysisText = buildFallbackAnalysis(weakTopics, strongTopics)
+        }
+
         return res.json({
             userId,
             generatedAt:   data.generated_at,
-            weak_topics:   data.weak_topics   || [],
-            strong_topics: data.strong_topics || [],
-            analysis_text: data.analysis_text,
+            weak_topics:   weakTopics,
+            strong_topics: strongTopics,
+            root_causes:   data.root_causes || [], // New
+            analysis_text: analysisText,
+            ai_analysis:   analysisText, // Alias for UI
+            books:         weakTopics.map(w => w.books || []).flat(), // Aggregated books
             mastery_summary: {
-                overall_pct:  data.mastery_pct,
-                weak_count:   (data.weak_topics  || []).length,
-                strong_count: (data.strong_topics || []).length
+                overall_pct:  data.mastery_pct || 0,
+                weak_count:   weakTopics.length,
+                strong_count: strongTopics.length
             }
         })
     }
-
-    // Fallback to in-memory (if Supabase tables not yet seeded)
-    const memResult = fetchMemResult(userId)
-    if (memResult) return res.json(memResult)
 
     return res.status(404).json({
         error: 'No result found. Submit a test first via POST /api/submit-test'
@@ -115,4 +132,41 @@ function inferFloor(section) {
     if (code <= 11) return 'First Floor'
     if (code <= 17) return 'Second Floor'
     return 'Third Floor'
+}
+
+// ─── Fallback analysis builder (for old Supabase rows with null analysis) ────────
+function buildFallbackAnalysis(weakTopics, strongTopics) {
+    if (weakTopics.length === 0 && strongTopics.length === 0) {
+        return 'No test data found yet. Complete a diagnostic to see your analysis.'
+    }
+
+    const total   = weakTopics.length + strongTopics.length
+    const pct     = total > 0 ? Math.round((strongTopics.length / total) * 100) : 0
+    const weakNames   = weakTopics.slice(0, 3).map(t => t.name || t.slug).join(', ')
+    const strongNames = strongTopics.slice(0, 3).map(t => t.name || t.slug).join(', ')
+
+    let text = ''
+
+    if (weakTopics.length > 0) {
+        text += `⚠️ Concepts needing attention (${weakTopics.length}): ${weakNames}`
+        if (weakTopics.length > 3) text += ` and ${weakTopics.length - 3} more`
+        text += '.\n'
+        // Add top book recommendation if available
+        const top = weakTopics[0]
+        if (top?.books?.length > 0) {
+            const b = top.books[0]
+            text += `   → Focus on "${top.name}" first. Refer to "${b.title}" by ${b.author}`
+            if (b.library) text += ` [ ${b.library.section}, ${b.library.shelf}, ${b.library.floor} ]`
+            text += '.\n'
+        }
+    }
+
+    if (strongTopics.length > 0) {
+        text += `\n✅ Strong areas (${strongTopics.length}): ${strongNames}`
+        if (strongTopics.length > 3) text += ` and ${strongTopics.length - 3} more`
+        text += '.\n'
+    }
+
+    text += `\n📊 Overall mastery: ${pct}% (${strongTopics.length}/${total} concepts cleared).`
+    return text.trim()
 }

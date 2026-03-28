@@ -4,7 +4,7 @@ import { GlassCard } from './ui/GlassCard'
 import { ScrollReveal } from './ui/ScrollReveal'
 import {
     MapPin, BookOpen, Zap, User, ChevronRight, ChevronLeft,
-    CheckCircle, XCircle, BarChart2, Brain, AlertTriangle, Star, Loader2, Hash
+    CheckCircle, XCircle, BarChart2, Brain, AlertTriangle, Star, Loader2, Hash, X
 } from 'lucide-react'
 import conceptsData from '../data/concepts.json'
 import questionsRaw from '../data/questions.json'
@@ -112,7 +112,31 @@ function SetupStep({ profile, setProfile, onNext }) {
     // Auto-update semester when year changes
     const handleYearChange = (y) => {
         const newSems = SEMS_BY_YEAR[y] || []
-        setProfile(p => ({ ...p, year: y, semester: newSems[0] || '' }))
+        setProfile(p => ({ ...p, year: y, semester: newSems[0] || '', selectedSubjects: [] }))
+    }
+
+    // Auto-select up to 3 subjects when semester changes
+    useEffect(() => {
+        const defaultSubjs = availableSubjects.map(s => s.name).slice(0, 3)
+        if (!profile.selectedSubjects || profile.selectedSubjects.length === 0) {
+            setProfile(p => ({ ...p, selectedSubjects: defaultSubjs }))
+        }
+    }, [profile.semester, availableSubjects.length])
+
+    const toggleSubject = (name) => {
+        setProfile(p => {
+            const current = p.selectedSubjects || []
+            if (current.includes(name)) {
+                return { ...p, selectedSubjects: current.filter(s => s !== name) }
+            } else {
+                if (current.length >= 3) {
+                    setErr('You can select a maximum of 3 subjects per diagnostic.')
+                    return p
+                }
+                setErr('')
+                return { ...p, selectedSubjects: [...current, name] }
+            }
+        })
     }
 
     function handleNext() {
@@ -120,8 +144,8 @@ function SetupStep({ profile, setProfile, onNext }) {
             setErr('Name and Roll Number are required.')
             return
         }
-        if (availableSubjects.length === 0) {
-            setErr('No subjects found for this semester. Try a different semester.')
+        if (!profile.selectedSubjects || profile.selectedSubjects.length === 0) {
+            setErr('Please select at least 1 subject.')
             return
         }
         setErr('')
@@ -191,7 +215,7 @@ function SetupStep({ profile, setProfile, onNext }) {
             {/* Number of Questions */}
             <div className="mb-6">
                 <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-3">
-                    Number of Questions per Subject
+                    Total Questions
                 </label>
                 <div className="flex gap-3">
                     {[5, 10, 15].map(n => (
@@ -211,18 +235,31 @@ function SetupStep({ profile, setProfile, onNext }) {
                 </div>
             </div>
 
-            {/* Subject preview */}
+            {/* Subject preview & selection */}
             {availableSubjects.length > 0 && (
-                <div className="mb-6 p-4 rounded-xl bg-black/30 border border-white/5">
-                    <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-2">
-                        Subjects in {profile.semester} ({availableSubjects.length})
-                    </p>
+                <div className="mb-6">
+                    <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-3 flex justify-between items-center">
+                        <span>Choose Subjects (Max 3)</span>
+                        <span className="text-primary-accent">{(profile.selectedSubjects || []).length} Selected</span>
+                    </label>
                     <div className="flex flex-wrap gap-2">
-                        {availableSubjects.map(s => (
-                            <span key={s.name} className="text-[10px] font-bold text-primary-accent bg-primary-accent/10 border border-primary-accent/20 px-2.5 py-1 rounded-full">
-                                {s.name}
-                            </span>
-                        ))}
+                        {availableSubjects.map(s => {
+                            const isSelected = (profile.selectedSubjects || []).includes(s.name)
+                            return (
+                                <button
+                                    key={s.name}
+                                    onClick={() => toggleSubject(s.name)}
+                                    className={`px-4 py-2 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                                        isSelected 
+                                            ? 'bg-primary-accent/10 border-primary-accent text-primary-accent shadow-[0_0_10px_rgba(255,216,95,0.1)]' 
+                                            : 'bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:text-white'
+                                    }`}
+                                >
+                                    {s.name}
+                                    {isSelected && <X className="w-3 h-3" />}
+                                </button>
+                            )
+                        })}
                     </div>
                 </div>
             )}
@@ -240,32 +277,54 @@ function SetupStep({ profile, setProfile, onNext }) {
 
 // ─── Step 2 — MCQ Quiz ─────────────────────────────────────────────────────────
 function DiagnosticStep({ profile, onFinish }) {
-    const qCount = profile.questionCount || 5
-    const sem = profile.semester
+    const qCount      = profile.questionCount || 5
+    const sem         = profile.semester
+    const subjects    = profile.selectedSubjects || []
 
-    const subjects = useMemo(() => getSubjectsForSem(sem).map(s => s.name), [sem])
-    const totalSubjects = Math.min(subjects.length, 3)
+    // Build ONE combined pool across all selected subjects, shuffle, slice to qCount
+    const allQuestions = useMemo(() => {
+        const pool = []
+        for (const subjectName of subjects) {
+            const subj = conceptsData.subjects.find(s => s.name === subjectName)
+            if (!subj) continue
+            for (const concept of subj.concepts) {
+                if (concept.semester !== sem) continue
+                const qs = questionsBySlug[concept.slug] || []
+                for (const q of qs) pool.push({ ...q, concept_name: concept.name, subject_name: subjectName })
+            }
+        }
+        // Fisher-Yates shuffle
+        for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]]
+        }
+        return pool.slice(0, qCount)
+    }, [])  // intentionally [] — fixed on mount
 
-    const [subjectIdx, setSubjectIdx]   = useState(0)
-    const [questions, setQuestions]     = useState(() => pickQuestions(subjects[0], sem, qCount))
-    const [qIdx, setQIdx]               = useState(0)
-    const [selected, setSelected]       = useState(null)
-    const [answered, setAnswered]       = useState(false)
-    const [allAnswers, setAllAnswers]   = useState([])
+    const [qIdx, setQIdx]             = useState(0)
+    const [selected, setSelected]     = useState(null)
+    const [answered, setAnswered]     = useState(false)
+    const [allAnswers, setAllAnswers] = useState([])
     const [wrongAnswers, setWrongAnswers] = useState([])
-    const [loading, setLoading]         = useState(false)
+    const [loading, setLoading]       = useState(false)
 
-    const currentSubject = subjects[subjectIdx]
-    const q = questions[qIdx]
+    const q        = allQuestions[qIdx]
+    const totalQs  = allQuestions.length
+    const progress = totalQs > 0 ? (qIdx / totalQs) * 100 : 0
 
     function chooseOption(opt) {
         if (answered) return
         setSelected(opt)
         setAnswered(true)
         const isCorrect = opt === q.ans
+        // Backend-compatible answer record
         const answerRecord = {
+            question_id:    q.id || 0,
+            concept_slug:   q.slug,
+            selected_option: opt,
+            is_correct:     isCorrect,
+            // kept for local UI / fallback only
             slug:           q.slug,
-            question_id:    null,
             question_text:  q.q,
             selectedOption: opt,
             correctOption:  q.ans,
@@ -280,13 +339,8 @@ function DiagnosticStep({ profile, onFinish }) {
     }
 
     function nextQuestion() {
-        if (qIdx < questions.length - 1) {
+        if (qIdx < totalQs - 1) {
             setQIdx(i => i + 1); setSelected(null); setAnswered(false)
-        } else if (subjectIdx < totalSubjects - 1) {
-            const next = subjectIdx + 1
-            setSubjectIdx(next)
-            setQuestions(pickQuestions(subjects[next], sem, qCount))
-            setQIdx(0); setSelected(null); setAnswered(false)
         } else {
             submitAll()
         }
@@ -298,35 +352,62 @@ function DiagnosticStep({ profile, onFinish }) {
         localStorage.setItem('learnifai_user_id', userId)
         localStorage.setItem('learnifai_user_name', profile.name || 'Student')
         try {
-            await fetch(`${API_BASE}/submit-test`, {
+            const payload = {
+                userId,
+                userProfile: { name: profile.name, year: profile.year, branch: profile.branch, roll_no: profile.roll_no, email: profile.email, semester: profile.semester },
+                answers: allAnswers,
+                testType: 'diagnostic'
+            }
+            console.log('FINAL PAYLOAD:', { userId, answers: allAnswers })
+
+            const submitRes = await fetch(`${API_BASE}/submit-test`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId,
-                    userProfile: { name: profile.name, year: profile.year, branch: profile.branch, roll_no: profile.roll_no, email: profile.email, semester: profile.semester },
-                    answers: allAnswers,
-                    testType: 'deep_diagnostic'
-                })
+                body: JSON.stringify(payload)
             })
+            const submitData = await submitRes.json()
+            console.log('SUBMIT RESPONSE:', submitData)
+
+            // ✅ POST response now contains the full result — use it directly.
+            // This avoids a race condition with the async AI narrator.
+            if (submitData.success && submitData.mastery_summary) {
+                const result = {
+                    weak_topics:     submitData.weak_topics     || [],
+                    strong_topics:   submitData.strong_topics   || [],
+                    root_causes:     submitData.root_causes     || [],
+                    mastery_summary: submitData.mastery_summary || { overall_pct: 0 },
+                    analysis_text:   submitData.analysis_text   || submitData.ai_analysis || ''
+                }
+                onFinish({ userId, result, wrongAnswers })
+                return
+            }
+
+            // Fallback: fetch full result object (covers restart / old sessions)
             const res = await fetch(`${API_BASE}/result/${userId}`)
             const result = await res.json()
             onFinish({ userId, result, wrongAnswers })
         } catch (e) {
-            onFinish({ userId, result: localScore(allAnswers, profile), wrongAnswers })
+            console.error('submitAll error:', e)
+            onFinish({ userId: profile.roll_no || 'guest', result: localScore(allAnswers, profile), wrongAnswers })
         }
         setLoading(false)
     }
 
     const optionLabels = ['a', 'b', 'c', 'd']
-    const optionTexts = q ? [q.a, q.b, q.c, q.d] : []
-    const globalQNum  = subjectIdx * qCount + qIdx + 1
-    const totalQs     = totalSubjects * qCount
-    const progress    = (globalQNum - 1) / totalQs * 100
 
     if (loading) return (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-10 h-10 text-primary-accent animate-spin" />
-            <p className="text-text-secondary font-medium">Analysing your answers…</p>
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="relative">
+                <Loader2 className="w-12 h-12 text-primary-accent animate-spin" />
+                <Zap className="w-5 h-5 text-emerald-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+            </div>
+            <p className="text-primary-accent font-bold tracking-widest uppercase text-xs mt-2 animate-pulse">Generating AI Feedback…</p>
+        </div>
+    )
+
+    if (!q) return (
+        <div className="text-center py-12 text-text-secondary">
+            <p>No questions available for this selection. Try different subjects or semester.</p>
         </div>
     )
 
@@ -334,8 +415,8 @@ function DiagnosticStep({ profile, onFinish }) {
         <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
             <div className="mb-6">
                 <div className="flex justify-between text-xs font-bold text-text-secondary mb-2">
-                    <span>Q{globalQNum} of {totalQs} — <span className="text-primary-accent">{currentSubject}</span></span>
-                    <span>{Math.round((globalQNum - 1) / totalQs * 100)}%</span>
+                    <span>Q{qIdx + 1} of {totalQs} — <span className="text-primary-accent">{q.subject_name || q.concept_name}</span></span>
+                    <span>{Math.round(progress)}%</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                     <motion.div className="h-full bg-primary-accent rounded-full" initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 0.5 }} />
@@ -349,11 +430,11 @@ function DiagnosticStep({ profile, onFinish }) {
             </div>
 
             <AnimatePresence mode="wait">
-                <motion.div key={`${subjectIdx}-${qIdx}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
+                <motion.div key={qIdx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
                     <h3 className="text-xl font-bold text-white mb-6 leading-relaxed">{q?.q}</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                        {optionTexts.map((text, i) => {
-                            const label = optionLabels[i]
+                        {optionLabels.map((label) => {
+                            const text = q[label]
                             const isCorrect = label === q?.ans
                             const isSelected = label === selected
                             let variant = 'default'
@@ -390,7 +471,7 @@ function DiagnosticStep({ profile, onFinish }) {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                     <button onClick={nextQuestion}
                         className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-primary-accent text-black font-bold text-sm hover:opacity-90 transition-opacity">
-                        {subjectIdx < totalSubjects - 1 || qIdx < questions.length - 1
+                        {qIdx < totalQs - 1
                             ? <><span>Next Question</span><ChevronRight className="w-5 h-5" /></>
                             : <><span>View My Results</span><BarChart2 className="w-5 h-5" /></>
                         }
@@ -668,9 +749,9 @@ export default function TestSection() {
         }
     })
 
-    // If logged in, skip Step 1
+    // Removed auto-skip to let users configure subjects and question counts in Step 1
     useEffect(() => {
-        if (profile._fromSession) setStep(2)
+        // Just let them start at Step 1, SetupStep will handle read-only mode for profile info
     }, [])
 
     function handleDiagnosticFinish(data) { setResult(data); setStep(3) }

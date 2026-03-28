@@ -6,7 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 import { GlassCard } from './ui/GlassCard'
 import { ScrollReveal } from './ui/ScrollReveal'
-import { X, Map, Layers, Building2, AlignLeft, BookOpen, MapPin, ExternalLink } from 'lucide-react'
+import { X, Map, Layers, Building2, AlignLeft, BookOpen, MapPin } from 'lucide-react'
 import conceptsData from '../data/concepts.json'
 
 // ── Library section helpers ────────────────────────────────────────────────────
@@ -72,6 +72,7 @@ export default function NavigationSection() {
     const [loading, setLoading] = useState(true)
     const [loadProgress, setLoadProgress] = useState(0)
     const [filterCat, setFilterCat] = useState('All')
+    const [selectedSection, setSelectedSection] = useState(null) // for library section drill-down
 
     useEffect(() => {
         const mount = mountRef.current
@@ -466,15 +467,72 @@ export default function NavigationSection() {
                                 {/* ── Central Library: show all book sections ── */}
                                 {selectedBuilding.id === 'bldg-003' && (
                                     <div className="pt-6 border-t border-white/5">
+
+                                        {/* ── Section drill-down: book list ── */}
+                                        <AnimatePresence mode="wait">
+                                        {selectedSection ? (() => {
+                                            const sec = LIBRARY_SECTIONS.find(s => s.section === selectedSection)
+                                            const floor = inferFloor(selectedSection)
+                                            const clr = FLOOR_COLORS[floor] || FLOOR_COLORS['Ground Floor']
+                                            // Group books by shelf
+                                            const byShelf = sec.concepts.reduce((acc, c) => {
+                                                const shelf = c.shelf || 'Unknown Shelf'
+                                                if (!acc[shelf]) acc[shelf] = []
+                                                acc[shelf].push(c)
+                                                return acc
+                                            }, {})
+                                            return (
+                                                <motion.div
+                                                    key="book-list"
+                                                    initial={{ opacity: 0, x: 20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    exit={{ opacity: 0, x: 20 }}
+                                                    transition={{ duration: 0.25 }}
+                                                >
+                                                    {/* Header */}
+                                                    <div className="flex items-center gap-3 mb-5">
+                                                        <button
+                                                            onClick={() => setSelectedSection(null)}
+                                                            className="flex items-center gap-1.5 text-[10px] font-bold text-text-secondary hover:text-white transition-colors px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10"
+                                                        >
+                                                            ← Back to Sections
+                                                        </button>
+                                                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${clr.border} ${clr.bg}`}>
+                                                            <BookOpen className={`w-3.5 h-3.5 ${clr.text}`} />
+                                                            <span className={`text-[10px] font-black uppercase tracking-widest ${clr.text}`}>{selectedSection}</span>
+                                                        </div>
+                                                        <span className="text-[10px] font-bold text-text-secondary">{floor} · {sec.concepts.length} {sec.concepts.length === 1 ? 'book' : 'books'}</span>
+                                                    </div>
+
+                                                    {/* Books grouped by shelf */}
+                                                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                                                        {Object.entries(byShelf).sort().map(([shelf, books]) => (
+                                                            <div key={shelf}>
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <MapPin className={`w-3 h-3 ${clr.text}`} />
+                                                                    <span className={`text-[10px] font-bold uppercase tracking-widest ${clr.text}`}>{shelf}</span>
+                                                                    <div className="flex-1 h-px bg-white/5" />
+                                                                </div>
+                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-5">
+                                                                    {books.map(book => (
+                                                                        <div key={book.slug} className="flex flex-col gap-0.5 p-3 rounded-xl bg-white/3 border border-white/5 hover:border-white/15 hover:bg-white/5 transition-all">
+                                                                            <span className="text-xs font-bold text-white leading-snug">{book.book_title}</span>
+                                                                            <span className="text-[10px] text-text-secondary font-medium">{book.name}</span>
+                                                                            <span className={`text-[9px] font-bold uppercase tracking-widest mt-1 ${clr.text} opacity-70`}>{book.semester}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </motion.div>
+                                            )
+                                        })() : (
+                                        <motion.div key="section-grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                                         <div className="flex items-center justify-between mb-5">
                                             <p className="text-[10px] font-bold tracking-widest uppercase text-primary-accent flex items-center gap-2">
                                                 <BookOpen className="w-4 h-4" /> Library Sections ({LIBRARY_SECTIONS.length} sections)
                                             </p>
-                                            <a href="/#library"
-                                                className="flex items-center gap-1.5 text-[10px] font-bold text-primary-accent hover:underline"
-                                                onClick={() => setSelected(null)}>
-                                                Browse Full Library <ExternalLink className="w-3 h-3" />
-                                            </a>
                                         </div>
 
                                         {/* Floor legend */}
@@ -492,14 +550,13 @@ export default function NavigationSection() {
                                                 const floor = inferFloor(sec.section)
                                                 const clr = FLOOR_COLORS[floor] || FLOOR_COLORS['Ground Floor']
                                                 return (
-                                                    <motion.a
+                                                    <motion.div
                                                         key={sec.section}
-                                                        href="/#library"
-                                                        onClick={() => setSelected(null)}
+                                                        onClick={() => setSelectedSection(sec.section)}
                                                         initial={{ opacity: 0, y: 8 }}
                                                         animate={{ opacity: 1, y: 0 }}
                                                         transition={{ delay: idx * 0.03 }}
-                                                        className={`block p-4 rounded-xl border ${clr.border} ${clr.bg} hover:brightness-110 transition-all cursor-pointer group`}
+                                                        className={`p-4 rounded-xl border ${clr.border} ${clr.bg} hover:brightness-125 transition-all cursor-pointer group`}
                                                     >
                                                         <div className="flex items-center justify-between mb-2">
                                                             <span className={`text-sm font-black ${clr.text}`}>{sec.section}</span>
@@ -513,10 +570,14 @@ export default function NavigationSection() {
                                                         <p className="text-[10px] text-text-secondary leading-relaxed line-clamp-2">
                                                             {sec.subjects.slice(0, 2).join(', ')}{sec.subjects.length > 2 ? ` +${sec.subjects.length - 2} more` : ''}
                                                         </p>
-                                                    </motion.a>
+                                                        <p className={`text-[9px] font-bold mt-2 ${clr.text} opacity-50 group-hover:opacity-100 transition-opacity`}>Click to view books →</p>
+                                                    </motion.div>
                                                 )
                                             })}
                                         </div>
+                                        </motion.div>
+                                        )}
+                                        </AnimatePresence>
                                     </div>
                                 )}
                             </div>

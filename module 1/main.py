@@ -13,25 +13,26 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 # --- Module 1 imports ---
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "module 1"))
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT_DIR, "module 1"))
 from graph_db import build_database, DB_PATH
 from api import graph_router
 
 # --- Module 2 imports ---
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "module 2"))
+sys.path.insert(0, os.path.join(ROOT_DIR, "module 2"))
 from quiz_store import init_quiz_schema
 from mastery_api import mastery_router
 
 # --- Module 3 imports ---
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "module 3"))
+sys.path.insert(0, os.path.join(ROOT_DIR, "module 3"))
 from tracer_api import tracer_router
 
 # --- Module 4 imports ---
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "module 4"))
+sys.path.insert(0, os.path.join(ROOT_DIR, "module 4"))
 from narrator_api import narrator_router
 
 # --- Module 5 imports ---
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "module 5"))
+sys.path.insert(0, os.path.join(ROOT_DIR, "module 5"))
 from cross_links import init_cross_links_schema
 from cross_links_api import cross_links_router
 

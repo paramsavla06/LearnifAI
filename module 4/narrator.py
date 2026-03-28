@@ -38,10 +38,14 @@ def _call_gemini(prompt: str) -> str:
         response = model.generate_content(
             prompt,
             generation_config=genai.types.GenerationConfig(
-                max_output_tokens=300,
+                max_output_tokens=800,
                 temperature=0.7,
             )
         )
+        # Check if Gemini blocked the response due to safety
+        if response.candidates and response.candidates[0].finish_reason != 1: # 1 is STOP
+            print(f"[WARNING] Gemini stopped early. Reason: {response.candidates[0].finish_reason}")
+            
         return response.text.strip()
     except Exception as e:
         error_msg = str(e)
@@ -61,24 +65,28 @@ def narrate_root_cause(
                             for i, g in enumerate(gap_chain)])
     root_cause_name = gap_chain[0]['name']
 
+    import datetime
+    now_str = datetime.datetime.now().strftime("%H:%M:%S")
+
     prompt = f"""
     You are an expert engineering tutor at Mumbai University.
-    A student is failing the concept: '{failed_concept}'.
+    A student is currently looking to improve their understanding of the concept: '{failed_concept}'.
 
-    Their prerequisite gap chain (in the order they must study):
+    Their prerequisite study sequence (in the order they must learn):
     {chain_text}
 
-    The root cause (what to study first): {root_cause_name}
+    The fundamental starting point (what to study first): {root_cause_name}
 
     Write a friendly, encouraging 3-sentence diagnosis:
-    Sentence 1: Explain WHY the student is failing {failed_concept} in simple terms, referencing the root cause.
-    Sentence 2: Name the exact sequence of concepts they must study first (use the gap chain).
+    Sentence 1: Explain WHY the student should review {failed_concept} in simple terms, referencing the starting point.
+    Sentence 2: Name the exact sequence of concepts they must study first (use the sequence list).
     Sentence 3: End with an encouraging, motivating statement.
 
-    Keep it under 80 words. Use simple language, no jargon.
+    Keep it under 100 words. Use simple language, no jargon.
     Do not use bullet points. Write in paragraph form only.
     """
     return _call_gemini(prompt)
+
 
 def narrate_learning_path(
     target_concept: str,

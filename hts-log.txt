@@ -1,0 +1,14 @@
+HTTrack3.49-2+htsswf+htsjava launched on Wed, 04 Mar 2026 16:26:32 at https://www.darknode.army/en +*.png +*.gif +*.jpg +*.jpeg +*.css +*.js -ad.doubleclick.net/* -mime:application/foobar +*.js +*.json +*.
+(winhttrack -qwC2%Ps0u1%s%uN0%I0p3DaK0H0%kf2A25000%f#f -F "Mozilla/4.5 (compatible; HTTrack 3.0x; Windows 98)" -%F "<!-- Mirrored from %s%s by HTTrack Website Copier/3.x [XR&CO'2014], %s -->" -%l "en, *" https://www.darknode.army/en -O1 "C:\Users\Anikane\Downloads\Cloning\clone2" +*.png +*.gif +*.jpg +*.jpeg +*.css +*.js -ad.doubleclick.net/* -mime:application/foobar +*.js +*.json +*. )
+
+Information, Warnings and Errors reported for this mirror:
+note:	the hts-log.txt file, and hts-cache folder, may contain sensitive information,
+	such as username/password authentication for websites mirrored in this project
+	do not share these files/folders if you want these information to remain private
+
+16:27:08	Warning: 	Retry after error 502 (Bad Gateway) at link https://www.darknode.army/"https://cdn.prod.website-files.com/68da9c3644ccc31db134dd0d%2F68db0fd04867ee81e3a91bdb_video-DN (1)-poster-00001.jpg" (from https://www.darknode.army/en)
+16:27:08	Warning: 	Retry after error 502 () at link https://www.darknode.army/"https://cdn.prod.website-files.com/68da9c3644ccc31db134dd0d%2F68db0fd04867ee81e3a91bdb_video-DN (1)-poster-00001.jpg" (from https://www.darknode.army/en)
+16:27:08	Error: 	"" (502) after 2 retries at link https://www.darknode.army/"https://cdn.prod.website-files.com/68da9c3644ccc31db134dd0d%2F68db0fd04867ee81e3a91bdb_video-DN (1)-poster-00001.jpg" (from https://www.darknode.army/en)
+
+HTTrack Website Copier/3.49-2 mirror complete in 36 seconds : 140 links scanned, 137 files written (12159606 bytes overall) [10651534 bytes received at 295875 bytes/sec], 2186568 bytes transferred using HTTP compression in 18 files, ratio 26%, 14.0 requests per connection
+(1 errors, 2 warnings, 0 messages)

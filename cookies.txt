@@ -1,0 +1,5 @@
+# HTTrack Website Copier Cookie File
+# This file format is compatible with Netscape cookies
+.www.darknode.army	TRUE	/	FALSE	1999999999	_cfuvid	PJac2zz9a4zFHDhRiZIkYNv4AvXp9oI6HYsxaI8.sUM-1772621827928-0.0.1.1-604800000
+www.darknode.army	TRUE	/	FALSE	1999999999	SameSite	None
+

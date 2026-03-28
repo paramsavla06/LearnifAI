@@ -92,4 +92,7 @@ def report_narration(student_id: str):
 def custom_narration(body: CustomNarrateRequest):
     from narrator import _call_gemini
     system_prefix = "You are an expert engineering tutor at Mumbai University. "
-    return {"narrative": _call_gemini(system_prefix + body.prompt)}
+    result = _call_gemini(system_prefix + body.prompt)
+    if not result:
+        result = "AI narration is temporarily unavailable. Please try again later."
+    return {"narrative": result}

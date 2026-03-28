@@ -1,0 +1,542 @@
+[
+  {
+    "subject": "Engineering Mathematics (I, II, III, IV)",
+    "slugs": ["arithmetic", "trigonometry", "complex-numbers", "matrices-determinants", "ode", "laplace-transform", "fourier-series", "numerical-methods", "probability-statistics", "linear-algebra", "integral-calculus", "vector-calculus", "stats-ds"],
+    "recommended_books": [
+      {
+        "title": "Applied Mathematics I/II/III/IV",
+        "author": "G.V. Kumbhojkar",
+        "sections": [
+          "Module 1: Complex Numbers & Hyperbolic Functions",
+          "Module 2: Matrices & System of Linear Equations",
+          "Module 3: Differential & Integral Calculus",
+          "Module 4: Ordinary & Partial Differential Equations",
+          "Module 5: Laplace & Fourier Transforms",
+          "Module 6: Vector Calculus & Statistics"
+        ]
+      },
+      {
+        "title": "Higher Engineering Mathematics",
+        "author": "B.S. Grewal",
+        "sections": [
+          "Unit 1: Algebra, Vectors and Geometry",
+          "Unit 2: Calculus",
+          "Unit 3: Series and Differential Equations",
+          "Unit 4: Complex Analysis",
+          "Unit 5: Probability and Statistics",
+          "Unit 6: Numerical Techniques"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Basic Electrical Engineering (BEE)",
+    "slugs": ["charge-current-voltage", "ac-circuit-analysis", "basic-electrical-engg"],
+    "recommended_books": [
+      {
+        "title": "Basic Electrical Engineering",
+        "author": "Ravish Singh",
+        "sections": [
+          "Module 1: DC Circuits (Mesh & Nodal Analysis)",
+          "Module 2: DC Network Theorems (Thevenin, Norton, Superposition)",
+          "Module 3: AC Fundamentals & Single Phase Circuits",
+          "Module 4: Three Phase AC Circuits",
+          "Module 5: Single Phase Transformers",
+          "Module 6: Electrical Machines Basics"
+        ]
+      },
+      {
+        "title": "Basic Electrical Engineering",
+        "author": "B.R. Patil",
+        "sections": [
+          "Unit 1: Circuit Analysis Techniques",
+          "Unit 2: Network Theorems",
+          "Unit 3: Magnetic Circuits & Transformers",
+          "Unit 4: AC Circuit Analysis",
+          "Unit 5: Three Phase Systems",
+          "Unit 6: Introduction to Machine Operation"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Engineering Mechanics",
+    "slugs": ["engineering-mechanics"],
+    "recommended_books": [
+      {
+        "title": "Engineering Mechanics",
+        "author": "M.D. Dayal",
+        "sections": [
+          "Module 1: Force Systems & Resultants",
+          "Module 2: Equilibrium of Rigid Bodies",
+          "Module 3: Analysis of Structures (Trusses & Frames)",
+          "Module 4: Friction & Centroid",
+          "Module 5: Kinematics of Particles & Rigid Bodies",
+          "Module 6: Kinetics of Particles & Rigid Bodies"
+        ]
+      },
+      {
+        "title": "Engineering Mechanics",
+        "author": "N.H. Dubey",
+        "sections": [
+          "Section 1: Statics of Particles",
+          "Section 2: Statics of Rigid Bodies",
+          "Section 3: Centroid and Moment of Inertia",
+          "Section 4: Friction and Virtual Work",
+          "Section 5: Dynamics - Kinematics",
+          "Section 6: Dynamics - Kinetics"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Electronic Devices & Circuits (EDC)",
+    "slugs": ["diodes-rectifiers", "bjt-transistors", "fet-mosfet", "opamp-fundamentals", "active-filter-design"],
+    "recommended_books": [
+      {
+        "title": "Electronic Devices and Circuits",
+        "author": "J.B. Gupta",
+        "sections": [
+          "Module 1: Semiconductor Diodes & Applications",
+          "Module 2: Bipolar Junction Transistors (BJT)",
+          "Module 3: Field Effect Transistors (FET/MOSFET)",
+          "Module 4: Transistor Biasing & Thermal Stabilization",
+          "Module 5: Operational Amplifiers (Op-Amps)",
+          "Module 6: Feedback Amplifiers & Oscillators"
+        ]
+      },
+      {
+        "title": "Electronic Devices and Circuit Theory",
+        "author": "Boylestad & Nashelsky",
+        "sections": [
+          "Chapter 1: Diode Theory & Rectifiers",
+          "Chapter 2: BJT Modeling & Analysis",
+          "Chapter 3: FET Biasing & Design",
+          "Chapter 4: Op-Amp Fundamentals",
+          "Chapter 5: Power Amplifiers",
+          "Chapter 6: Active Filter Design"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Data Structures & Algorithms (DSA)",
+    "slugs": ["ds-data-structures", "dsa"],
+    "recommended_books": [
+      {
+        "title": "Fundamentals of Data Structures in C++",
+        "author": "Ellis Horowitz & Sartaj Sahni",
+        "sections": [
+          "Module 1: Introduction to Data Structures & Analysis",
+          "Module 2: Linked Lists (Linear & Non-linear)",
+          "Module 3: Stacks and Queues",
+          "Module 4: Trees (Binary, AVL, Heaps)",
+          "Module 5: Graphs and Hashing",
+          "Module 6: Sorting and Searching Techniques"
+        ]
+      },
+      {
+        "title": "Introduction to Algorithms",
+        "author": "Cormen, Leiserson, Rivest, Stein",
+        "sections": [
+          "Part 1: Foundations & Growth of Functions",
+          "Part 2: Sorting and Order Statistics",
+          "Part 3: Data Structures (Advanced)",
+          "Part 4: Advanced Design and Analysis Techniques",
+          "Part 5: Graph Algorithms",
+          "Part 6: Selected Topics (NP-Completeness)"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Database Management Systems (DBMS)",
+    "slugs": ["dbms", "sql-databases", "nosql-databases"],
+    "recommended_books": [
+      {
+        "title": "Database System Concepts",
+        "author": "Korth, Silberschatz, Sudarshan",
+        "sections": [
+          "Module 1: Introduction & Entity-Relationship Model",
+          "Module 2: Relational Model & SQL",
+          "Module 3: Relational Database Design (Normalization)",
+          "Module 4: Transaction Management & Concurrency",
+          "Module 5: Query Processing & Optimization",
+          "Module 6: NoSQL Introduction & Distributed Databases"
+        ]
+      },
+      {
+        "title": "Fundamentals of Database Systems",
+        "author": "Elmasri & Navathe",
+        "sections": [
+          "Unit 1: Data Modeling & ER Diagrams",
+          "Unit 2: Relational Algebra & SQL",
+          "Unit 3: Database Design Theory",
+          "Unit 4: Indexing and Storage",
+          "Unit 5: Transaction Processing",
+          "Unit 6: Emerging Database Technologies"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Operating Systems (OS)",
+    "slugs": ["operating-systems"],
+    "recommended_books": [
+      {
+        "title": "Operating System Concepts",
+        "author": "Silberschatz, Galvin, Gagne",
+        "sections": [
+          "Module 1: OS Overview & Process Management",
+          "Module 2: Process Scheduling & CPU Algorithms",
+          "Module 3: Process Synchronization & Deadlocks",
+          "Module 4: Memory Management & Virtual Memory",
+          "Module 5: File Systems & Storage Management",
+          "Module 6: Protection, Security & Case Studies (Linux/Windows)"
+        ]
+      },
+      {
+        "title": "Operating Systems: Internal and Design Principles",
+        "author": "William Stallings",
+        "sections": [
+          "Part 1: Processes & Threads",
+          "Part 2: Memory Management",
+          "Part 3: Scheduling",
+          "Part 4: I/O and File Systems",
+          "Part 5: Distributed Systems",
+          "Part 6: Computer Security"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Programming Languages (C, Python, Java)",
+    "slugs": ["python-programming", "c-programming", "java-programming"],
+    "recommended_books": [
+      {
+        "title": "Computer Programming in C",
+        "author": "Pradeep Day & Manas Ghosh",
+        "sections": [
+          "Module 1: Introduction to Programming & C Syntax",
+          "Module 2: Control Structures & Loops",
+          "Module 3: Functions and Recursion",
+          "Module 4: Arrays and Pointers",
+          "Module 5: Structures and Unions",
+          "Module 6: File Management in C"
+        ]
+      },
+      {
+        "title": "Core Java: An Integrated Approach",
+        "author": "R. Nageswara Rao",
+        "sections": [
+          "Unit 1: Java Fundamentals & OOPs Concepts",
+          "Unit 2: Inheritance, Polymorphism & Interfaces",
+          "Unit 3: Exception Handling & Multithreading",
+          "Unit 4: Java Collections Framework",
+          "Unit 5: GUI Programming (AWT/Swing)",
+          "Unit 6: Java Database Connectivity (JDBC)"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Machine Learning & AI",
+    "slugs": ["ml-fundamentals", "deep-learning", "nlp"],
+    "recommended_books": [
+      {
+        "title": "Machine Learning",
+        "author": "Tom Mitchell",
+        "sections": [
+          "Module 1: Introduction & Concept Learning",
+          "Module 2: Decision Tree Learning",
+          "Module 3: Artificial Neural Networks",
+          "Module 4: Bayesian Learning",
+          "Module 5: Computational Learning Theory",
+          "Module 6: Instance-Based & Reinforcement Learning"
+        ]
+      },
+      {
+        "title": "Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow",
+        "author": "Aurélien Géron",
+        "sections": [
+          "Part 1: Machine Learning Landscape",
+          "Part 2: Supervised Learning (Regression/Classification)",
+          "Part 3: Unsupervised Learning (Clustering/DR)",
+          "Part 4: Neural Networks and Deep Learning",
+          "Part 5: Convolutional & Recurrent Neural Networks",
+          "Part 6: Natural Language Processing (NLP)"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Software Engineering",
+    "slugs": ["software-engineering"],
+    "recommended_books": [
+      {
+        "title": "Software Engineering: A Practitioner's Approach",
+        "author": "Roger Pressman",
+        "sections": [
+          "Module 1: Software Process Models",
+          "Module 2: Requirements Engineering",
+          "Module 3: Software Design Concepts",
+          "Module 4: Software Quality & Testing",
+          "Module 5: Project Management & Risk Analysis",
+          "Module 6: Software Evolution & Maintenance"
+        ]
+      },
+      {
+        "title": "Software Engineering",
+        "author": "Ian Sommerville",
+        "sections": [
+          "Unit 1: Introduction to Software Engineering",
+          "Unit 2: Software Development Methodologies",
+          "Unit 3: System Modeling",
+          "Unit 4: Software Verification & Validation",
+          "Unit 5: Project Management",
+          "Unit 6: Socio-technical Systems"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Microprocessors & Microcontrollers",
+    "slugs": ["microcontrollers"],
+    "recommended_books": [
+      {
+        "title": "Microprocessors & Microcontrollers",
+        "author": "Ramesh Gaonkar",
+        "sections": [
+          "Module 1: 8085 Microprocessor Architecture",
+          "Module 2: 8085 Instruction Set & Programming",
+          "Module 3: 8086 Microprocessor Overview",
+          "Module 4: 8051 Microcontroller Architecture",
+          "Module 5: Interfacing with Peripherals",
+          "Module 6: Real-time Operating Systems Concepts"
+        ]
+      },
+      {
+        "title": "The 8051 Microcontroller and Embedded Systems",
+        "author": "Muhammad Ali Mazidi",
+        "sections": [
+          "Chapter 1: 8051 Architecture & Assembly",
+          "Chapter 2: I/O Port Programming",
+          "Chapter 3: Timers and Counters",
+          "Chapter 4: Serial Port Communication",
+          "Chapter 5: Interrupt Programming",
+          "Chapter 6: Interfacing External Memory"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Control Systems",
+    "slugs": ["control-systems"],
+    "recommended_books": [
+      {
+        "title": "Control Systems Engineering",
+        "author": "I.J. Nagrath & M. Gopal",
+        "sections": [
+          "Module 1: Control System Modeling",
+          "Module 2: Time Response Analysis",
+          "Module 3: Stability Analysis (Routh-Hurwitz)",
+          "Module 4: Root Locus Technique",
+          "Module 5: Frequency Response Analysis (Bode/Nyquist)",
+          "Module 6: State Space Analysis"
+        ]
+      },
+      {
+        "title": "Modern Control Engineering",
+        "author": "Katsuhiko Ogata",
+        "sections": [
+          "Unit 1: Laplace Transforms & Modeling",
+          "Unit 2: Mathematical Modeling of Systems",
+          "Unit 3: Transient Response Analysis",
+          "Unit 4: Root Locus Method",
+          "Unit 5: Frequency Response Design",
+          "Unit 6: Control Systems Design via State Space"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Signals & Systems / DSP",
+    "slugs": ["signals-systems"],
+    "recommended_books": [
+      {
+        "title": "Signals and Systems",
+        "author": "Alan V. Oppenheim",
+        "sections": [
+          "Module 1: Basics of Signals and Systems",
+          "Module 2: LTI Systems & Convolution",
+          "Module 3: Continuous-Time Fourier Transform",
+          "Module 4: Discrete-Time Fourier Transform",
+          "Module 5: Sampling Theorem",
+          "Module 6: Z-Transform and Applications"
+        ]
+      },
+      {
+        "title": "Digital Signal Processing",
+        "author": "Proakis & Manolakis",
+        "sections": [
+          "Chapter 1: Discrete-Time Signals & Systems",
+          "Chapter 2: Discrete Fourier Transform (DFT)",
+          "Chapter 3: Fast Fourier Transform (FFT)",
+          "Chapter 4: Digital Filter Design (IIR/FIR)",
+          "Chapter 5: Multirate Signal Processing",
+          "Chapter 6: Adaptive Filtering"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Thermodynamics & Heat Transfer",
+    "slugs": ["thermodynamics", "heat-transfer"],
+    "recommended_books": [
+      {
+        "title": "Engineering Thermodynamics",
+        "author": "P.K. Nag",
+        "sections": [
+          "Module 1: Basic Concepts and Zeroth Law",
+          "Module 2: First Law of Thermodynamics",
+          "Module 3: Second Law of Thermodynamics & Entropy",
+          "Module 4: Availability and Irreversibility",
+          "Module 5: Properties of Pure Substances",
+          "Module 6: Gas Power & Vapor Power Cycles"
+        ]
+      },
+      {
+        "title": "Heat and Mass Transfer",
+        "author": "R.K. Rajput",
+        "sections": [
+          "Unit 1: Basic Laws of Heat Transfer",
+          "Unit 2: Steady State Conduction",
+          "Unit 3: Transient Heat Conduction",
+          "Unit 4: Convective Heat Transfer",
+          "Unit 5: Radiation Heat Transfer",
+          "Unit 6: Heat Exchangers"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Mechanical Engineering Design & Theory",
+    "slugs": ["theory-of-machines", "machine-design", "manufacturing-processes", "strength-of-materials", "fluid-mechanics"],
+    "recommended_books": [
+      {
+        "title": "Theory of Machines",
+        "author": "S.S. Rattan",
+        "sections": [
+          "Module 1: Kinematic Pairs and Inversions",
+          "Module 2: Velocity and Acceleration Analysis",
+          "Module 3: Cams and Followers",
+          "Module 4: Gears and Gear Trains",
+          "Module 5: Governors and Gyroscopes",
+          "Module 6: Balancing and Vibrations"
+        ]
+      },
+      {
+        "title": "Design of Machine Elements",
+        "author": "V.B. Bhandari",
+        "sections": [
+          "Unit 1: Design Philosophy & Stress Analysis",
+          "Unit 2: Design of Fasteners (Threaded/Welded)",
+          "Unit 3: Design of Shafts, Keys, and Couplings",
+          "Unit 4: Design of Springs",
+          "Unit 5: Design of Power Screws",
+          "Unit 6: Introduction to Bearings"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Civil Engineering Core",
+    "slugs": ["surveying", "rcc-design", "structural-analysis-1", "soil-mechanics"],
+    "recommended_books": [
+      {
+        "title": "Surveying Vol. I & II",
+        "author": "B.C. Punmia",
+        "sections": [
+          "Module 1: Chain and Compass Surveying",
+          "Module 2: Leveling and Contouring",
+          "Module 3: Theodolite Surveying & Traversing",
+          "Module 4: Curves (Linear/Vertical)",
+          "Module 5: Tacheometry and Triangulation",
+          "Module 6: Modern Surveying Methods (GPS/GIS)"
+        ]
+      },
+      {
+        "title": "Design of Reinforced Concrete Structures",
+        "author": "N. Subramanian",
+        "sections": [
+          "Unit 1: Introduction to RCC & Working Stress Method",
+          "Unit 2: Limit State Method - Flexure",
+          "Unit 3: Limit State Method - Shear and Torsion",
+          "Unit 4: Design of Beams and Slabs",
+          "Unit 5: Design of Columns",
+          "Unit 6: Design of Footings"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Electrical Power Systems & Machines",
+    "slugs": ["ac-machines", "power-systems-1", "power-electronics", "switchgear-protection", "high-voltage-engg"],
+    "recommended_books": [
+      {
+        "title": "Electric Machines",
+        "author": "D.P. Kothari & I.J. Nagrath",
+        "sections": [
+          "Module 1: Transformers",
+          "Module 2: DC Machines",
+          "Module 3: Three-Phase Induction Motors",
+          "Module 4: Single-Phase Induction Motors",
+          "Module 5: Synchronous Generators",
+          "Module 6: Synchronous Motors"
+        ]
+      },
+      {
+        "title": "Power System Engineering",
+        "author": "C.L. Wadhwa",
+        "sections": [
+          "Unit 1: Generation & Transmission Line Parameters",
+          "Unit 2: Performance of Transmission Lines",
+          "Unit 3: Insulators and Cables",
+          "Unit 4: Fault Analysis",
+          "Unit 5: Switchgear and Protection Basics",
+          "Unit 6: Economic Operation of Power Systems"
+        ]
+      }
+    ]
+  },
+  {
+    "subject": "Industrial & Automation",
+    "slugs": ["industrial-engg-mgmt", "plc-automation", "renewable-energy", "drives-control"],
+    "recommended_books": [
+      {
+        "title": "Industrial Engineering and Management",
+        "author": "O.P. Khanna",
+        "sections": [
+          "Module 1: Management Concepts and Functions",
+          "Module 2: Plant Location and Layout",
+          "Module 3: Work Study and Ergonomics",
+          "Module 4: Production Planning & Control",
+          "Module 5: Inventory Management (EOQ)",
+          "Module 6: Quality Control and Reliability"
+        ]
+      },
+      {
+        "title": "Automation, Production Systems, and Computer-Integrated Manufacturing",
+        "author": "Mikell P. Groover",
+        "sections": [
+          "Unit 1: Introduction to Automation",
+          "Unit 2: Control Technologies (PLC/DCS)",
+          "Unit 3: Material Handling Systems",
+          "Unit 4: Quality Control in Manufacturing",
+          "Unit 5: Industrial Robotics",
+          "Unit 6: Flexible Manufacturing Systems"
+        ]
+      }
+    ]
+  }
+]

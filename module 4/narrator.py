@@ -1,6 +1,7 @@
 """
 Module 4 - LLM Narration
 Gemini API client + prompt builder for educational narratives.
+Gracefully falls back to structured offline narratives when API is unavailable.
 """
 
 import google.generativeai as genai
@@ -12,13 +13,13 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 # Gemini Configuration
-MODEL_NAME = "gemini-2.5-flash"
+MODEL_NAME = "gemini-2.0-flash"
 api_key = os.environ.get("GEMINI_API_KEY", "")
 
 if not api_key:
-    print("[ERROR] GEMINI_API_KEY is not set in the environment!")
+    print("[INFO] GEMINI_API_KEY not set — narration will use offline fallback.")
 else:
-    print(f"[SUCCESS] GEMINI_API_KEY loaded successfully (Ends in: ...{api_key[-4:]})")
+    print(f"[OK] GEMINI_API_KEY loaded (ends ...{api_key[-4:]})")
     genai.configure(api_key=api_key)
 
 def _get_model():
@@ -30,10 +31,11 @@ def _get_model():
         return None
 
 def _call_gemini(prompt: str) -> str:
+    """Call Gemini API. Returns empty string on any failure (caller handles fallback)."""
     model = _get_model()
     if not model:
-        return "LLM narration unavailable — GEMINI_API_KEY not set."
-    
+        return ""
+
     try:
         response = model.generate_content(
             prompt,
@@ -42,15 +44,19 @@ def _call_gemini(prompt: str) -> str:
                 temperature=0.7,
             )
         )
-        # Check if Gemini blocked the response due to safety
-        if response.candidates and response.candidates[0].finish_reason != 1: # 1 is STOP
-            print(f"[WARNING] Gemini stopped early. Reason: {response.candidates[0].finish_reason}")
-            
+        if response.candidates and response.candidates[0].finish_reason != 1:
+            print(f"[WARN] Gemini stopped early: {response.candidates[0].finish_reason}")
+
         return response.text.strip()
     except Exception as e:
-        error_msg = str(e)
-        print(f"Gemini API Error: {error_msg}")
-        return f"Gemini Error: {error_msg}. Check your terminal logs or API dashboard."
+        # Log full error for debugging, but never expose it to the user
+        print(f"[WARN] Gemini API call failed: {e}")
+        return ""
+
+
+# ---------------------------------------------------------------------------
+# Narrate: Root Cause Diagnosis
+# ---------------------------------------------------------------------------
 
 def narrate_root_cause(
     failed_concept: str,
@@ -59,14 +65,11 @@ def narrate_root_cause(
     student_id: str = "Student",
 ) -> str:
     if not gap_chain:
-        return f"No prerequisite gaps found. Student is ready for {failed_concept}."
+        return f"No prerequisite gaps found. {student_id} is ready for {failed_concept}."
 
-    chain_text = "\n".join([f"{i+1}. {g['name']} (mastery: {g.get('mastery_score', -1):.0%})" 
+    chain_text = "\n".join([f"{i+1}. {g['name']} (mastery: {g.get('mastery_score', -1):.0%})"
                             for i, g in enumerate(gap_chain)])
     root_cause_name = gap_chain[0]['name']
-
-    import datetime
-    now_str = datetime.datetime.now().strftime("%H:%M:%S")
 
     prompt = f"""
     You are an expert engineering tutor at Mumbai University.
@@ -85,8 +88,22 @@ def narrate_root_cause(
     Keep it under 100 words. Use simple language, no jargon.
     Do not use bullet points. Write in paragraph form only.
     """
-    return _call_gemini(prompt)
+    result = _call_gemini(prompt)
+    if result:
+        return result
 
+    # ── Offline fallback narrative ──
+    path_names = " → ".join(g["name"] for g in gap_chain)
+    return (
+        f"To master {failed_concept}, you first need a solid foundation in {root_cause_name}. "
+        f"Follow this study path: {path_names}. "
+        f"Take it one concept at a time — you've got this!"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Narrate: Learning Path
+# ---------------------------------------------------------------------------
 
 def narrate_learning_path(
     target_concept: str,
@@ -110,7 +127,21 @@ def narrate_learning_path(
 
     Under 60 words. No bullet points.
     """
-    return _call_gemini(prompt)
+    result = _call_gemini(prompt)
+    if result:
+        return result
+
+    # ── Offline fallback ──
+    first_name = concept_names.get(path[0], path[0])
+    return (
+        f"Your journey to {target_concept} starts with {first_name} and covers {len(path)} concepts. "
+        f"Begin by reviewing {first_name} — try working through practice problems to build confidence."
+    )
+
+
+# ---------------------------------------------------------------------------
+# Narrate: Mastery Report
+# ---------------------------------------------------------------------------
 
 def narrate_mastery_report(
     student_id: str,
@@ -140,4 +171,23 @@ def narrate_mastery_report(
 
     Under 100 words. Formal but encouraging tone.
     """
-    return _call_gemini(prompt)
+    result = _call_gemini(prompt)
+    if result:
+        return result
+
+    # ── Offline fallback ──
+    lines = [
+        f"Student {student_id} has been assessed on {total_assessed} concepts across {len(subject_summary)} subjects.",
+    ]
+    if strong_concepts:
+        lines.append(f"Strong performance in: {strong_names}.")
+    else:
+        lines.append("No strong mastery areas identified yet.")
+
+    if gaps:
+        lines.append(f"Priority gaps to address: {gap_names}.")
+    else:
+        lines.append("No significant gaps detected — great work!")
+
+    lines.append("Focus on the weakest areas first, then revisit to reinforce understanding.")
+    return " ".join(lines)

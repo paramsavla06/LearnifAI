@@ -58,46 +58,45 @@ def fetch_bridge_concepts():
     import sqlite3
     sys.path.insert(0, MODULE1_PATH)
     from graph_db import DB_PATH
-    
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
-    
-    # Bridge score logic sorted by count
-    rows = conn.execute("""
-        SELECT slug, name, s.name as subject_name, count
-        FROM (
-            SELECT slug, COUNT(*) as count FROM (
-                SELECT slug_a as slug FROM cross_subject_links
-                UNION ALL
-                SELECT slug_b as slug FROM cross_subject_links
-            ) GROUP BY slug
-        ) AS counts
-        JOIN concepts c ON c.slug = counts.slug
-        JOIN subjects s ON s.id = c.subject_id
-        ORDER BY count DESC
-        LIMIT 10
-    """).fetchall()
-    
+
+    # Count appearances per slug across both columns — Python-side aggregation
+    # avoids SQLite subquery column-alias ambiguity that caused 500 errors
+    slug_counts: dict = {}
+    for row in conn.execute("SELECT slug_a as slug FROM cross_subject_links").fetchall():
+        slug_counts[row["slug"]] = slug_counts.get(row["slug"], 0) + 1
+    for row in conn.execute("SELECT slug_b as slug FROM cross_subject_links").fetchall():
+        slug_counts[row["slug"]] = slug_counts.get(row["slug"], 0) + 1
+
+    # Top 10 by bridge score
+    top_slugs = sorted(slug_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+
     bridge_concepts = []
-    for r in rows:
-        # Also find linked subjects
+    for slug, count in top_slugs:
+        concept = conn.execute("""
+            SELECT c.name, s.name as subject_name
+            FROM concepts c JOIN subjects s ON s.id = c.subject_id
+            WHERE c.slug = ?
+        """, (slug,)).fetchone()
+
         linked_subjects = set()
-        links = get_links_for_concept(r['slug'])
-        for l in links:
-             linked_subjects.add(l['subject_a'])
-             linked_subjects.add(l['subject_b'])
-        
-        if r['subject_name'] in linked_subjects:
-             linked_subjects.remove(r['subject_name'])
-             
+        for lnk in get_links_for_concept(slug):
+            linked_subjects.add(lnk["subject_a"])
+            linked_subjects.add(lnk["subject_b"])
+
+        subject = concept["subject_name"] if concept else "Unknown"
+        linked_subjects.discard(subject)
+
         bridge_concepts.append({
-            "slug": r['slug'],
-            "name": r['name'],
-            "subject": r['subject_name'],
-            "bridge_score": r['count'],
-            "linked_subjects": list(linked_subjects)
+            "slug": slug,
+            "name": concept["name"] if concept else slug,
+            "subject": subject,
+            "bridge_score": count,
+            "linked_subjects": list(linked_subjects),
         })
-        
+
     conn.close()
     return {"bridge_concepts": bridge_concepts}
 

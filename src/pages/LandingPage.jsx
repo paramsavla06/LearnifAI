@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import * as THREE from 'three';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Ballpit from '../components/Ballpit';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -273,6 +274,34 @@ const LandingPage = () => {
             >
               Enter Dashboard
             </motion.button>
+          </motion.div>
+        </section>
+
+        {/* Section 5: Conceptual Universe */}
+        <section className="scroll-section items-center text-center">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            className="w-full"
+          >
+            <h2 className="section-title mb-4">Conceptual <span className="text-primary-accent">Universe</span></h2>
+            <p className="section-desc max-w-2xl mx-auto mb-12">
+              Every sphere represents a unique educational concept. Interact with the pool of 
+              knowledge and watch how ideas collide, adapt, and settle into a coherent understanding.
+            </p>
+            <div style={{position: 'relative', overflow: 'hidden', minHeight: '500px', maxHeight: '500px', width: '100%'}}>
+              <Ballpit
+                count={100}
+                gravity={0.005}
+                friction={0.999}
+                wallBounce={0.98}
+                maxVelocity={0.2}
+                minSize={0.8}
+                maxSize={1.2}
+                followCursor={false}
+              />
+            </div>
           </motion.div>
         </section>
       </div>

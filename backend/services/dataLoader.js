@@ -6,7 +6,7 @@
  *   recommended_books.json — from ojayit (books per subject)
  */
 
-import { readFileSync } from 'fs'
+import { readFileSync, existsSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 
@@ -15,13 +15,22 @@ const dataDir = join(__dirname, '..', '..', 'src', 'data')
 const localDir = join(__dirname, '..', 'data')
 
 function load(filePath) {
-    return JSON.parse(readFileSync(filePath, 'utf-8'))
+    if (!existsSync(filePath)) {
+        console.error(`[DataLoader] ❌ File not found: ${filePath}`)
+        return null
+    }
+    try {
+        return JSON.parse(readFileSync(filePath, 'utf-8'))
+    } catch (e) {
+        console.error(`[DataLoader] ❌ Failed to parse ${filePath}:`, e.message)
+        return null
+    }
 }
 
 // ─── Load data ────────────────────────────────────────────────────────────────
-export const conceptsData   = load(join(dataDir, 'concepts.json'))
-export const questionsData  = load(join(dataDir, 'questions.json'))
-export const recommendedBooks = load(join(localDir, 'recommended_books.json'))
+export const conceptsData     = load(join(dataDir, 'concepts.json'))   || { subjects: [] }
+export const questionsData    = load(join(dataDir, 'questions.json'))  || []
+export const recommendedBooks = load(join(localDir, 'recommended_books.json')) || []
 
 // ─── Build flat lookup maps ────────────────────────────────────────────────────
 
@@ -53,11 +62,11 @@ for (const entry of recommendedBooks) {
 // slug → recommended books (via subject match)
 export const booksBySlug = {}
 for (const entry of recommendedBooks) {
-    for (const slug of entry.slugs) {
+    for (const slug of (entry.slugs || [])) {
         booksBySlug[slug] = entry.recommended_books
     }
 }
 
-console.log(`[DataLoader] Loaded ${Object.keys(conceptBySlug).length} concepts`)
-console.log(`[DataLoader] Loaded ${questionsData.length} questions across ${Object.keys(questionsBySlug).length} slugs`)
-console.log(`[DataLoader] Loaded ${recommendedBooks.length} subject book entries`)
+console.log(`[DataLoader] ✅ Loaded ${Object.keys(conceptBySlug).length} concepts`)
+console.log(`[DataLoader] ✅ Loaded ${questionsData.length} questions across ${Object.keys(questionsBySlug).length} slugs`)
+console.log(`[DataLoader] ✅ Loaded ${recommendedBooks.length} subject book entries`)

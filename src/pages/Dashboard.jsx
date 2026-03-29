@@ -35,6 +35,7 @@ import {
 } from "lucide-react"
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002'
+console.log('[Dashboard] API_BASE points to:', API_BASE)
 
 
 // ── Diagnostic Banner ─────────────────────────────────────────────────────────

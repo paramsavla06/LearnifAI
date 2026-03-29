@@ -5,6 +5,7 @@ import { Brain, ArrowRight, User, Mail, GraduationCap, Building2, Lock, Loader2,
 import { ScrollReveal } from '../components/ui/ScrollReveal'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002'
+console.log('[Auth] API_BASE points to:', API_BASE)
 
 
 export default function AuthPage() {

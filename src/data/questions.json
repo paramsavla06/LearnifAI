@@ -2,10 +2,14 @@
   { "slug": "arithmetic", "q": "What is the remainder when 234 is divided by 7?", "a": "1", "b": "2", "c": "3", "d": "4", "ans": "c", "diff": 1 },
   { "slug": "arithmetic", "q": "What is the GCD of 48 and 18?", "a": "2", "b": "6", "c": "12", "d": "8", "ans": "b", "diff": 1 },
   { "slug": "arithmetic", "q": "Simplify: 15% of 200 + 40", "a": "70", "b": "50", "c": "60", "d": "80", "ans": "a", "diff": 1 },
+  { "slug": "arithmetic", "q": "If x + 5 = 12, what is x?", "a": "7", "b": "17", "c": "60", "d": "5", "ans": "a", "diff": 1 },
+  { "slug": "arithmetic", "q": "Which is a prime number?", "a": "4", "b": "9", "c": "11", "d": "15", "ans": "c", "diff": 1 },
 
   { "slug": "trigonometry", "q": "Value of sin²(x) + cos²(x) is:", "a": "0", "b": "sin(2x)", "c": "1", "d": "tan(x)", "ans": "c", "diff": 1 },
   { "slug": "trigonometry", "q": "What is the value of tan(45°)?", "a": "0", "b": "1", "c": "0.5", "d": "Infinity", "ans": "b", "diff": 1 },
   { "slug": "trigonometry", "q": "The value of cos(90°) is:", "a": "1", "b": "0", "c": "-1", "d": "0.5", "ans": "b", "diff": 1 },
+  { "slug": "trigonometry", "q": "If sin(x) = 1, x could be:", "a": "0°", "b": "90°", "c": "180°", "d": "45°", "ans": "b", "diff": 1 },
+  { "slug": "trigonometry", "q": "The ratio of sin/cos is:", "a": "cot", "b": "tan", "c": "sec", "d": "cosec", "ans": "b", "diff": 1 },
 
   { "slug": "complex-numbers", "q": "The value of i² is:", "a": "1", "b": "-1", "c": "0", "d": "i", "ans": "b", "diff": 1 },
   { "slug": "complex-numbers", "q": "What is the modulus of 3 + 4i?", "a": "7", "b": "5", "c": "25", "d": "1", "ans": "b", "diff": 2 },

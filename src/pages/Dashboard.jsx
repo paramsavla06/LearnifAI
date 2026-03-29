@@ -152,7 +152,7 @@ export default function Dashboard() {
   const rotateX = useMotionValue(-20)
   const rotateY = useMotionValue(25)
   const [userName, setUserName] = useState('')
-  const [data, setData] = useState({ learningHours: [], totalHoursThisWeek: 0, peakDay: '', subjects: [], mentors: [] })
+  const [data, setData] = useState({ learningHours: [], totalHoursThisWeek: 0, peakDay: '', subjects: [], explorerConcepts: [], mentors: [] })
   const navigate = useNavigate()
 
   // Course Details State
@@ -227,38 +227,36 @@ export default function Dashboard() {
   ]
   const subjects = data.subjects || []
   
-  // To ensure the 6-sided 3D Concept Cube (9 slots per face = 54 total) looks dense and premium, 
+  // To ensure the 6-sided 3D Concept Cube (4 slots per face = 24 total) looks dense and premium, 
   // we'll fill any missing items with real concepts from the curriculum.
-  const curriculumItems = []
+  const curriculumConcepts = []
+  const subConcepts = []
   
-  if (curriculumData.subjects) {
-    curriculumData.subjects.forEach(sub => {
-      if (sub.name) curriculumItems.push(sub.name)
-    })
-  }
-
-  if (curriculumData.topics) {
-    curriculumData.topics.forEach(top => {
-      if (top.name) curriculumItems.push(top.name)
-    })
-  }
+  // Use primary curriculum data structure (subjects array)
+  // to populate the cube with real academic topics
+  Object.values(curriculumData.subjects || {}).forEach(sub => {
+    if (sub.name && !curriculumConcepts.includes(sub.name)) {
+      curriculumConcepts.push(sub.name)
+    }
+  })
   
-  const dummyTopics = curriculumItems.sort(() => 0.5 - Math.random())
+  // Keep main subjects first, then pad the remaining slots
+  const dummyTopics = [...curriculumConcepts]
   
   const dummyIcons = ["Sparkles", "Brain", "Cpu", "LineChart", "Activity", "Target", "Compass", "Terminal", "Zap", "CheckCircle2"]
   const dummyColors = [
-    { bg: "bg-blue-500/10", text: "text-blue-400" }, { bg: "bg-purple-500/10", text: "text-purple-400" },
-    { bg: "bg-green-500/10", text: "text-green-400" }, { bg: "bg-yellow-500/10", text: "text-yellow-400" },
-    { bg: "bg-red-500/10", text: "text-red-400" }, { bg: "bg-orange-500/10", text: "text-orange-400" }
+    { bg: "bg-blue-500/20", text: "text-blue-400" }, { bg: "bg-purple-500/20", text: "text-purple-400" },
+    { bg: "bg-green-500/20", text: "text-green-400" }, { bg: "bg-yellow-500/20", text: "text-yellow-400" },
+    { bg: "bg-red-500/20", text: "text-red-400" }, { bg: "bg-orange-500/20", text: "text-orange-400" }
   ]
 
   let activeSubjects = [...subjects]
   const existingNames = new Set(activeSubjects.map(s => s.name.toLowerCase()))
   
-  // Fill remaining slots up to 54 (9 per face)
+  // Fill remaining slots using unique curriculum subjects (no duplicates)
   let i = 0;
   for (const topicName of dummyTopics) {
-    if (activeSubjects.length >= 54) break;
+    if (activeSubjects.length >= 24) break; 
     if (!existingNames.has(topicName.toLowerCase())) {
       existingNames.add(topicName.toLowerCase())
       const colorSet = dummyColors[i % dummyColors.length]
@@ -268,19 +266,23 @@ export default function Dashboard() {
         iconStr: dummyIcons[i % dummyIcons.length],
         color: colorSet.bg,
         textColor: colorSet.text,
-        progress: Math.floor(Math.random() * 80) + 10,
+        progress: Math.floor(Math.random() * 20), // Low mastery for new topics
         lessons: Math.floor(Math.random() * 20) + 3,
-        hours: Math.floor(Math.random() * 15) + 1
+        hours: Math.floor(Math.random() * 5)
       })
       i++;
     }
   }
 
-  // Strictly enforce 9 tiles per face
+  // Strictly enforce 4 tiles per face for the 2x2 grid
+  // THis is critical for the .filter(s => s.face === faceName) check in the render loop
   activeSubjects = activeSubjects.map((sub, idx) => ({
     ...sub,
-    face: faces[Math.floor(idx / 9) % 6]
+    face: faces[Math.floor(idx / 4) % 6],
+    color: sub.color || "bg-blue-500/10",
+    textColor: sub.textColor || "text-blue-400"
   }))
+
 
   const mentors = [
     { name: "Dr. Anjali Sharma", role: "Machine Learning Specialist", department: "Computer Engineering", rating: 4.9, reviewCount: 124 },
@@ -390,26 +392,29 @@ export default function Dashboard() {
                     {faces.map((faceName) => (
                       <motion.div 
                         key={faceName} 
-                        className={`cuboid-face cuboid-face-${faceName}`}
+                        className={`cuboid-face cuboid-face-${faceName} grid grid-cols-2 grid-rows-2 gap-2 p-2`}
                         style={{
                           transform: `${faceRotations[faceName]} translateZ(${faceOffsets[faceName]}px)`,
                         }}
                       >
-                        {activeSubjects.filter(s => s.face === faceName).map((subject, j) => {
-                          const Icon = ICON_MAP[subject.iconStr] || Sparkles
+                        {(data.explorerConcepts || []).filter(s => s.face === faceName).map((concept, j) => {
+                          const Icon = ICON_MAP[concept.iconStr] || Sparkles
                           return (
                           <motion.div 
                             key={j} 
-                            onClick={() => setSelectedConcept(subject)}
-                            className="cuboid-tile group cursor-pointer"
+                            onClick={() => setSelectedConcept(concept)}
+                            className="cuboid-tile group cursor-pointer p-4 flex flex-col items-center justify-center text-center overflow-hidden"
                             whileHover={{ 
-                              z: 40,
+                              scale: 1.05,
                               backgroundColor: "rgba(255, 216, 95, 1)",
                               transition: { type: "spring", stiffness: 300, damping: 20 }
                             }}
                           >
-                            <Icon className="w-8 h-8 text-[#FFD85F]/80 group-hover:text-black mb-2 transition-all duration-300" />
-                            <span className="text-[10px] font-bold uppercase tracking-tighter text-[#FFD85F] group-hover:text-black text-center">{subject.name}</span>
+                            <Icon className="w-6 h-6 text-[#FFD85F]/80 group-hover:text-black mb-2 transition-all duration-300" />
+                            <span className="text-[10px] font-black uppercase tracking-tighter text-[#FFD85F] group-hover:text-black mb-1 line-clamp-1">{concept.name}</span>
+                            <p className="text-[8px] font-bold text-white/40 group-hover:text-black/60 line-clamp-2 leading-tight">
+                              {concept.description}
+                            </p>
                           </motion.div>
                         )})}
                       </motion.div>
@@ -465,8 +470,16 @@ export default function Dashboard() {
                           <span className="text-xs font-bold text-primary-accent">AI RECOMMENDATION</span>
                         </div>
                         <p className="text-sm text-white/80 leading-relaxed">
-                          Your mastery in {selectedConcept.name} could be improved. We recommend visiting the Library to review your recent topic.
+                          Your mastery in {selectedConcept.name} could be improved. We recommend visiting the Library to review {selectedConcept.subjectName || 'your recent topic'}.
                         </p>
+                        {selectedConcept.subjectName && (
+                          <button 
+                            onClick={() => navigate(`/dashboard?course=${encodeURIComponent(selectedConcept.subjectName)}`)}
+                            className="w-full mt-4 py-3 bg-primary-accent text-black rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-primary-accent/20"
+                          >
+                            Explore Full Syllabus
+                          </button>
+                        )}
                       </div>
                       
                       <div>
@@ -506,7 +519,10 @@ export default function Dashboard() {
         <div className="lg:col-span-4 space-y-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold">My Courses</h3>
-            <button className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+            <button 
+              onClick={() => navigate('/my-courses')}
+              className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+            >
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

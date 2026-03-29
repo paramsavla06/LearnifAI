@@ -27,8 +27,9 @@ export default function Navbar() {
         const updateAuth = () => {
             const storedName = localStorage.getItem('learnifai_user_name')
             const rollNo = localStorage.getItem('learnifai_user_roll_no') || ''
+            const role = localStorage.getItem('learnifai_user_role') || ''
             if (storedName) setUserName(storedName)
-            setIsAdmin(rollNo === 'admin' || storedName?.toLowerCase() === 'admin')
+            setIsAdmin(role === 'admin' || rollNo === 'admin' || storedName?.toLowerCase() === 'admin')
         }
 
         updateAuth()
@@ -89,7 +90,9 @@ export default function Navbar() {
                     <div className="hidden sm:flex items-center gap-3 relative group">
                         <div className="text-right">
                             <p className="text-sm font-bold text-white leading-none">{userName}</p>
-                            <p className="text-[10px] text-primary-accent font-medium mt-0.5 uppercase tracking-wider">Pro Student</p>
+                            <p className="text-[10px] text-primary-accent font-medium mt-0.5 uppercase tracking-wider">
+                                {isAdmin ? 'Pro Teacher' : 'Pro Student'}
+                            </p>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-primary-accent flex items-center justify-center font-bold text-black border-2 border-white">{userInitial}</div>
                         <div className="absolute top-full right-0 mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">

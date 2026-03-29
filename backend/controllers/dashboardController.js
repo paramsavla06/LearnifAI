@@ -1,4 +1,5 @@
 import { supabase } from '../supabase/client.js'
+import { conceptBySlug } from '../services/dataLoader.js'
 
 const ICONS      = ["Sparkles","BookOpen","Cpu","Brain","Compass","LineChart","Activity","Target"]
 const COLORS     = ["bg-blue-500/20","bg-orange-500/20","bg-purple-500/20","bg-emerald-500/20","bg-pink-500/20","bg-indigo-500/20","bg-yellow-500/20","bg-cyan-500/20"]
@@ -58,7 +59,7 @@ export const getDashboardData = async (req, res) => {
         // ── 3. Per-subject mastery from concept_performance (real data) ───────────
         const { data: perfData } = await supabase
             .from('concept_performance')
-            .select('concept_slug, accuracy, attempts, concepts!inner(name, subjects!inner(name))')
+            .select('concept_slug, accuracy, attempts, concepts!inner(name, description, subjects!inner(name))')
             .eq('user_id', userId)
 
         const subjectsMap = {}
@@ -92,35 +93,69 @@ export const getDashboardData = async (req, res) => {
             idx++
         }
 
-        // ── 4. Fallback: if no tests taken yet, show subjects for user's branch ───
-        if (enrolledSubjects.length === 0) {
-            const filter = user.branch
-                ? supabase.from('subjects').select('name').eq('branch', user.branch).limit(4)
-                : supabase.from('subjects').select('name').limit(4)
-            const { data: branchSubjects } = await filter
+        // ── 4. Explorer Concepts (2x2 per face = 24 max) ─────────────────────────
+        let explorerConcepts = []
+        
+        try {
+            // Priority 1: Supabase
+            const { data: eData } = await supabase
+                .from('concepts')
+                .select(`name, description, subjects ( name )`)
+                .limit(24)
 
-            ;(branchSubjects || []).forEach((sub, i) => {
-                enrolledSubjects.push({
-                    name:       sub.name,
-                    iconStr:    ICONS[i % ICONS.length],
-                    face:       CUBE_FACES[i % CUBE_FACES.length],
-                    color:      COLORS[i % COLORS.length],
-                    textColor:  TEXT_COLORS[i % TEXT_COLORS.length],
-                    progress:   0,
-                    lessons:    0,
-                    hours:      0,
-                    attempts:   0
+            if (eData && eData.length > 0) {
+                eData.forEach((c, i) => {
+                    explorerConcepts.push({
+                        name: c.name,
+                        description: c.description || 'Quick summary of the topic',
+                        subjectName: c.subjects?.name || 'Curriculum',
+                        iconStr: ICONS[i % ICONS.length],
+                        face: CUBE_FACES[Math.floor(i / 4) % 6],
+                        color: COLORS[i % COLORS.length],
+                        textColor: TEXT_COLORS[i % TEXT_COLORS.length]
+                    })
+                })
+            } else {
+                // Priority 2: Local data memory fallback
+                const fallbackSlugs = Object.keys(conceptBySlug).slice(0, 24)
+                fallbackSlugs.forEach((slug, i) => {
+                    const c = conceptBySlug[slug]
+                    explorerConcepts.push({
+                        name: c.name,
+                        description: c.description || 'Quick summary of the topic',
+                        subjectName: c.subject_name || 'Curriculum',
+                        iconStr: ICONS[i % ICONS.length],
+                        face: CUBE_FACES[Math.floor(i / 4) % 6],
+                        color: COLORS[i % COLORS.length],
+                        textColor: TEXT_COLORS[i % TEXT_COLORS.length]
+                    })
+                })
+            }
+        } catch (e) {
+            console.error('[Dashboard] Explorer fetch failed, using local fallback:', e.message)
+            const fallbackSlugs = Object.keys(conceptBySlug).slice(0, 24)
+            fallbackSlugs.forEach((slug, i) => {
+                const c = conceptBySlug[slug]
+                explorerConcepts.push({
+                    name: c.name,
+                    description: c.description || 'Quick summary of the topic',
+                    subjectName: c.subject_name || 'Curriculum',
+                    iconStr: ICONS[i % ICONS.length],
+                    face: CUBE_FACES[Math.floor(i / 4) % 6],
+                    color: COLORS[i % COLORS.length],
+                    textColor: TEXT_COLORS[i % TEXT_COLORS.length]
                 })
             })
         }
 
+
         // ── 5. Mentors (Synced with Professors page) ─────────────────────────────
         const mentorsData = [
-            { name: "Dr. Anjali Sharma", role: "Machine Learning Specialist", img: "AS" },
-            { name: "Prof. Rajan Kulkarni", role: "Cloud & Big Data Expert", img: "RK" },
-            { name: "Dr. Priya Mehta", role: "Network Security Lead", img: "PM" },
-            { name: "Prof. Suresh Patil", role: "Operating Systems Specialist", img: "SP" },
-            { name: "Dr. Kavita Joshi", role: "Applied Mathematics Head", img: "KJ" }
+            { name: "Dr. Anjali Sharma", role: "Verified Professor", img: "AS" },
+            { name: "Prof. Rajan Kulkarni", role: "Verified Professor", img: "RK" },
+            { name: "Dr. Priya Mehta", role: "Verified Professor", img: "PM" },
+            { name: "Prof. Suresh Patil", role: "Verified Professor", img: "SP" },
+            { name: "Dr. Kavita Joshi", role: "Verified Professor", img: "KJ" }
         ]
 
         res.json({
@@ -128,6 +163,7 @@ export const getDashboardData = async (req, res) => {
             totalHoursThisWeek: parseFloat((totalSeconds / 3600).toFixed(1)),
             peakDay,
             subjects:  enrolledSubjects,
+            explorerConcepts,
             mentors:   mentorsData
         })
 
@@ -195,5 +231,73 @@ export const getCourseDetail = async (req, res) => {
     } catch (e) {
         console.error('Dashboard course detail error:', e)
         res.status(500).json({ error: 'Failed to fetch course details' })
+    }
+}
+
+export const getAdminStats = async (req, res) => {
+    try {
+        // 1. Total Students
+        const { count: studentCount } = await supabase
+            .from('users')
+            .select('*', { count: 'exact', head: true })
+            // .eq('role', 'student') // Fallback if role doesn't exist yet
+
+        // 2. Active Now (Pings in last 5 mins)
+        const fiveMinsAgo = new Date(Date.now() - 5 * 60000).toISOString()
+        const { data: activeNow } = await supabase
+            .from('activity_pings')
+            .select('user_id', { count: 'exact', head: false })
+            .gt('created_at', fiveMinsAgo)
+        
+        const uniqueActive = new Set((activeNow || []).map(p => p.user_id)).size
+
+        // 3. Subject Mastery Distribution (Aggregate)
+        const { data: perfData } = await supabase
+            .from('concept_performance')
+            .select('accuracy, concepts!inner(subjects!inner(name))')
+        
+        const subjMastery = {}
+        const colors = ['#FFD85F', '#60A5FA', '#4ADE80', '#F87171', '#A78BFA']
+        
+        ;(perfData || []).forEach(p => {
+            const name = p.concepts?.subjects?.name || 'Unknown'
+            if (!subjMastery[name]) subjMastery[name] = { total: 0, count: 0 }
+            subjMastery[name].total += p.accuracy
+            subjMastery[name].count++
+        })
+
+        const masteryData = Object.entries(subjMastery).map(([name, d], idx) => ({
+            subject: name,
+            mastery: Math.round((d.total / d.count) * 100),
+            color: colors[idx % colors.length]
+        })).slice(0, 5)
+
+        // 4. Recent Activity
+        const { data: recentTests } = await supabase
+            .from('test_attempts')
+            .select('user_id, subject, submitted_at, score, users(name)')
+            .order('submitted_at', { ascending: false })
+            .limit(5)
+
+        const recentActivity = (recentTests || []).map(t => ({
+            user: t.users?.name || 'Unknown',
+            action: `Completed ${t.subject} (${t.score}%)`,
+            time: 'Recently',
+            status: t.score > 70 ? 'success' : 'info'
+        }))
+
+        res.json({
+            stats: [
+                { label: 'Total Students', value: studentCount || 0, change: '+0%', color: '#FFD85F' },
+                { label: 'Active Now', value: uniqueActive || 0, change: '+0', color: '#4ADE80' },
+                { label: 'AI Chats', value: '0', change: '+0', color: '#60A5FA' }, // Placeholder
+                { label: 'Book Requests', value: '0', change: '+0', color: '#F87171' }, // Placeholder
+            ],
+            masteryData,
+            recentActivity
+        })
+    } catch (e) {
+        console.error('Admin stats error:', e)
+        res.status(500).json({ error: 'Failed to fetch admin stats' })
     }
 }

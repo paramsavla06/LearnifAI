@@ -179,22 +179,20 @@ async function syncQuestionsToSupabase(questions) {
 }
 
 // ── Start ──────────────────────────────────────────────────────────────────────
-;(async () => {
-    // 1. Sync local JSON → Supabase (subjects first, then concepts, then questions)
-    await syncSubjectsToSupabase(conceptsData.subjects)
-    await syncConceptsToSupabase(conceptsData.subjects)
-    await syncQuestionsToSupabase(questionsData)
+app.listen(PORT, () => {
+    console.log(`\n✅ LearnifAI API running → http://localhost:${PORT}`)
+    
+    // Run sync in background so server starts immediately
+    (async () => {
+        try {
+            console.log('[Sync] Starting background synchronization...')
+            await syncSubjectsToSupabase(conceptsData.subjects)
+            await syncConceptsToSupabase(conceptsData.subjects)
+            await syncQuestionsToSupabase(questionsData)
+            console.log('[Sync] ✅ Background sync complete')
+        } catch (e) {
+            console.error('[Sync] ❌ Background sync failed:', e.message)
+        }
+    })()
+})
 
-    // 2. Start server
-    app.listen(PORT, () => {
-        console.log(`\n✅ LearnifAI API running → http://localhost:${PORT}`)
-        console.log(`   - Subjects:  GET  /api/subjects`)
-        console.log(`   - User:      POST /api/user`)
-        console.log(`   - Questions: GET  /api/questions/:testId`)
-        console.log(`   - Submit:    POST /api/submit-test`)
-        console.log(`   - Result:    GET  /api/result/:userId`)
-        console.log(`   - Books:     GET  /api/books/:slug`)
-        console.log(`   - Library:   GET  /api/library/:slug`)
-        console.log(`   - Graph:     GET  /api/graph?userId=xxx\n`)
-    })
-})()

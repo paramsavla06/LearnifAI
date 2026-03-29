@@ -14,6 +14,7 @@ const AuthPage = lazy(() => import('./pages/AuthPage'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const GraphPage = lazy(() => import('./pages/GraphPage'))
 const LandingPage = lazy(() => import('./pages/LandingPage'))
+const MyCoursesPage = lazy(() => import('./pages/MyCoursesPage'))
 
 function ScrollToTop() {
     const { pathname } = useLocation()
@@ -69,6 +70,7 @@ function App() {
                             <Route path="/ai" element={<AIPage />} />
                             <Route path="/admin" element={<AdminDashboard />} />
                             <Route path="/graph" element={<GraphPage />} />
+                            <Route path="/my-courses" element={<MyCoursesPage />} />
                         </Routes>
                     </Suspense>
                 </MainLayout>

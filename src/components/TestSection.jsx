@@ -186,21 +186,41 @@ function StepBar({ current }) {
     )
 }
 
+// Build ALL semesters for a program regardless of year
+function getAllSemsForProgram(program) {
+    const years = getYearsForProgram(program)
+    let all = []
+    for (const y of years) {
+        all = [...all, ...getSemsForYear(program, y)]
+    }
+    return all
+}
+
 // ─── Step 1 — Setup (pre-filled from session) ─────────────────────────────────
 function SetupStep({ profile, setProfile, onNext }) {
     const [err, setErr] = useState('')
     const program = profile.program || 'btech'
-    const yearOptions = getYearsForProgram(program)
-    const currentYear = profile.year || yearOptions[0]
-    const sems = getSemsForYear(program, currentYear)
-    const currentSem = profile.semester || sems[0]
-    const availableSubjects = getSubjectsForUser(currentSem, program, profile.branch, currentYear)
+    const allSems = useMemo(() => getAllSemsForProgram(program), [program])
+    const currentSem = profile.semester || allSems[0]
+    
+    // Derived: what year does this semester belong to?
+    const currentYear = useMemo(() => {
+        if (program === 'btech') {
+            const match = currentSem.match(/^(FE|SE|TE|BE)\sSEM/)
+            return match ? match[1] : 'FE'
+        }
+        const match = currentSem.match(/^Year\s(\d+)/)
+        return match ? `Year ${match[1]}` : 'Year 1'
+    }, [currentSem, program])
 
-    // Auto-update semester when year changes
-    const handleYearChange = (y) => {
-        const newSems = getSemsForYear(program, y)
-        setProfile(p => ({ ...p, year: y, semester: newSems[0] || '', selectedSubjects: [] }))
-    }
+    // Update year in profile whenever semester changes (automatically)
+    useEffect(() => {
+        if (profile.year !== currentYear) {
+            setProfile(p => ({ ...p, year: currentYear }))
+        }
+    }, [currentYear])
+
+    const availableSubjects = getSubjectsForUser(currentSem, program, profile.branch, currentYear)
 
     // Auto-select up to 3 subjects when semester changes
     useEffect(() => {
@@ -275,26 +295,14 @@ function SetupStep({ profile, setProfile, onNext }) {
                     </div>
                 ))}
 
-                <div>
-                    <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Year</label>
+                <div className="sm:col-span-2">
+                    <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Semester Selection</label>
                     <select
-                        value={profile.year || yearOptions[0]}
-                        onChange={e => handleYearChange(e.target.value)}
-                        disabled={isLoggedIn}
-                        className="w-full bg-surface-elevation-1 border border-white/10 rounded-xl px-5 py-3.5 text-sm font-medium text-white focus:outline-none focus:border-primary-accent/60 transition-all disabled:opacity-60"
-                    >
-                        {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
-                    </select>
-                </div>
-
-                <div>
-                    <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Semester</label>
-                    <select
-                        value={profile.semester || sems[0]}
-                        onChange={e => setProfile(p => ({ ...p, semester: e.target.value }))}
+                        value={profile.semester || allSems[0]}
+                        onChange={e => setProfile(p => ({ ...p, semester: e.target.value, selectedSubjects: [] }))}
                         className="w-full bg-surface-elevation-1 border border-white/10 rounded-xl px-5 py-3.5 text-sm font-medium text-white focus:outline-none focus:border-primary-accent/60 transition-all"
                     >
-                        {sems.map(s => <option key={s} value={s}>{s}</option>)}
+                        {allSems.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                 </div>
             </div>

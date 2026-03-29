@@ -14,39 +14,331 @@
       "name": "Engineering Physics I",
       "description": "Quantum and Optics",
       "branch": "Common",
-      "concepts": [ { "slug": "bsc-phys", "name": "Classical Mechanics", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section PH", "shelf": "Shelf 1", "book_title": "Engineering Physics", "book_isbn": "978-81-000-00100" } ]
+      "concepts": [ { "slug": "quantum-mechanics-intro", "name": "Quantum Mechanics Intro", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section PH", "shelf": "Shelf 1", "book_title": "Engineering Physics", "book_isbn": "978-81-000-00100" } ]
     },
     {
       "name": "Engineering Chemistry I",
       "description": "Polymers and Alloys",
       "branch": "Common",
-      "concepts": [ { "slug": "bsc-chem", "name": "Industrial Chemistry", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section CH", "shelf": "Shelf 1", "book_title": "Modern Chemistry", "book_isbn": "978-81-000-00101" } ]
+      "concepts": [ { "slug": "thermodynamics-chem", "name": "Chemical Thermodynamics", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section CH", "shelf": "Shelf 1", "book_title": "Modern Chemistry", "book_isbn": "978-81-000-00101" } ]
     },
     {
       "name": "Basic Electrical Engineering",
       "description": "Circuits and Machines",
       "branch": "Common",
-      "concepts": [ { "slug": "basic-electrical-engg", "name": "Circuit Analysis", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section EE", "shelf": "Shelf 1", "book_title": "BEE (Nagrath)", "book_isbn": "978-81-000-00102" } ]
+      "concepts": [ { "slug": "circuit-analysis-basics", "name": "Circuit Analysis Basics", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section EE", "shelf": "Shelf 1", "book_title": "BEE (Nagrath)", "book_isbn": "978-81-000-00102" } ]
     },
     {
       "name": "Engineering Mechanics",
       "description": "Statics and Dynamics",
       "branch": "Common",
-      "concepts": [ { "slug": "engineering-mechanics", "name": "Statics", "difficulty": 2, "semester": "FE SEM 1", "library_section": "Section CE", "shelf": "Shelf 1", "book_title": "Mechanics (Beer)", "book_isbn": "978-81-000-00103" } ]
+      "concepts": [ { "slug": "statics-equilib", "name": "Statics Equilibrium", "difficulty": 2, "semester": "FE SEM 1", "library_section": "Section CE", "shelf": "Shelf 1", "book_title": "Mechanics (Beer)", "book_isbn": "978-81-000-00103" } ]
     },
     {
-      "name": "C Programming",
+      "name": "Basic Programming (C)",
       "description": "Programming Intro",
       "branch": "CE",
-      "concepts": [
-        { "slug": "c-programming", "name": "C Programming Basics", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section H", "shelf": "Shelf 1", "book_title": "Let Us C", "book_isbn": "978-81-000-0060-0" }
-      ]
+      "concepts": [ { "slug": "c-prog-basics", "name": "C Programming Basics", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section H", "shelf": "Shelf 1", "book_title": "Let Us C", "book_isbn": "978-81-000-0060-0" } ]
     },
     {
       "name": "Environmental Studies",
       "description": "Ecology and Sustainability",
       "branch": "Common",
-      "concepts": [ { "slug": "ba-geo", "name": "Human Ecology", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section EV", "shelf": "Shelf 1", "book_title": "EVS Prep", "book_isbn": "978-81-000-00104" } ]
+      "concepts": [ { "slug": "ecosystems-intro", "name": "Ecosystems Intro", "difficulty": 1, "semester": "FE SEM 1", "library_section": "Section EV", "shelf": "Shelf 1", "book_title": "EVS Prep", "book_isbn": "978-81-000-00104" } ]
+    },
+    {
+      "name": "Engineering Mathematics II",
+      "description": "Differential Equations",
+      "branch": "Common",
+      "concepts": [ { "slug": "diff-equations", "name": "Differential Equations", "difficulty": 2, "semester": "FE SEM 2", "library_section": "Section A", "shelf": "Shelf 3", "book_title": "Higher Eng Maths", "book_isbn": "978-81-000-00200" } ]
+    },
+    {
+      "name": "Engineering Physics II",
+      "description": "Electromagnetism",
+      "branch": "Common",
+      "concepts": [ { "slug": "electromagnetics", "name": "Electromagnetics", "difficulty": 2, "semester": "FE SEM 2", "library_section": "Section PH", "shelf": "Shelf 2", "book_title": "Physics Vol 2", "book_isbn": "978-81-000-00201" } ]
+    },
+    {
+      "name": "Engineering Chemistry II",
+      "description": "Materials Science",
+      "branch": "Common",
+      "concepts": [ { "slug": "materials-science", "name": "Materials Science", "difficulty": 2, "semester": "FE SEM 2", "library_section": "Section CH", "shelf": "Shelf 2", "book_title": "Chemistry of Materials", "book_isbn": "978-81-000-00202" } ]
+    },
+    {
+      "name": "Engineering Graphics",
+      "description": "Technical Drawing",
+      "branch": "Common",
+      "concepts": [ { "slug": "cad-basics", "name": "CAD Basics", "difficulty": 2, "semester": "FE SEM 2", "library_section": "Section ME", "shelf": "Shelf 1", "book_title": "Engg Drawing (Bhatt)", "book_isbn": "978-81-000-00203" } ]
+    },
+    {
+      "name": "Structured Programming (Java)",
+      "description": "OOP Intro",
+      "branch": "CE",
+      "concepts": [ { "slug": "java-prog-basics", "name": "Java Basics", "difficulty": 2, "semester": "FE SEM 2", "library_section": "Section H", "shelf": "Shelf 2", "book_title": "Java Complete Ref", "book_isbn": "978-81-000-00204" } ]
+    },
+    {
+      "name": "Basic Electronic Engineering",
+      "description": "Semiconductors",
+      "branch": "Common",
+      "concepts": [ { "slug": "p-n-junction", "name": "P-N Junction", "difficulty": 2, "semester": "FE SEM 2", "library_section": "Section EXTC", "shelf": "Shelf 1", "book_title": "Electronic Devices", "book_isbn": "978-81-000-00205" } ]
+    },
+    {
+      "name": "Workshop Practice",
+      "description": "Manufacturing Intro",
+      "branch": "Common",
+      "concepts": [ { "slug": "lathe-ops", "name": "Lathe Operations", "difficulty": 1, "semester": "FE SEM 2", "library_section": "Section Workshop", "shelf": "Shelf 1", "book_title": "Workshop Tech", "book_isbn": "978-81-000-00206" } ]
+    },
+    {
+      "name": "Data Structures",
+      "description": "Algos & Structures",
+      "branch": "CE",
+      "concepts": [ { "slug": "linked-list", "name": "Linked List", "difficulty": 2, "semester": "SE SEM 3", "library_section": "Section H", "shelf": "Shelf 3", "book_title": "Data Structures (Ellis)", "book_isbn": "978-81-000-00300" } ]
+    },
+    {
+      "name": "Discrete Structures",
+      "description": "Logic & Graphs",
+      "branch": "CE",
+      "concepts": [ { "slug": "graph-theory-basics", "name": "Graph Theory Basics", "difficulty": 2, "semester": "SE SEM 3", "library_section": "Section H", "shelf": "Shelf 4", "book_title": "Discrete Maths (Rosen)", "book_isbn": "978-81-000-00301" } ]
+    },
+    {
+      "name": "Digital Logic",
+      "description": "Boolean Algebra",
+      "branch": "EXTC",
+      "concepts": [ { "slug": "logic-gates", "name": "Logic Gates", "difficulty": 1, "semester": "SE SEM 3", "library_section": "Section L", "shelf": "Shelf 1", "book_title": "Digital Design (Mano)", "book_isbn": "978-81-000-00302" } ]
+    },
+    {
+      "name": "Computer Organization",
+      "description": "Hardare Intro",
+      "branch": "CE",
+      "concepts": [ { "slug": "cpu-architecture", "name": "CPU Architecture", "difficulty": 2, "semester": "SE SEM 3", "library_section": "Section H", "shelf": "Shelf 5", "book_title": "COA (Hamacher)", "book_isbn": "978-81-000-00303" } ]
+    },
+    {
+      "name": "Object Oriented Programming",
+      "description": "Classes & Objects",
+      "branch": "CE",
+      "concepts": [ { "slug": "oop-principle", "name": "OOP Principle", "difficulty": 2, "semester": "SE SEM 3", "library_section": "Section H", "shelf": "Shelf 6", "book_title": "Thinking in Java", "book_isbn": "978-81-000-00304" } ]
+    },
+    {
+      "name": "Mathematics III",
+      "description": "Statistics & Matrix",
+      "branch": "Common",
+      "concepts": [ { "slug": "linear-algebra", "name": "Linear Algebra", "difficulty": 3, "semester": "SE SEM 3", "library_section": "Section A", "shelf": "Shelf 4", "book_title": "Maths for Engg", "book_isbn": "978-81-000-00305" } ]
+    },
+    {
+      "name": "Analog Electronics",
+      "description": "Amplifiers & Filters",
+      "branch": "EXTC",
+      "concepts": [ { "slug": "bjt-circuits", "name": "BJT Circuits", "difficulty": 2, "semester": "SE SEM 3", "library_section": "Section L", "shelf": "Shelf 2", "book_title": "Analog Electronics (Boylestad)", "book_isbn": "978-81-000-00306" } ]
+    },
+    {
+      "name": "Analysis of Algorithms",
+      "description": "Complexity & Analysis",
+      "branch": "CE",
+      "concepts": [ { "slug": "time-complexity", "name": "Time Complexity", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section H", "shelf": "Shelf 7", "book_title": "Introduction to Algos (CLRS)", "book_isbn": "978-81-000-00400" } ]
+    },
+    {
+      "name": "Database Management Systems",
+      "description": "SQL & Relational",
+      "branch": "CE",
+      "concepts": [ { "slug": "normalization", "name": "Normalization", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section H", "shelf": "Shelf 8", "book_title": "DBMS (Korth)", "book_isbn": "978-81-000-00401" } ]
+    },
+    {
+      "name": "Operating Systems",
+      "description": "Process & Memory",
+      "branch": "CE",
+      "concepts": [ { "slug": "process-management", "name": "Process Management", "difficulty": 2, "semester": "SE SEM 4", "library_section": "Section H", "shelf": "Shelf 9", "book_title": "OS Concepts (Silberschatz)", "book_isbn": "978-81-000-00402" } ]
+    },
+    {
+      "name": "Microprocessors",
+      "description": "8085 and 8086",
+      "branch": "IT",
+      "concepts": [ { "slug": "assembly-lang", "name": "Assembly Lang", "difficulty": 2, "semester": "SE SEM 4", "library_section": "Section H", "shelf": "Shelf 10", "book_title": "Microprocessors (Gaonkar)", "book_isbn": "978-81-000-00403" } ]
+    },
+    {
+      "name": "Theory of Computation",
+      "description": "Automata & Grammar",
+      "branch": "CE",
+      "concepts": [ { "slug": "finite-automata", "name": "Finite Automata", "difficulty": 3, "semester": "SE SEM 4", "library_section": "Section H", "shelf": "Shelf 11", "book_title": "Automata (Ullman)", "book_isbn": "978-81-000-00404" } ]
+    },
+    {
+      "name": "Computer Networks I",
+      "description": "OSI & TCP/IP",
+      "branch": "IT",
+      "concepts": [ { "slug": "osi-model", "name": "OSI Model", "difficulty": 2, "semester": "SE SEM 4", "library_section": "Section H", "shelf": "Shelf 12", "book_title": "Networks (Tanenbaum)", "book_isbn": "978-81-000-00405" } ]
+    },
+    {
+      "name": "Python Programming",
+      "description": "Scripting & Modules",
+      "branch": "CE",
+      "concepts": [ { "slug": "python-basics", "name": "Python Basics", "difficulty": 1, "semester": "SE SEM 4", "library_section": "Section H", "shelf": "Shelf 13", "book_title": "Automate Boring Stuff", "book_isbn": "978-81-000-00406" } ]
+    },
+    {
+      "name": "Software Engineering",
+      "description": "Lifecycle & Methodology",
+      "branch": "CE",
+      "concepts": [ { "slug": "agile-method", "name": "Agile Method", "difficulty": 2, "semester": "TE SEM 5", "library_section": "Section H", "shelf": "Shelf 14", "book_title": "SE (Pressman)", "book_isbn": "978-81-000-00500" } ]
+    },
+    {
+      "name": "Computer Networks II",
+      "description": "Routing & Transport",
+      "branch": "IT",
+      "concepts": [ { "slug": "bgp-protocol", "name": "BGP Protocol", "difficulty": 3, "semester": "TE SEM 5", "library_section": "Section H", "shelf": "Shelf 15", "book_title": "TCP/IP Illustrated", "book_isbn": "978-81-000-00501" } ]
+    },
+    {
+      "name": "Artificial Intelligence",
+      "description": "Search & Logic",
+      "branch": "CE",
+      "concepts": [ { "slug": "search-algorithms", "name": "Search Algorithms", "difficulty": 3, "semester": "TE SEM 5", "library_section": "Section AI", "shelf": "Shelf 1", "book_title": "AI (Russell)", "book_isbn": "978-81-000-00502" } ]
+    },
+    {
+      "name": "Cloud Computing",
+      "description": "AWS & Virtualization",
+      "branch": "IT",
+      "concepts": [ { "slug": "virtualization-basics", "name": "Virtualization Basics", "difficulty": 2, "semester": "TE SEM 5", "library_section": "Section CLOUD", "shelf": "Shelf 1", "book_title": "Cloud Services", "book_isbn": "978-81-000-00503" } ]
+    },
+    {
+      "name": "Data Warehousing",
+      "description": "ETL & Schemas",
+      "branch": "CE",
+      "concepts": [ { "slug": "etl-pipeline", "name": "ETL Pipeline", "difficulty": 2, "semester": "TE SEM 5", "library_section": "Section DATA", "shelf": "Shelf 1", "book_title": "Data Warehouse (Kimball)", "book_isbn": "978-81-000-00504" } ]
+    },
+    {
+      "name": "Economics for Engineers",
+      "description": "Finance & Valuation",
+      "branch": "Common",
+      "concepts": [ { "slug": "cash-flow", "name": "Cash Flow", "difficulty": 1, "semester": "TE SEM 5", "library_section": "Section ECON", "shelf": "Shelf 1", "book_title": "Engg Economics", "book_isbn": "978-81-000-00505" } ]
+    },
+    {
+      "name": "Advance Database",
+      "description": "NoSQL & MongoDB",
+      "branch": "CE",
+      "concepts": [ { "slug": "nosql-concepts", "name": "NoSQL Concepts", "difficulty": 2, "semester": "TE SEM 5", "library_section": "Section DATA", "shelf": "Shelf 2", "book_title": "Mongo Guide", "book_isbn": "978-81-000-00506" } ]
+    },
+    {
+      "name": "Machine Learning",
+      "description": "Regression & Classification",
+      "branch": "CE",
+      "concepts": [ { "slug": "supervised-learning", "name": "Supervised Learning", "difficulty": 3, "semester": "TE SEM 6", "library_section": "Section ML", "shelf": "Shelf 1", "book_title": "ML (Mitchell)", "book_isbn": "978-81-000-00600" } ]
+    },
+    {
+      "name": "Distributed Systems",
+      "description": "Consensus & RPC",
+      "branch": "CE",
+      "concepts": [ { "slug": "client-server", "name": "Client-Server", "difficulty": 2, "semester": "TE SEM 6", "library_section": "Section H", "shelf": "Shelf 16", "book_title": "Distributed Systems (Coulouris)", "book_isbn": "978-81-000-00601" } ]
+    },
+    {
+      "name": "Information Security",
+      "description": "Risk & Auth",
+      "branch": "IT",
+      "concepts": [ { "slug": "authentication-factors", "name": "Authentication", "difficulty": 2, "semester": "TE SEM 6", "library_section": "Section SEC", "shelf": "Shelf 1", "book_title": "Info Sec Essentials", "book_isbn": "978-81-000-00602" } ]
+    },
+    {
+      "name": "System Programming",
+      "description": "Compiler & Assembler",
+      "branch": "CE",
+      "concepts": [ { "slug": "syntax-analysis", "name": "Syntax Analysis", "difficulty": 3, "semester": "TE SEM 6", "library_section": "Section H", "shelf": "Shelf 17", "book_title": "Compiler Design (Dragon Book)", "book_isbn": "978-81-000-00603" } ]
+    },
+    {
+      "name": "Cryptography",
+      "description": "AES & RSA",
+      "branch": "IT",
+      "concepts": [ { "slug": "rsa-algo", "name": "RSA Algo", "difficulty": 3, "semester": "TE SEM 6", "library_section": "Section SEC", "shelf": "Shelf 2", "book_title": "Cryto (Stallings)", "book_isbn": "978-81-000-00604" } ]
+    },
+    {
+      "name": "Project Management",
+      "description": "Planning & Scope",
+      "branch": "Common",
+      "concepts": [ { "slug": "scrum-basics", "name": "Scrum Basics", "difficulty": 1, "semester": "TE SEM 6", "library_section": "Section MGMT", "shelf": "Shelf 1", "book_title": "Project Mgmt Body", "book_isbn": "978-81-000-00605" } ]
+    },
+    {
+      "name": "Mobile Computing",
+      "description": "GSM & Android",
+      "branch": "IT",
+      "concepts": [ { "slug": "gsm-architecture", "name": "GSM Architecture", "difficulty": 2, "semester": "TE SEM 6", "library_section": "Section H", "shelf": "Shelf 18", "book_title": "Mobile Comms (Schiller)", "book_isbn": "978-81-000-00606" } ]
+    },
+    {
+      "name": "Big Data Analytics",
+      "description": "Hadoop & Spark",
+      "branch": "CE",
+      "concepts": [ { "slug": "map-reduce", "name": "MapReduce", "difficulty": 3, "semester": "BE SEM 7", "library_section": "Section DATA", "shelf": "Shelf 3", "book_title": "Big Data (Hadoop)", "book_isbn": "978-81-000-00700" } ]
+    },
+    {
+      "name": "Internet of Things",
+      "description": "Sensors & MQTT",
+      "branch": "EXTC",
+      "concepts": [ { "slug": "sensors-intro", "name": "Sensors Intro", "difficulty": 2, "semester": "BE SEM 7", "library_section": "Section IOT", "shelf": "Shelf 1", "book_title": "IoT Principles", "book_isbn": "978-81-000-00701" } ]
+    },
+    {
+      "name": "Cyber Security",
+      "description": "Pentesting & Laws",
+      "branch": "IT",
+      "concepts": [ { "slug": "sql-injection", "name": "SQL Injection", "difficulty": 2, "semester": "BE SEM 7", "library_section": "Section SEC", "shelf": "Shelf 3", "book_title": "Cyber Sec Law", "book_isbn": "978-81-000-00702" } ]
+    },
+    {
+      "name": "Deep Learning",
+      "description": "CNN & RNN",
+      "branch": "CE",
+      "concepts": [ { "slug": "neural-network-basics", "name": "Neural Networks", "difficulty": 3, "semester": "BE SEM 7", "library_section": "Section ML", "shelf": "Shelf 2", "book_title": "Deep Learning (Goodfellow)", "book_isbn": "978-81-000-00703" } ]
+    },
+    {
+      "name": "Blockchain Technology",
+      "description": "Bitcoin & Smart Contracts",
+      "branch": "IT",
+      "concepts": [ { "slug": "consensus-algorithm", "name": "Consensus Algos", "difficulty": 3, "semester": "BE SEM 7", "library_section": "Section SEC", "shelf": "Shelf 4", "book_title": "Blockchain Bluebook", "book_isbn": "978-81-000-00704" } ]
+    },
+    {
+      "name": "Natural Language Processing",
+      "description": "Text Mining & LLM",
+      "branch": "CE",
+      "concepts": [ { "slug": "pos-tagging", "name": "POS Tagging", "difficulty": 3, "semester": "BE SEM 7", "library_section": "Section AI", "shelf": "Shelf 2", "book_title": "NLP (Jurafsky)", "book_isbn": "978-81-000-00705" } ]
+    },
+    {
+      "name": "High Performance Computing",
+      "description": "CUDA & MPI",
+      "branch": "CE",
+      "concepts": [ { "slug": "parallel-processing", "name": "Parallel Processing", "difficulty": 3, "semester": "BE SEM 7", "library_section": "Section H", "shelf": "Shelf 19", "book_title": "HPC (Gramas)", "book_isbn": "978-81-000-00706" } ]
+    },
+    {
+      "name": "Digital Image Processing",
+      "description": "Filtering & Morphology",
+      "branch": "EXTC",
+      "concepts": [ { "slug": "image-filtering", "name": "Image Filtering", "difficulty": 2, "semester": "BE SEM 8", "library_section": "Section IMG", "shelf": "Shelf 1", "book_title": "DIP (Gonzalez)", "book_isbn": "978-81-000-00800" } ]
+    },
+    {
+      "name": "Soft Computing",
+      "description": "Fuzzy Logic & Genetic",
+      "branch": "Common",
+      "concepts": [ { "slug": "fuzzy-sets", "name": "Fuzzy Sets", "difficulty": 2, "semester": "BE SEM 8", "library_section": "Section AI", "shelf": "Shelf 3", "book_title": "Soft Computing Basics", "book_isbn": "978-81-000-00801" } ]
+    },
+    {
+      "name": "Human Computer Interaction",
+      "description": "UX & Prototyping",
+      "branch": "IT",
+      "concepts": [ { "slug": "user-cent-design", "name": "UCD Principles", "difficulty": 1, "semester": "BE SEM 8", "library_section": "Section H", "shelf": "Shelf 20", "book_title": "HCI (Dix)", "book_isbn": "978-81-000-00802" } ]
+    },
+    {
+      "name": "Robotics",
+      "description": "Kinematics & Control",
+      "branch": "Common",
+      "concepts": [ { "slug": "robot-kinematics", "name": "Kinematics", "difficulty": 3, "semester": "BE SEM 8", "library_section": "Section ME", "shelf": "Shelf 2", "book_title": "Robotics (Saha)", "book_isbn": "978-81-000-00803" } ]
+    },
+    {
+      "name": "Enterprise Resource Planning",
+      "description": "SAP & Modules",
+      "branch": "Common",
+      "concepts": [ { "slug": "erp-implementation", "name": "ERP Implement", "difficulty": 2, "semester": "BE SEM 8", "library_section": "Section MGMT", "shelf": "Shelf 2", "book_title": "ERP Guide", "book_isbn": "978-81-000-00804" } ]
+    },
+    {
+      "name": "Parallel Computing",
+      "description": "Thread & Processes",
+      "branch": "CE",
+      "concepts": [ { "slug": "threads-basics", "name": "Threads Basics", "difficulty": 2, "semester": "BE SEM 8", "library_section": "Section H", "shelf": "Shelf 21", "book_title": "Parallel Sys", "book_isbn": "978-81-000-00805" } ]
+    },
+    {
+      "name": "Final Project Research",
+      "description": "Thesis & Viva",
+      "branch": "Common",
+      "concepts": [ { "slug": "research-methods", "name": "Research Methods", "difficulty": 2, "semester": "BE SEM 8", "library_section": "Section RES", "shelf": "Shelf 1", "book_title": "Final Project Guide", "book_isbn": "978-81-000-00806" } ]
     },
     {
       "name": "Principles of Management",
@@ -65,76 +357,10 @@
       ]
     },
     {
-      "name": "Business Economics",
-      "description": "BBA Economics",
-      "branch": "BBA",
-      "concepts": [ { "slug": "marketing-mix", "name": "Market Fundamentals", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section BBA", "shelf": "Shelf 3", "book_title": "Economics (Mankiw)", "book_isbn": "978-0000000021" } ]
-    },
-    {
-      "name": "Financial Accounting",
-      "description": "BBA Finance",
-      "branch": "BBA",
-      "concepts": [ { "slug": "bcom-acc", "name": "Basic Accounting", "difficulty": 1, "semester": "Year 1 Sem 1", "library_section": "Section BBA", "shelf": "Shelf 3", "book_title": "Accounting (Weygandt)", "book_isbn": "978-0000000022" } ]
-    },
-    {
-      "name": "Organizational Behavior",
-      "description": "BBA HR",
-      "branch": "BBA",
-      "concepts": [ { "slug": "leadership-styles", "name": "Human Behavior", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section BBA", "shelf": "Shelf 4", "book_title": "OB (Robbins)", "book_isbn": "978-0000000023" } ]
-    },
-    {
-      "name": "Marketing Management",
-      "description": "BBA Marketing",
-      "branch": "BBA",
-      "concepts": [ { "slug": "consumer-behavior", "name": "Customer Insights", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section BBA", "shelf": "Shelf 5", "book_title": "Marketing (Kotler)", "book_isbn": "978-0000000024" } ]
-    },
-    {
-      "name": "Business Statistics",
-      "description": "BBA Data Analysis",
-      "branch": "BBA",
-      "concepts": [ { "slug": "bba-stat", "name": "Quantitative Methods", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section BBA", "shelf": "Shelf 6", "book_title": "Stats for Business", "book_isbn": "978-0000000025" } ]
-    },
-    {
-      "name": "Advanced Marketing",
-      "description": "MBA Strategy",
-      "branch": "General MBA",
-      "concepts": [ { "slug": "marketing-mix", "name": "Strategic Marketing", "difficulty": 3, "semester": "Year 1 Sem 1", "library_section": "Section MBA", "shelf": "Shelf 1", "book_title": "Marketing (Kotler)", "book_isbn": "978-0000000031" } ]
-    },
-    {
-       "name": "Organizational Theory",
-       "description": "MBA Core",
-       "branch": "General MBA",
-       "concepts": [ { "slug": "leadership-styles", "name": "Theory of Leadership", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section MBA", "shelf": "Shelf 2", "book_title": "OT (Robbins)", "book_isbn": "978-0000000032" } ]
-    },
-    {
-       "name": "Managerial Economics",
-       "description": "MBA Core",
-       "branch": "General MBA",
-       "concepts": [ { "slug": "strat-mgmt", "name": "Strategic Economics", "difficulty": 3, "semester": "Year 1 Sem 1", "library_section": "Section MBA", "shelf": "Shelf 3", "book_title": "Economics for Managers", "book_isbn": "978-0000000033" } ]
-    },
-    {
-       "name": "Corporate Ethics",
-       "description": "MBA Core",
-       "branch": "General MBA",
-       "concepts": [ { "slug": "biz-ethics", "name": "Professional Ethics", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section MBA", "shelf": "Shelf 4", "book_title": "Ethics (Velasquez)", "book_isbn": "978-0000000034" } ]
-    },
-    {
-       "name": "Quantitative Analysis",
-       "description": "MBA Analytics",
-       "branch": "General MBA",
-       "concepts": [ { "slug": "bba-stat", "name": "Stats for Decision Making", "difficulty": 3, "semester": "Year 1 Sem 1", "library_section": "Section MBA", "shelf": "Shelf 5", "book_title": "Stats for Managers", "book_isbn": "978-0000000035" } ]
-    },
-    {
-       "name": "Operations Strategy",
-       "description": "MBA Core",
-       "branch": "General MBA",
-       "concepts": [ { "slug": "bba-ops", "name": "Process Improvement", "difficulty": 3, "semester": "Year 1 Sem 1", "library_section": "Section MBA", "shelf": "Shelf 6", "book_title": "Ops Mgmt (Chase)", "book_isbn": "978-0000000036" } ]
-    },
-    {
-       "name": "Financial Reporting",
-       "description": "MBA Finance",
-       "branch": "General MBA",
-       "concepts": [ { "slug": "financial-statements", "name": "Statement Analysis", "difficulty": 3, "semester": "Year 1 Sem 1", "library_section": "Section MBA", "shelf": "Shelf 7", "book_title": "Accounting Principles", "book_isbn": "978-0000000037" } ]
+        "name": "Advanced Marketing",
+        "description": "MBA Strategy",
+        "branch": "General MBA",
+        "concepts": [ { "slug": "marketing-mix", "name": "Strategic Marketing", "difficulty": 3, "semester": "Year 1 Sem 1", "library_section": "Section MBA", "shelf": "Shelf 1", "book_title": "Marketing (Kotler)", "book_isbn": "978-0000000031" } ]
     },
     {
       "name": "World Literature",
@@ -143,124 +369,16 @@
       "concepts": [ { "slug": "ba-hum", "name": "World Literature Foundations", "difficulty": 1, "semester": "Year 1 Sem 1", "library_section": "Section ART", "shelf": "Shelf 1", "book_title": "Humanities Intro", "book_isbn": "978-0000000004" } ]
     },
     {
-      "name": "Ancient Indian History",
-      "description": "Arts Core",
-      "branch": "BA",
-      "concepts": [ { "slug": "ba-hist", "name": "Ancient Social Structures", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section ART", "shelf": "Shelf 2", "book_title": "History Prep", "book_isbn": "978-0000000104" } ]
-    },
-    {
-      "name": "English Composition",
-      "description": "Arts Core",
-      "branch": "BA",
-      "concepts": [ { "slug": "ba-lit", "name": "Writing Skills", "difficulty": 1, "semester": "Year 1 Sem 1", "library_section": "Section ART", "shelf": "Shelf 3", "book_title": "Literary Masters", "book_isbn": "978-0000000504" } ]
-    },
-    {
-      "name": "Political Science",
-      "description": "Arts Core",
-      "branch": "BA",
-      "concepts": [ { "slug": "ba-pol", "name": "Foundation of Politics", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section ART", "shelf": "Shelf 4", "book_title": "Global Politics", "book_isbn": "978-0000000304" } ]
-    },
-    {
-      "name": "Physical Geography",
-      "description": "Arts Core",
-      "branch": "BA",
-      "concepts": [ { "slug": "ba-geo", "name": "Geological Systems", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section ART", "shelf": "Shelf 5", "book_title": "World Geography", "book_isbn": "978-0000000604" } ]
-    },
-    {
-      "name": "Sociological Thought",
-      "description": "Arts Core",
-      "branch": "BA",
-      "concepts": [ { "slug": "ba-soc", "name": "Theory of Society", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section ART", "shelf": "Shelf 6", "book_title": "Society and Culture", "book_isbn": "978-0000000404" } ]
-    },
-    {
-      "name": "Art History",
-      "description": "Arts Core",
-      "branch": "BA",
-      "concepts": [ { "slug": "ba-hum", "name": "Classical Arts", "difficulty": 1, "semester": "Year 1 Sem 1", "library_section": "Section ART", "shelf": "Shelf 7", "book_title": "Humanities Intro 2", "book_isbn": "978-0000000006" } ]
-    },
-    {
       "name": "Advanced Accounts",
       "description": "BCom Core",
       "branch": "BCom",
       "concepts": [ { "slug": "bcom-acc", "name": "Financial Accounting", "difficulty": 1, "semester": "Year 1 Sem 1", "library_section": "Section COM", "shelf": "Shelf 1", "book_title": "Accounting Principles", "book_isbn": "978-0000000003" } ]
     },
     {
-      "name": "Business Banking",
-      "description": "BCom Finance",
-      "branch": "BCom",
-      "concepts": [ { "slug": "bcom-bank", "name": "Banking Functions", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section COM", "shelf": "Shelf 2", "book_title": "Modern Banking", "book_isbn": "978-0000000503" } ]
-    },
-    {
-      "name": "Auditing Principles",
-      "description": "BCom Core",
-      "branch": "BCom",
-      "concepts": [ { "slug": "bcom-aud", "name": "Internal Audit", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section COM", "shelf": "Shelf 3", "book_title": "Audit Standards", "book_isbn": "978-0000000103" } ]
-    },
-    {
-      "name": "Direct Tax Intro",
-      "description": "BCom Tax",
-      "branch": "BCom",
-      "concepts": [ { "slug": "bcom-tax", "name": "Income Tax Law", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section COM", "shelf": "Shelf 4", "book_title": "Tax Guide", "book_isbn": "978-0000000203" } ]
-    },
-    {
-      "name": "Consumer Law",
-      "description": "BCom Law",
-      "branch": "BCom",
-      "concepts": [ { "slug": "bcom-law", "name": "Contract Law", "difficulty": 1, "semester": "Year 1 Sem 1", "library_section": "Section COM", "shelf": "Shelf 5", "book_title": "Commercial Law", "book_isbn": "978-0000000603" } ]
-    },
-    {
-      "name": "Ecommerce Foundations",
-      "description": "BCom Tech",
-      "branch": "BCom",
-      "concepts": [ { "slug": "bcom-market", "name": "Market Systems", "difficulty": 1, "semester": "Year 1 Sem 1", "library_section": "Section COM", "shelf": "Shelf 6", "book_title": "Commerce Online", "book_isbn": "978-0000000403" } ]
-    },
-    {
-      "name": "Marketing Ethics",
-      "description": "BCom Core",
-      "branch": "BCom",
-      "concepts": [ { "slug": "biz-ethics", "name": "Ethics in Trade", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section COM", "shelf": "Shelf 7", "book_title": "Trade and Commerce", "book_isbn": "978-0000000405" } ]
-    },
-    {
       "name": "C++ Programming",
       "description": "BCA Core",
       "branch": "BCA/MCA",
       "concepts": [ { "slug": "bca-prog", "name": "OOP Basics", "difficulty": 1, "semester": "Year 1 Sem 1", "library_section": "Section MCA", "shelf": "Shelf 1", "book_title": "Programming Basics", "book_isbn": "978-0000000005" } ]
-    },
-    {
-      "name": "Web Technology",
-      "description": "BCA/MCA Core",
-      "branch": "BCA/MCA",
-      "concepts": [ { "slug": "bca-web", "name": "Client-Side Dev", "difficulty": 1, "semester": "Year 1 Sem 1", "library_section": "Section MCA", "shelf": "Shelf 2", "book_title": "Web Arts", "book_isbn": "978-0000000105" } ]
-    },
-    {
-      "name": "SQL Databases",
-      "description": "BCA/MCA Core",
-      "branch": "BCA/MCA",
-      "concepts": [ { "slug": "it-data", "name": "Relational Systems", "difficulty": 1, "semester": "Year 1 Sem 1", "library_section": "Section MCA", "shelf": "Shelf 3", "book_title": "Databases (Korth)", "book_isbn": "978-0000000206" } ]
-    },
-    {
-      "name": "Computer Architecture",
-      "description": "BCA/MCA Core",
-      "branch": "BCA/MCA",
-      "concepts": [ { "slug": "computer-org-arch", "name": "Hardware Systems", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section MCA", "shelf": "Shelf 4", "book_title": "COA (Hamacher)", "book_isbn": "978-0000000063" } ]
-    },
-    {
-      "name": "Shell Scripting",
-      "description": "BCA/MCA Core",
-      "branch": "BCA/MCA",
-      "concepts": [ { "slug": "bca-shell", "name": "Linux Shell", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section MCA", "shelf": "Shelf 5", "book_title": "Linux Mastery", "book_isbn": "978-0000000505" } ]
-    },
-    {
-      "name": "Networking Intro",
-      "description": "BCA/MCA Core",
-      "branch": "BCA/MCA",
-      "concepts": [ { "slug": "computer-networks", "name": "TCP/IP Basics", "difficulty": 2, "semester": "Year 1 Sem 1", "library_section": "Section MCA", "shelf": "Shelf 6", "book_title": "Networks (Tanenbaum)", "book_isbn": "978-0000000065" } ]
-    },
-    {
-      "name": "Software Engineering",
-      "description": "BCA/MCA Core",
-      "branch": "BCA/MCA",
-      "concepts": [ { "slug": "software-engineering", "name": "Process Models", "difficulty": 1, "semester": "Year 1 Sem 1", "library_section": "Section MCA", "shelf": "Shelf 7", "book_title": "SE (Pressman)", "book_isbn": "978-0000000067" } ]
     }
   ]
 }

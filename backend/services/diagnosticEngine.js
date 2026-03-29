@@ -157,24 +157,33 @@ export async function generateResult(userId, userProfile = {}) {
         
         let strongText = strongTopics.map(t => `- ${t.name}`).join('\n');
 
-        const prompt = `You are an expert personalized learning assistant. Based on the following diagnostic result, write a detailed and comprehensive encouraging analysis for the student (about 2 to 3 paragraphs). \n\nFocus on what they did well, explain theoretically why they might have struggled with their weak topics, and explicitly direct them to the recommended physical library books and floor locations to improve. Be highly specific and thorough. Do not invent details not provided.
+        const prompt = `You are a Technical Learning Diagnostic System. Provide a high-precision ROOT CAUSE ANALYSIS and SOLUTION REPORT for the student below. 
+        Format the output as a professional technical assessment, not a letter. 
+        Structure:
+        1. DIAGNOSTIC SUMMARY (A brief technical overview of knowledge gaps)
+        2. CRITICAL BOTTLENECK (Identify the primary prerequisite causing failure)
+        3. PATH TO MASTERY (Exactly what to do first, including the specific book and library coordinates provided)
+        4. ACCELERATION TIPS (Next steps)
+
+        Student Profile: ${studentName} (${semester})
         
-Student Name: ${studentName}
-Semester/Year: ${semester}
-
-Strong Topics:
-${strongText || 'None yet'}
-
-Weak Topics needing improvement:
-${weakText || 'None yet'}
-
-Provide your response as a direct message to the student.`;
+        STRONG CONCEPTS:
+        ${strongText || 'None recorded'}
+        
+        WEAK CONCEPTS & BOTTLENECKS:
+        ${weakText || 'None recorded'}
+        
+        Ensure you mention the exact library floor, section, and shelf for the top-priority weak topic. Be professional and data-driven.`;
 
         analysisText = await generateAnalysis(prompt)
     } catch (e) {
         console.warn('Failed to load llmService or generate analysis:', e)
         analysisText = buildAnalysisText(weakTopics, strongTopics, userProfile)
     }
+
+    // ✅ Fix: Calculate mastery as weighted average of actual scores
+    const scores = [...weakTopics, ...strongTopics].map(t => t.mastery_pct || 0)
+    const avgPct = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0
 
     const result = {
         userId,
@@ -184,11 +193,9 @@ Provide your response as a direct message to the student.`;
         strong_topics: strongTopics,
         root_causes:  rootCauses,
         analysis_text: analysisText,
-        ai_analysis: analysisText, // Provide alias for user's requested format
+        ai_analysis: analysisText, 
         mastery_summary: {
-            overall_pct: weakTopics.length + strongTopics.length > 0
-                ? Math.round((strongTopics.length / (weakTopics.length + strongTopics.length)) * 100)
-                : 0,
+            overall_pct: avgPct,
             weak_count:   weakTopics.length,
             strong_count: strongTopics.length
         }

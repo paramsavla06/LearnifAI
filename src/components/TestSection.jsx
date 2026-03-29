@@ -77,7 +77,7 @@ function mapUserBranchToSubjectBranches(program, branch, yearStr) {
     
     // Engineering Stream (B.Tech, M.Tech, Diploma, etc.)
     if (['btech', 'mtech', 'diploma', 'general'].includes(p)) {
-        return ['CE', 'Common', 'IT', 'Electronics / EXTC', 'Mech', 'CE Civil', 'EE']
+        return ['CE', 'Common', 'IT', 'EXTC', 'Electronics / EXTC', 'Mech', 'CE Civil', 'EE']
     }
     
     // Management Stream (MBA)
@@ -162,9 +162,8 @@ function StepBar({ current }) {
                 const elements = [
                     <div key={`step-${s.id}`} className="flex flex-col items-center gap-1.5 w-28 shrink-0">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 z-10 ${
-                            done ? 'bg-primary-accent border-primary-accent text-black'
-                                 : active ? 'border-primary-accent text-primary-accent bg-primary-accent/10'
-                                          : 'border-white/20 text-text-secondary bg-white/5'
+                            (done || active) ? 'bg-primary-accent border-primary-accent text-black shadow-[0_0_15px_rgba(255,216,95,0.3)]'
+                                             : 'border-white/20 text-text-secondary bg-white/5'
                         }`}>
                             {done ? <CheckCircle className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                         </div>
@@ -807,14 +806,28 @@ function localScore(answers, profile) {
         else strong.push(entry)
     }
     weak.sort((a, b) => a.score - b.score)
-    const pct = weak.length + strong.length > 0 ? Math.round(strong.length / (weak.length + strong.length) * 100) : 0
+    
+    // ✅ Fix: Calculate mastery as an average of actual BKT scores instead of a binary count
+    const scores = [...weak, ...strong].map(t => t.score)
+    const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0
+    const pct = Math.round(avgScore * 100)
+
     const name = profile.name || 'Student'
-    const weakNames = weak.slice(0, 3).map(t => t.name).join(', ')
-    const text = `${name} (${profile.semester || profile.year}), your diagnostic is complete.\n\n${
-        weak.length > 0
-            ? `⚠️ Focus on: ${weakNames}${weak.length > 3 ? ` and ${weak.length - 3} more` : ''}.\n\nFor each weak topic, visit the library using the book and location shown below.`
-            : '✅ Great — all concepts above mastery threshold!'
-    }\n\n📊 Overall mastery: ${pct}% (${strong.length}/${weak.length + strong.length} concepts cleared).`
+    const topWeakness = weak[0]
+    
+    // Format text like a technical solution/root-cause report
+    const text = `ROOT CAUSE ANALYSIS REPORT: ${name.toUpperCase()}\n` +
+                 `SESSION ID: ${profile.roll_no || 'N/A'} · ${profile.semester}\n\n` +
+                 `DIAGNOSTIC SUMMARY:\n` +
+                 `The system identifies a critical bottleneck in your foundations. While your current focus is ${profile.semester}, the underlying resistance stems from a lack of confidence in prerequisite structures.\n\n` +
+                 `THE SOLUTION:\n` +
+                 `${weak.length > 0 
+                    ? `1. Prioritize ${topWeakness.name.toUpperCase()} immediately. This is your primary blocker.\n` +
+                      `2. Navigate to ${inferFloor(topWeakness.section)} → ${topWeakness.section} in the Library.\n` +
+                      `3. Locate '${topWeakness.book_title}' on ${topWeakness.shelf} to rebuild your foundation.`
+                    : 'Your foundations are solid. Continue increasing difficulty in the next adaptive stage.'}\n\n` +
+                 `MASTERY SCORE: ${pct}% (${strong.length} Concepts Stabilized)`
+
     return {
         weak_topics: weak, strong_topics: strong,
         mastery_summary: { overall_pct: pct, weak_count: weak.length, strong_count: strong.length },
@@ -894,7 +907,10 @@ export default function TestSection() {
         // Just let them start at Step 1, SetupStep will handle read-only mode for profile info
     }, [])
 
-    function handleDiagnosticFinish(data) { setResult(data); setStep(3) }
+    function handleDiagnosticFinish(data) { 
+        setResult(data)
+        setStep(3) 
+    }
     function handleRetake() {
         setStep(profile._fromSession ? 2 : 1)
         setResult(null)
@@ -944,45 +960,46 @@ export default function TestSection() {
                     </div>
 
                     <div className="lg:col-span-4 space-y-6">
+                        <GlassCard className="!p-6">
+                            <h3 className="text-sm font-bold tracking-widest text-text-secondary uppercase mb-3 text-center">How It Works</h3>
+                            {[
+                                { icon: User, label: 'Setup', desc: 'Choose your semester & question count' },
+                                { icon: Brain, label: 'Diagnostic', desc: `Adaptive MCQs across up to 3 subjects` },
+                                { icon: BarChart2, label: 'Results', desc: 'Weak topics + book + library location' },
+                            ].map(({ icon: Icon, label, desc }, i) => (
+                                <motion.div key={label} initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                                    className="flex items-start gap-4 mb-5 last:mb-0">
+                                    <div className="w-10 h-10 rounded-xl bg-primary-accent/10 border border-primary-accent/20 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(255,216,95,0.1)]">
+                                        <Icon className="w-5 h-5 text-primary-accent" />
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-sm text-white mb-0.5">{label}</p>
+                                        <p className="text-[11px] text-text-secondary leading-relaxed font-medium">{desc}</p>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </GlassCard>
+
                         <GlassCard className="!p-6 relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-primary-accent/10 blur-[60px] rounded-full" />
-                            <h3 className="text-sm font-bold tracking-widest text-text-secondary uppercase mb-6 relative z-10">
+                            <h3 className="text-sm font-bold tracking-widest text-text-secondary uppercase mb-6 relative z-10 text-center">
                                 Upcoming Exams
                             </h3>
                             <div className="flex flex-col gap-3 relative z-10">
                                 {timetable.map((item, i) => (
                                     <motion.div key={i} initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                                        className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/5 border border-white/5 hover:border-primary-accent/30 transition-colors">
+                                        className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-white/5 border border-white/5 hover:border-primary-accent/30 transition-all duration-300 hover:bg-white/[0.08]">
                                         <div>
                                             <p className="font-bold text-xs text-white mb-0.5">{item.subject}</p>
-                                            <p className="text-[10px] text-text-secondary tracking-widest uppercase">{item.sem}</p>
+                                            <p className="text-[10px] text-text-secondary tracking-widest uppercase font-bold">{item.sem}</p>
                                         </div>
                                         <div className="text-right shrink-0">
                                             <p className="font-bold text-xs text-primary-accent mb-0.5">{item.date}</p>
-                                            <p className="text-[10px] text-text-secondary">{item.time}</p>
+                                            <p className="text-[10px] text-text-secondary font-medium">{item.time}</p>
                                         </div>
                                     </motion.div>
                                 ))}
                             </div>
-                        </GlassCard>
-
-                        <GlassCard className="!p-6">
-                            <h3 className="text-sm font-bold tracking-widest text-text-secondary uppercase mb-3">How It Works</h3>
-                            {[
-                                { icon: User, label: 'Setup', desc: 'Choose your semester & question count' },
-                                { icon: Brain, label: 'Diagnostic', desc: `Adaptive MCQs across up to 3 subjects` },
-                                { icon: BarChart2, label: 'Results', desc: 'Weak topics + book + library location' },
-                            ].map(({ icon: Icon, label, desc }) => (
-                                <div key={label} className="flex items-start gap-3 mb-4 last:mb-0">
-                                    <div className="w-8 h-8 rounded-full bg-primary-accent/10 border border-primary-accent/20 flex items-center justify-center shrink-0">
-                                        <Icon className="w-4 h-4 text-primary-accent" />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-sm text-white">{label}</p>
-                                        <p className="text-xs text-text-secondary">{desc}</p>
-                                    </div>
-                                </div>
-                            ))}
                         </GlassCard>
                     </div>
                 </div>

@@ -16,8 +16,12 @@ const supabaseUrl = process.env.SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing SUPABASE_URL or SUPABASE_ANON_KEY in .env')
+    console.warn('[Supabase] ⚠️  Missing SUPABASE_URL or SUPABASE_ANON_KEY — DB features will fail')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
-console.log(`[Supabase] Connected → ${supabaseUrl}`)
+export const supabase = (supabaseUrl && supabaseKey)
+    ? createClient(supabaseUrl, supabaseKey)
+    : null
+
+if (supabase) console.log(`[Supabase] ✅ Connected → ${supabaseUrl}`)
+else console.warn('[Supabase] ⚠️  Running without database — set env vars on Render')

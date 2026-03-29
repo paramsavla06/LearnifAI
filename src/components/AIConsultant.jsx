@@ -1,15 +1,11 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { GlassCard } from './ui/GlassCard'
 import { ScrollReveal } from './ui/ScrollReveal'
-import { Bot, Wifi, AlertTriangle, Play } from 'lucide-react'
+import { Bot, Wifi, AlertTriangle, Play, Zap, Brain, Target, User } from 'lucide-react'
 
-const features = [
-    { id: 'gap-map',     title: 'Knowledge Gap Map',    description: 'Three-level diagnostic tests trace where your understanding breaks down at the concept level.' },
-    { id: 'book-rec',    title: 'Book Recommendations', description: 'After identifying gaps, the system surfaces the right book and the exact chapter to read.' },
-    { id: 'library-loc', title: 'Library Section',      description: 'Every book is mapped to a physical section and shelf. Walk in and find it immediately.' },
-    { id: 'advisor',     title: 'Subject Advisor',       description: 'Ask any subject-related question. The AI gives structured, course-relevant guidance.' },
-]
+// Fetch helper from local API
+const API_BASE = 'http://localhost:3002/api'
 
 // ─── Avatar session config ────────────────────────────────────────────────────
 // Credits are consumed only when a session starts — do NOT auto-load on mount.
@@ -116,6 +112,31 @@ function AvatarFrame() {
 }
 
 export default function AIConsultant() {
+    const [results, setResults] = useState(null)
+    const [loading, setLoading] = useState(true)
+
+    // Load user ID and results
+    useEffect(() => {
+        const userId = localStorage.getItem('learnifai_user_id')
+        if (!userId) { setLoading(false); return }
+
+        fetch(`${API_BASE}/result/${userId}`)
+            .then(r => r.json())
+            .then(data => { setResults(data); setLoading(false) })
+            .catch(() => setLoading(false))
+    }, [])
+
+    const insights = useMemo(() => {
+        if (!results || !results.mastery_summary) return []
+        const { weak_topics = [], mastery_summary } = results
+        return [
+            { id: 'mastery', title: 'Overall Mastery', value: `${mastery_summary.overall_pct}%`, icon: Zap, color: 'text-primary-accent' },
+            { id: 'weakness', title: 'Top Weakness', value: weak_topics[0]?.name || 'None', icon: Target, color: 'text-red-400' },
+            { id: 'credits', title: 'Consultant Credits', value: 'Unlimited', icon: User, color: 'text-emerald-400' },
+            { id: 'status', title: 'Consultant Mode', value: 'Personalized', icon: Brain, color: 'text-primary-accent' },
+        ]
+    }, [results])
+
     return (
         <section id="ai-consultant" className="relative py-24 md:py-32">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary-accent/5 via-background-base to-background-base pointer-events-none" />
@@ -138,26 +159,34 @@ export default function AIConsultant() {
                             </p>
                         </ScrollReveal>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-                            {features.map((feat, i) => (
-                                <motion.div
-                                    key={feat.id}
-                                    initial={{ opacity: 0, y: 15 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: i * 0.1, duration: 0.4 }}
-                                >
-                                    <GlassCard className="!p-5 h-full group hover:border-primary-accent/30 transition-colors">
-                                        <h3 className="text-sm font-bold text-white mb-2 group-hover:text-primary-accent transition-colors">
-                                            {feat.title}
-                                        </h3>
-                                        <p className="text-xs text-text-secondary font-medium leading-relaxed">
-                                            {feat.description}
-                                        </p>
-                                    </GlassCard>
-                                </motion.div>
-                            ))}
-                        </div>
+                        {insights.length > 0 && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+                                {insights.map((feat, i) => {
+                                    const Icon = feat.icon
+                                    return (
+                                        <motion.div
+                                            key={feat.id}
+                                            initial={{ opacity: 0, y: 15 }}
+                                            whileInView={{ opacity: 1, y: 0 }}
+                                            viewport={{ once: true }}
+                                            transition={{ delay: i * 0.1, duration: 0.4 }}
+                                        >
+                                            <GlassCard className="!p-5 h-full group hover:border-primary-accent/30 transition-colors">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <Icon className={`w-4 h-4 ${feat.color}`} />
+                                                    <h3 className="text-xs font-bold text-text-secondary uppercase tracking-widest">
+                                                        {feat.title}
+                                                    </h3>
+                                                </div>
+                                                <p className="text-xl font-bold text-white group-hover:text-primary-accent transition-colors">
+                                                    {feat.value}
+                                                </p>
+                                            </GlassCard>
+                                        </motion.div>
+                                    )
+                                })}
+                            </div>
+                        )}
 
                         {/* Info notice */}
                         <div className="p-4 rounded-xl border border-primary-accent/20 bg-primary-accent/5 flex items-start gap-4">

@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
 import CustomCursor from "../CustomCursor";
+import { ActivityTracker } from "../ActivityTracker";
 
 export default function MainLayout({ children }) {
   const { scrollYProgress } = useScroll();
@@ -19,6 +20,7 @@ export default function MainLayout({ children }) {
 
   return (
     <div className={`min-h-screen selection:bg-primary-accent/30 bg-background-base ${(isAuth || isLanding) ? '' : 'flex flex-col'}`}>
+      <ActivityTracker />
       
       {!isAuth && !isLanding && (
         <motion.div

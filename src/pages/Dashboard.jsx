@@ -24,6 +24,10 @@ import {
   BarChart2,
   AlertTriangle,
   X,
+  Plus,
+  TrendingUp,
+  Star,
+  Heart,
   ZoomIn,
   ZoomOut,
   Pause,
@@ -155,6 +159,7 @@ export default function Dashboard() {
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [courseDetails, setCourseDetails] = useState(null)
   const [loadingCourse, setLoadingCourse] = useState(false)
+  const [showDiscovery, setShowDiscovery] = useState(false)
 
   const handleCourseClick = async (courseName) => {
     setSelectedCourse(courseName)
@@ -278,12 +283,12 @@ export default function Dashboard() {
   }))
 
   const mentors = [
-    { name: "Dr. Anjali Sharma", role: "Machine Learning Specialist", department: "Computer Engineering" },
-    { name: "Prof. Rajan Kulkarni", role: "Cloud & Big Data Expert", department: "Computer Engineering" },
-    { name: "Dr. Priya Mehta", role: "Network Security Lead", department: "Computer Engineering" },
-    { name: "Prof. Suresh Patil", role: "Operating Systems Specialist", department: "Computer Engineering" },
-    { name: "Dr. Kavita Joshi", role: "Applied Mathematics Head", department: "Applied Sciences" },
-  ]
+    { name: "Dr. Anjali Sharma", role: "Machine Learning Specialist", department: "Computer Engineering", rating: 4.9, reviewCount: 124 },
+    { name: "Prof. Rajan Kulkarni", role: "Cloud & Big Data Expert", department: "Computer Engineering", rating: 4.7, reviewCount: 89 },
+    { name: "Dr. Priya Mehta", role: "Network Security Lead", department: "Computer Engineering", rating: 4.8, reviewCount: 112 },
+    { name: "Prof. Suresh Patil", role: "Operating Systems Specialist", department: "Computer Engineering", rating: 4.5, reviewCount: 76 },
+    { name: "Dr. Kavita Joshi", role: "Applied Mathematics Head", department: "Applied Sciences", rating: 4.6, reviewCount: 95 },
+  ].sort((a, b) => b.rating - a.rating)
 
   return (
     <>
@@ -559,18 +564,26 @@ export default function Dashboard() {
               {mentors.map((mentor, i) => (
                 <div 
                   key={i} 
-                  className="flex items-center gap-3 group cursor-pointer"
+                  className="flex items-center gap-3 group relative cursor-pointer"
                   onClick={() => navigate('/professors')}
                 >
                   <div className="w-10 h-10 rounded-xl bg-primary-accent/10 border border-primary-accent/20 flex items-center justify-center font-bold text-sm text-primary-accent shrink-0 group-hover:bg-primary-accent group-hover:text-black transition-all">
                     {getInitials(mentor.name)}
                   </div>
-                  <div>
-                    <p className="text-sm font-bold group-hover:text-primary-accent transition-colors">{mentor.name}</p>
-                    <p className="text-[10px] text-white/50">{mentor.role}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold group-hover:text-primary-accent transition-colors truncate">{mentor.name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <div className="flex items-center gap-0.5">
+                        <Star className="w-2.5 h-2.5 fill-primary-accent text-primary-accent" />
+                        <span className="text-[10px] font-bold text-primary-accent">{mentor.rating}</span>
+                      </div>
+                      <span className="text-[10px] text-white/30 truncate">{mentor.role}</span>
+                    </div>
                   </div>
-                  <div className="ml-auto w-8 h-8 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:bg-white/10 transition-all">
-                    <ArrowRight className="w-4 h-4" />
+                  <div className="ml-auto flex flex-col items-end opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-primary-accent border border-white/5">
+                      <Heart className="w-3.5 h-3.5 fill-primary-accent/20" />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -595,7 +608,10 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Quest 1 */}
-          <GlassCard className="!p-6 group hover:bg-white/10 transition-colors cursor-pointer relative overflow-hidden">
+          <GlassCard 
+            onClick={() => navigate('/tests')}
+            className="!p-6 group hover:bg-white/10 transition-colors cursor-pointer relative overflow-hidden"
+          >
             <div className="absolute top-0 left-0 w-1 h-full bg-green-500" />
             <div className="flex justify-between items-start mb-5">
               <div className="w-12 h-12 rounded-2xl bg-green-500/10 flex items-center justify-center border border-green-500/20 group-hover:scale-110 transition-transform">
@@ -612,7 +628,10 @@ export default function Dashboard() {
           </GlassCard>
 
           {/* Quest 2 */}
-          <GlassCard className="!p-6 group hover:bg-white/10 transition-colors cursor-pointer relative overflow-hidden">
+          <GlassCard 
+            onClick={() => navigate('/tests')}
+            className="!p-6 group hover:bg-white/10 transition-colors cursor-pointer relative overflow-hidden"
+          >
             <div className="absolute top-0 left-0 w-1 h-full bg-primary-accent" />
             <div className="flex justify-between items-start mb-5">
               <div className="w-12 h-12 rounded-2xl bg-primary-accent/10 flex items-center justify-center border border-primary-accent/20 group-hover:scale-110 transition-transform">
@@ -629,7 +648,10 @@ export default function Dashboard() {
           </GlassCard>
 
           {/* Quest 3 */}
-          <GlassCard className="!p-6 group hover:bg-white/10 transition-colors cursor-pointer relative overflow-hidden">
+          <GlassCard 
+            onClick={() => setShowDiscovery(true)}
+            className="!p-6 group hover:bg-white/10 transition-colors cursor-pointer relative overflow-hidden"
+          >
             <div className="absolute top-0 left-0 w-1 h-full bg-purple-500" />
             <div className="flex justify-between items-start mb-5">
               <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:scale-110 transition-transform">
@@ -718,6 +740,68 @@ export default function Dashboard() {
                   Failed to load course details.
                 </div>
               )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+      {/* AI Discovery Modal */}
+      {showDiscovery && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+             onClick={() => setShowDiscovery(false)}>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="w-full max-w-4xl bg-surface-elevation-1 border border-white/10 rounded-3xl overflow-hidden shadow-2xl shadow-purple-500/20"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex flex-col md:flex-row h-full">
+              {/* Video Player Side */}
+              <div className="flex-1 bg-black relative group aspect-video md:aspect-auto">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Play className="w-16 h-16 text-white/20 group-hover:text-primary-accent group-hover:scale-110 transition-all cursor-pointer" />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black to-transparent">
+                  <div className="h-1 w-full bg-white/20 rounded-full mb-3">
+                    <div className="h-full w-1/3 bg-primary-accent rounded-full" />
+                  </div>
+                  <div className="flex items-center gap-4 text-xs font-bold text-white/70">
+                    <span>01:24 / 04:52</span>
+                    <span className="ml-auto flex items-center gap-2">
+                       <Zap className="w-3 h-3 text-yellow-400" />
+                       Autogenerated for you
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Discovery Info Side */}
+              <div className="w-full md:w-80 p-8 border-l border-white/10 flex flex-col bg-white/5">
+                <div className="flex items-center gap-2 text-[10px] font-bold text-purple-400 uppercase tracking-widest mb-4">
+                  <Compass className="w-3 h-3" />
+                  Daily Discovery
+                </div>
+                <h3 className="text-xl font-bold mb-3">Emerging Tech: Transformers in CV</h3>
+                <p className="text-sm text-text-secondary leading-relaxed mb-6">
+                  Learn how attention mechanisms are revolutionizing Computer Vision architectures beyond traditional CNNs.
+                </p>
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-green-500" />
+                    <span className="text-xs font-medium text-white/70">Topic: Neural Networks</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-blue-500" />
+                    <span className="text-xs font-medium text-white/70">Credits: +30 Knowledge XP</span>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => setShowDiscovery(false)}
+                  className="w-full mt-auto py-3 bg-primary-accent text-black rounded-xl font-bold text-sm shadow-xl shadow-primary-accent/20 hover:scale-[1.02] transition-transform"
+                >
+                  Mark as Complete
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>

@@ -62,6 +62,22 @@ app.get('/health', (_req, res) =>
     res.json({ status: 'ok', version: '1.0.0', engine: 'LearnifAI Diagnostic v1' })
 )
 
+// ── Activity Tracking ──────────────────────────────────────────────────────────
+app.post('/api/activity/track', async (req, res) => {
+    try {
+        const { userId } = req.body
+        if (!userId) return res.status(400).json({ error: 'userId required' })
+
+        const { error } = await supabase.from('activity_pings').insert([{ user_id: userId }])
+        if (error) throw error
+
+        res.json({ success: true, timestamp: new Date().toISOString() })
+    } catch (e) {
+        console.error('Activity track error:', e.message)
+        res.status(500).json({ error: 'Failed to log activity' })
+    }
+})
+
 app.get('/api/health/llm', async (req, res) => {
     try {
         const baseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';

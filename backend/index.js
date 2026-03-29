@@ -189,7 +189,7 @@ app.listen(PORT, () => {
     console.log(`\n✅ LearnifAI API running → http://localhost:${PORT}`)
     
     // Run sync in background so server starts immediately
-    (async () => {
+    ;(async () => {
         try {
             console.log('[Sync] Starting background synchronization...')
             await syncSubjectsToSupabase(conceptsData.subjects)

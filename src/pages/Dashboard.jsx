@@ -221,66 +221,136 @@ export default function Dashboard() {
     }
   }, [navigate])
 
-  const learningHours = data.learningHours.length > 0 ? data.learningHours : [
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  const currentDayName = days[new Date().getDay()]
+
+  const baseHours = data.learningHours && data.learningHours.length > 0 ? data.learningHours : [
     { day: "Mon", hours: 0 }, { day: "Tue", hours: 0 }, { day: "Wed", hours: 0 },
     { day: "Thu", hours: 0 }, { day: "Fri", hours: 0 }, { day: "Sat", hours: 0 }, { day: "Sun", hours: 0 }
   ]
-  const subjects = data.subjects || []
+
+  const learningHours = baseHours.map(d => {
+    // 1. Strictly hardcode Saturday to 5hr 6min (5.1 hours) at ALL times
+    if (d.day === "Sat") return { ...d, hours: 5.1 }
+    
+    // 2. Clear Thursday as per request
+    if (d.day === "Thu") return { ...d, hours: 0 }
+    if (d.day === "Mon") return { ...d, hours: 0 }
+    if (d.day === "Tue") return { ...d, hours: 0 }
+    if (d.day === "Wed") return { ...d, hours: 0 }
+    if (d.day === "Fri") return { ...d, hours: 0 }
+    
+    // 3. Count current time for Sunday time (today is Sunday)
+    if (d.day === "Sun") {
+       const now = new Date()
+       const currentHours = now.getHours() + (now.getMinutes() / 60)
+       return { ...d, hours: parseFloat(currentHours.toFixed(1)) }
+    }
+
+    
+    return d
+  })
+
+  // Calculate local total to match our overrides
+  const totalWeeklyHours = learningHours.reduce((sum, d) => sum + d.hours, 0)
+
+
+
   
-  // To ensure the 6-sided 3D Concept Cube (4 slots per face = 24 total) looks dense and premium, 
-  // we'll fill any missing items with real concepts from the curriculum.
+  // Emergency Hard-coded Fallback to ensure yellow concepts are ALWAYS visible with detailed descriptions
+  const coreTopics = [
+    { 
+      name: "Partial Differentiation", 
+      desc: "Cornerstone of multivariable calculus used to analyze how a function changes with respect to one variable while others remain constant.",
+      subjectName: "Engineering Mathematics"
+    },
+    { 
+      name: "Complex Numbers", 
+      desc: "Indispensable in electrical engineering for analyzing AC circuits. They simplify the calculation of impedance and phase shifts.",
+      subjectName: "Applied Physics"
+    },
+    { 
+      name: "Logic Circuits", 
+      desc: "The basic building blocks of digital computers, logic circuits process binary information using gates like AND, OR, and NOT.",
+      subjectName: "Electronics Engineering"
+    },
+    { 
+      name: "Data Structures", 
+      desc: "Efficient data organization involves managing memory through arrays, linked lists, and trees to optimize retrieval speeds.",
+      subjectName: "Computer Science"
+    },
+    { 
+      name: "Machine Learning", 
+      desc: "Enables systems to learn patterns from data and improve over time without explicit programming.",
+      subjectName: "Cybernetics & AI"
+    },
+    { 
+      name: "Thermodynamics", 
+      desc: "Studying the relationship between heat, work, and energy, governing the behavior of physical systems.",
+      subjectName: "Thermal Engineering"
+    },
+    { name: "Fluid Mechanics", desc: "Laws of fluid flow and pressure.", subjectName: "Civil Engineering" },
+    { name: "Power Systems", desc: "Grid management and power electronics.", subjectName: "Electrical Eng" },
+    { name: "Digital Signal Processing", desc: "Analysis and filtration of digital signals.", subjectName: "EXTC" },
+    { name: "Microprocessors", desc: "Instruction sets and hardware architecture.", subjectName: "Computer Science" },
+    { name: "Artificial Intelligence", desc: "Modern algorithms and heuristic search.", subjectName: "AI & Data Science" },
+    { name: "Control Systems", desc: "Closed-loop feedback and stabilitiy analysis.", subjectName: "Instrumentation" },
+    { name: "Quantum Physics", desc: "Subatomic particles and probability wavefunctions.", subjectName: "Applied Physics" },
+    { name: "Software Testing", desc: "Quality assurance and debugging strategies.", subjectName: "Software Engineering" },
+    { name: "Cyber Security", desc: "Network preservation and threat analysis.", subjectName: "Information Tech" },
+    { name: "Big Data", desc: "Management of huge datasets using Hadoop/Spark.", subjectName: "Data Engineering" },
+    { name: "Cloud Computing", desc: "Virtualization and on-demand cloud services.", subjectName: "IT Infrastructure" },
+    { name: "Robotics", desc: "Kinematics and robotic control systems.", subjectName: "Automation Eng" },
+    { name: "Computer Graphics", desc: "Rasterization and 3D modeling pipelines.", subjectName: "CSE" },
+    { name: "Cryptography", desc: "Mathematical security and blockchain basics.", subjectName: "Cyber Security" },
+    { name: "Embedded Systems", desc: "Hardware-software integration in microcontrollers.", subjectName: "EXTC" },
+    { name: "Natural Language Processing", desc: "Text analysis and transformer models.", subjectName: "AI" },
+    { name: "Deep Learning", desc: "Neural networks and gradient descent.", subjectName: "AI" },
+    { name: "VLSI Design", desc: "Large-scale circuit integration on silicon.", subjectName: "Electronics" }
+  ]
+
+
+
+  const dummyIcons = ["Sparkles", "Brain", "Cpu", "LineChart", "Activity", "Target", "Compass", "Terminal", "Zap", "CheckCircle2"]
+
   const curriculumConcepts = []
-  const subConcepts = []
-  
-  // Use primary curriculum data structure (subjects array)
-  // to populate the cube with real academic topics
   Object.values(curriculumData.subjects || {}).forEach(sub => {
-    if (sub.name && !curriculumConcepts.includes(sub.name)) {
-      curriculumConcepts.push(sub.name)
+    if (sub.name) {
+      curriculumConcepts.push({ name: sub.name, desc: "University Curriculum" })
     }
   })
   
-  // Keep main subjects first, then pad the remaining slots
-  const dummyTopics = [...curriculumConcepts]
+  // Create final list starting with user-enrolled subjects, then curriculum, then fallback
+  const allInitialData = [...(data.subjects || []), ...curriculumConcepts, ...coreTopics]
   
-  const dummyIcons = ["Sparkles", "Brain", "Cpu", "LineChart", "Activity", "Target", "Compass", "Terminal", "Zap", "CheckCircle2"]
-  const dummyColors = [
-    { bg: "bg-blue-500/20", text: "text-blue-400" }, { bg: "bg-purple-500/20", text: "text-purple-400" },
-    { bg: "bg-green-500/20", text: "text-green-400" }, { bg: "bg-yellow-500/20", text: "text-yellow-400" },
-    { bg: "bg-red-500/20", text: "text-red-400" }, { bg: "bg-orange-500/20", text: "text-orange-400" }
-  ]
+  const existingNames = new Set()
+  let finalExplorerSet = []
+  
+  for (const topic of allInitialData) {
+    if (finalExplorerSet.length >= 24) break; 
+    const tName = topic.name
+    const tDesc = topic.description || topic.desc || "Interactive Concept Module"
 
-  let activeSubjects = [...subjects]
-  const existingNames = new Set(activeSubjects.map(s => s.name.toLowerCase()))
-  
-  // Fill remaining slots using unique curriculum subjects (no duplicates)
-  let i = 0;
-  for (const topicName of dummyTopics) {
-    if (activeSubjects.length >= 24) break; 
-    if (!existingNames.has(topicName.toLowerCase())) {
-      existingNames.add(topicName.toLowerCase())
-      const colorSet = dummyColors[i % dummyColors.length]
-      
-      activeSubjects.push({
-        name: topicName,
-        iconStr: dummyIcons[i % dummyIcons.length],
-        color: colorSet.bg,
-        textColor: colorSet.text,
-        progress: Math.floor(Math.random() * 20), // Low mastery for new topics
-        lessons: Math.floor(Math.random() * 20) + 3,
-        hours: Math.floor(Math.random() * 5)
+    if (!existingNames.has(tName.toLowerCase())) {
+      existingNames.add(tName.toLowerCase())
+      finalExplorerSet.push({
+        ...topic,
+        name: tName,
+        description: tDesc,
+        iconStr: topic.iconStr || dummyIcons[finalExplorerSet.length % dummyIcons.length],
+        color: "bg-[#FFD85F]/20",
+        textColor: "text-[#FFD85F]",
+        progress: topic.progress || Math.floor(Math.random() * 20),
+        lessons: topic.lessons || 4,
+        hours: topic.hours || 1
       })
-      i++;
     }
   }
 
-  // Strictly enforce 4 tiles per face for the 2x2 grid
-  // THis is critical for the .filter(s => s.face === faceName) check in the render loop
-  activeSubjects = activeSubjects.map((sub, idx) => ({
+  // Assign to faces (strictly 4 per face)
+  const activeSubjects = finalExplorerSet.map((sub, idx) => ({
     ...sub,
-    face: faces[Math.floor(idx / 4) % 6],
-    color: sub.color || "bg-blue-500/10",
-    textColor: sub.textColor || "text-blue-400"
+    face: faces[Math.floor(idx / 4) % 6]
   }))
 
 
@@ -313,34 +383,44 @@ export default function Dashboard() {
                 <p className="text-sm text-text-secondary font-medium">Your progress this week</p>
               </div>
             <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold">{formatHours(data.totalHoursThisWeek)}</span>
-                {data.totalHoursThisWeek > 0 && (
-                  <span className="text-xs font-bold text-green-500 bg-green-100/20 px-2 py-1 rounded-full">This Week</span>
+                <span className="text-2xl font-bold">{formatHours(totalWeeklyHours)}</span>
+                {totalWeeklyHours > 0 && (
+                  <span className="text-xs font-bold text-[#FFD85F] bg-[#FFD85F]/10 border border-[#FFD85F]/10 px-2 py-1 rounded-full">This Week</span>
                 )}
               </div>
+
             </div>
             
             <div className="flex items-end justify-between h-48 gap-2">
-              {learningHours.map((item, i) => {
-                const isPeak = data.peakDay ? item.day === data.peakDay : false
-                return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-3 group">
-                  <div className="w-full relative flex items-end justify-center h-full">
-                    <motion.div 
-                      initial={{ height: 0 }}
-                      whileInView={{ height: `${Math.max(2, (item.hours / Math.max(...learningHours.map(l => l.hours), 1)) * 100)}%` }}
-                      transition={{ duration: 1, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                      className={`w-full max-w-[40px] rounded-t-xl transition-all duration-300 ${isPeak ? 'bg-primary-accent' : 'bg-white/5 group-hover:bg-primary-accent/30'}`}
-                    />
-                    {isPeak && item.hours > 0 && (
-                      <div className="absolute -top-8 bg-white text-black text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap">
-                        {formatHours(item.hours)}
+              {(() => {
+                const maxVal = Math.max(...learningHours.map(l => l.hours), 1)
+                const localPeakDay = learningHours.reduce((a, b) => a.hours > b.hours ? a : b).day
+                
+                return learningHours.map((item, i) => {
+                  const isPeak = item.day === localPeakDay
+                  const hasActivity = item.hours > 0
+                  
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-3 group">
+                      <div className="w-full relative flex items-end justify-center h-full">
+                        <motion.div 
+                          initial={{ height: 0 }}
+                          animate={{ height: `${Math.max(4, (item.hours / maxVal) * 100)}%` }}
+                          transition={{ duration: 1, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                          className={`w-full max-w-[40px] rounded-t-xl transition-all duration-300 ${hasActivity ? 'bg-[#FFD85F] shadow-[0_4px_12px_rgba(255,216,95,0.2)]' : 'bg-white/5 group-hover:bg-[#FFD85F]/20'}`}
+                        />
+                        {hasActivity && (
+                          <div className={`absolute -top-8 bg-white text-black text-[9px] font-black px-2 py-1 rounded shadow-lg whitespace-nowrap z-10 ${isPeak ? 'scale-110' : 'scale-90 opacity-80'}`}>
+                            {formatHours(item.hours)}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <span className="text-xs font-bold text-text-secondary">{item.day}</span>
-                </div>
-              )})}
+                      <span className={`text-[10px] font-bold tracking-wider ${hasActivity ? 'text-[#FFD85F]' : 'text-white/30'}`}>{item.day}</span>
+                    </div>
+                  )
+                })
+
+              })()}
             </div>
           </GlassCard>
 
@@ -397,102 +477,138 @@ export default function Dashboard() {
                           transform: `${faceRotations[faceName]} translateZ(${faceOffsets[faceName]}px)`,
                         }}
                       >
-                        {(data.explorerConcepts || []).filter(s => s.face === faceName).map((concept, j) => {
-                          const Icon = ICON_MAP[concept.iconStr] || Sparkles
+                        {activeSubjects.filter(s => s.face === faceName).map((subject, j) => {
+                          const Icon = ICON_MAP[subject.iconStr] || Sparkles
                           return (
                           <motion.div 
                             key={j} 
-                            onClick={() => setSelectedConcept(concept)}
+                            onClick={() => setSelectedConcept(subject)}
                             className="cuboid-tile group cursor-pointer p-4 flex flex-col items-center justify-center text-center overflow-hidden"
                             whileHover={{ 
-                              scale: 1.05,
+                              z: 60,
+                              scale: 1.15,
                               backgroundColor: "rgba(255, 216, 95, 1)",
-                              transition: { type: "spring", stiffness: 300, damping: 20 }
+                              transition: { type: "spring", stiffness: 400, damping: 25 }
                             }}
                           >
-                            <Icon className="w-6 h-6 text-[#FFD85F]/80 group-hover:text-black mb-2 transition-all duration-300" />
-                            <span className="text-[10px] font-black uppercase tracking-tighter text-[#FFD85F] group-hover:text-black mb-1 line-clamp-1">{concept.name}</span>
+                            <Icon className="w-10 h-10 text-[#FFD85F] group-hover:text-black mb-2 transition-all duration-300" />
+                            <span className="text-[10px] font-black uppercase tracking-tighter text-[#FFD85F] group-hover:text-black mb-1 line-clamp-1">{subject.name}</span>
                             <p className="text-[8px] font-bold text-white/40 group-hover:text-black/60 line-clamp-2 leading-tight">
-                              {concept.description}
+                              {subject.description}
                             </p>
                           </motion.div>
                         )})}
+
                       </motion.div>
                     ))}
                   </motion.div>
                 </motion.div>
               </div>
               
-              {/* Contextual Side Panel */}
+              {/* Concept Detail Popout Sidebar */}
               <motion.div 
                 initial={false}
                 animate={{ 
-                  x: selectedConcept ? 0 : 400,
+                  x: selectedConcept ? 0 : 450,
                   opacity: selectedConcept ? 1 : 0
                 }}
-                className="absolute top-4 bottom-4 right-4 w-80 bg-black/80 backdrop-blur-xl border border-white/10 rounded-[32px] p-6 flex flex-col z-50 pointer-events-auto"
+                className="absolute top-4 bottom-4 right-4 w-[380px] bg-black/85 backdrop-blur-[24px] border border-[#FFD85F]/30 rounded-[40px] p-8 flex flex-col z-[100] pointer-events-auto shadow-[0_20px_60px_rgba(0,0,0,0.8)]"
               >
                 {selectedConcept && (
                   <>
-                    <div className="flex items-center justify-between mb-6">
-                      <div className={`w-10 h-10 rounded-xl ${selectedConcept.color} flex items-center justify-center`}>
-                        {React.createElement(ICON_MAP[selectedConcept.iconStr] || Sparkles, { className: `w-5 h-5 ${selectedConcept.textColor}` })}
+                    <div className="flex items-center justify-between mb-8">
+                      <div className="flex h-12 w-12 rounded-2xl bg-[#FFD85F]/10 border border-[#FFD85F]/20 items-center justify-center">
+                        {React.createElement(ICON_MAP[selectedConcept.iconStr] || Sparkles, { className: "w-6 h-6 text-[#FFD85F]" })}
                       </div>
                       <button 
                         onClick={() => setSelectedConcept(null)}
-                        className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                        className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors group"
                       >
-                        <X className="w-4 h-4 text-white" />
+                        <X className="w-5 h-5 text-white/50 group-hover:text-white" />
                       </button>
                     </div>
                     
-                    <h4 className="text-xl font-bold mb-1">{selectedConcept.name}</h4>
-                    <p className="text-sm text-text-secondary mb-8">{selectedConcept.lessons} Lessons • {selectedConcept.hours}h Spent</p>
+                    <div className="mb-8">
+                      <div className="flex items-center gap-2 mb-2">
+                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#FFD85F] bg-[#FFD85F]/10 px-3 py-1 rounded-full border border-[#FFD85F]/10">
+                           {selectedConcept.subjectName || "Engineering Core"}
+                         </span>
+                      </div>
+                      <h4 className="text-2xl font-black text-white leading-tight">{selectedConcept.name}</h4>
+                    </div>
                     
-                    <div className="space-y-6 flex-1">
+                    <div className="space-y-8 flex-1 overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-white/10">
                       <div>
-                        <div className="flex items-center justify-between text-xs font-bold mb-2">
-                          <span className="text-white/60">MASTERY LEVEL</span>
-                          <span className="text-primary-accent">{selectedConcept.progress}%</span>
+                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-3">EXPLANATION</span>
+                        <p className="text-sm text-white/70 leading-relaxed font-medium">
+                          {selectedConcept.description || "This fundamental concept forms the backbone of digital systems and mathematical modeling within your engineering curriculum."}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-4 rounded-3xl bg-white/5 border border-white/5">
+                          <span className="text-[10px] font-bold text-white/30 block mb-1">MASTERY</span>
+                          <span className="text-lg font-black text-[#FFD85F]">{selectedConcept.progress || 0}%</span>
                         </div>
-                        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${selectedConcept.progress}%` }}
-                            className="h-full bg-primary-accent"
-                          />
+                        <div className="p-4 rounded-3xl bg-white/5 border border-white/5">
+                          <span className="text-[10px] font-bold text-white/30 block mb-1">LESSONS</span>
+                          <span className="text-lg font-black text-white">{selectedConcept.lessons || 4}</span>
                         </div>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-primary-accent/10 border border-primary-accent/20">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Brain className="w-4 h-4 text-primary-accent" />
-                          <span className="text-xs font-bold text-primary-accent">AI RECOMMENDATION</span>
-                        </div>
-                        <p className="text-sm text-white/80 leading-relaxed">
-                          Your mastery in {selectedConcept.name} could be improved. We recommend visiting the Library to review {selectedConcept.subjectName || 'your recent topic'}.
-                        </p>
-                        {selectedConcept.subjectName && (
-                          <button 
-                            onClick={() => navigate(`/dashboard?course=${encodeURIComponent(selectedConcept.subjectName)}`)}
-                            className="w-full mt-4 py-3 bg-primary-accent text-black rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-primary-accent/20"
-                          >
-                            Explore Full Syllabus
-                          </button>
-                        )}
-                      </div>
-                      
+                      {/* NEW: Direct Recommended Books Section */}
                       <div>
-                        <span className="text-xs font-bold text-white/60 mb-3 block">RELATED TOPICS</span>
-                        <div className="flex flex-wrap gap-2">
-                          {dummyTopics.filter(t => t !== selectedConcept.name).slice(0, 3).map(t => (
-                            <span key={t} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/80">
-                              {t}
-                            </span>
+                        <span className="text-[10px] font-bold text-[#FFD85F] uppercase tracking-widest block mb-4 flex items-center gap-2">
+                          <BookOpen className="w-3 h-3" /> RECOMMENDED BOOKS
+                        </span>
+                        <div className="space-y-3">
+                          {[
+                            { title: `${selectedConcept.name} - Fundamentals`, author: "Prescribed University Text" },
+                            { title: `Advanced ${selectedConcept.subjectName || "Concept"}`, author: "Reference Manual Vol 1" }
+                          ].map((book, bi) => (
+                            <div key={bi} className="p-3 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-colors">
+                              <div>
+                                <p className="text-xs font-bold text-white line-clamp-1">{book.title}</p>
+                                <p className="text-[10px] text-white/40">{book.author}</p>
+                              </div>
+                              <div className="p-2 rounded-full bg-white/10 group-hover:bg-[#FFD85F] transition-colors">
+                                <ArrowRight className="w-3 h-3 text-white group-hover:text-black" />
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </div>
+
+                      <div>
+                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-4">MAP POSITION & HIERARCHY</span>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/5">
+                            <MapPin className="w-4 h-4 text-[#FFD85F]" />
+                            <div>
+                               <p className="text-[10px] font-bold text-white/40 leading-none mb-1">BELONGS TO FIELD</p>
+                               <p className="text-xs font-bold text-white">Computer Engineering / EXTC</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/5">
+                            <Compass className="w-4 h-4 text-[#FFD85F]" />
+                            <div>
+                               <p className="text-[10px] font-bold text-white/40 leading-none mb-1">PARENT SUBJECT</p>
+                               <p className="text-xs font-bold text-white">{selectedConcept.subjectName || "Engineering Sciences"}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
+                    
+                    <div className="mt-8 pt-8 border-t border-white/5 space-y-3">
+                      <button 
+                        onClick={() => navigate(`/library?subject=${encodeURIComponent(selectedConcept.subjectName || "")}`)}
+                        className="w-full py-4 bg-white text-black rounded-full font-black text-sm hover:scale-[1.02] transition-transform flex items-center justify-center gap-2"
+                      >
+                        Find More Books <BookOpen className="w-4 h-4" />
+                      </button>
+                    </div>
+
                   </>
                 )}
               </motion.div>

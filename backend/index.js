@@ -33,7 +33,7 @@ import programRoutes from './routes/programs.js'
 import studyPlanRoutes from './routes/studyPlan.js'
 
 const app = express()
-const PORT = 3002
+const PORT = process.env.PORT || 3002
 
 // ── Middleware ─────────────────────────────────────────────────────────────────
 app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'] }))

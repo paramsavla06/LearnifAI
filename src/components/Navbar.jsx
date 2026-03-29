@@ -5,12 +5,12 @@ import { Brain, Search, Activity, Menu, X, LogOut } from 'lucide-react'
 
 const navLinks = [
     { label: 'Dashboard', to: '/dashboard' },
-    { label: 'Map', to: '/map' },
     { label: 'Tests', to: '/tests' },
-    { label: 'Library', to: '/library' },
-    { label: 'Professors', to: '/professors' },
-    { label: 'AI', to: '/ai' },
     { label: 'Graph', to: '/graph' },
+    { label: 'Professors', to: '/professors' },
+    { label: 'Library', to: '/library' },
+    { label: 'Map', to: '/map' },
+    { label: 'AI', to: '/ai' },
 ]
 
 export default function Navbar() {

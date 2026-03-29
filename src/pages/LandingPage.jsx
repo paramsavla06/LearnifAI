@@ -268,28 +268,220 @@ const LandingPage = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/auth')}
               className="mt-10 px-10 py-4 bg-primary-accent text-black text-lg font-bold rounded-full shadow-[0_0_30px_rgba(255,216,95,0.25)] pointer-events-auto transition-shadow cursor-pointer"
             >
-              Enter Dashboard
+              Get Started →
             </motion.button>
           </motion.div>
+        </section>
+
+        {/* ══════════════ SCIENCE SECTION ══════════════ */}
+        <section id="science" className="relative py-32 px-[10vw]">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#FFD85F]/[0.02] to-transparent pointer-events-none" />
+          
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true, amount: 0.3 }}
+            className="max-w-6xl mx-auto"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-10 h-[2px] bg-[#FFD85F]" />
+              <span className="text-[#FFD85F] text-xs font-bold uppercase tracking-[0.25em]">The Science</span>
+            </div>
+            
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+              Powered by <span className="text-[#FFD85F]">Bayesian</span><br />Knowledge Tracing
+            </h2>
+            <p className="text-white/50 text-lg max-w-2xl mb-16 leading-relaxed">
+              Our engine doesn't just track scores — it models the probability that you truly understand each concept, 
+              updating in real-time as you learn.
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  num: '01',
+                  title: 'Probabilistic Mastery',
+                  desc: 'Each concept is tracked as a probability distribution, not a binary pass/fail. We calculate P(Know) using prior knowledge, slip rates, and guess factors derived from educational research.'
+                },
+                {
+                  num: '02',
+                  title: 'Adaptive Questioning',
+                  desc: 'The diagnostic engine selects questions that maximally reduce uncertainty about your knowledge state. Each answer updates the Bayesian posterior, zeroing in on your exact weak points.'
+                },
+                {
+                  num: '03',
+                  title: 'Root Cause Analysis',
+                  desc: 'When you struggle with a concept, our dependency graph traces back through prerequisites to find the foundational gap — the real reason you\'re stuck, not just the symptom.'
+                }
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: i * 0.15 }}
+                  viewport={{ once: true }}
+                  className="p-8 rounded-3xl bg-white/[0.03] border border-white/[0.06] hover:border-[#FFD85F]/20 transition-all duration-500 group"
+                >
+                  <span className="text-[#FFD85F]/30 text-5xl font-black block mb-4 group-hover:text-[#FFD85F]/60 transition-colors">{item.num}</span>
+                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                  <p className="text-white/40 text-sm leading-relaxed">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Formula Display */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.5 }}
+              viewport={{ once: true }}
+              className="mt-16 p-8 rounded-3xl bg-white/[0.02] border border-white/[0.06] text-center"
+            >
+              <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-4">Core Update Rule</p>
+              <p className="text-2xl md:text-3xl font-mono text-[#FFD85F]/80 tracking-wider">
+                P(Kₙ) = P(Kₙ₋₁) + (1 − P(Kₙ₋₁)) · P(T)
+              </p>
+              <p className="text-white/30 text-xs mt-4 max-w-lg mx-auto">
+                Where P(Kₙ) is the updated mastery, P(Kₙ₋₁) is the prior, and P(T) is the probability of learning upon exposure — calibrated per student.
+              </p>
+            </motion.div>
+          </motion.div>
+        </section>
+
+        {/* ══════════════ FEATURES SECTION ══════════════ */}
+        <section id="platform" className="relative py-32 px-[10vw]">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true, amount: 0.2 }}
+            className="max-w-6xl mx-auto"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <span className="w-10 h-[2px] bg-[#FFD85F]" />
+              <span className="text-[#FFD85F] text-xs font-bold uppercase tracking-[0.25em]">Platform</span>
+            </div>
+            
+            <h2 className="text-4xl md:text-5xl font-bold mb-16 leading-tight">
+              Everything you need to<br /><span className="text-[#FFD85F]">master your curriculum</span>
+            </h2>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { icon: '🧠', title: 'AI Diagnostics', desc: 'Take a 10-minute adaptive test. Our BKT engine maps your exact knowledge state and pinpoints weak spots across every subject.', tag: 'CORE' },
+                { icon: '📚', title: 'Physical Library Map', desc: 'We don\'t just recommend a textbook — we tell you exactly which shelf, row, and section in your university library has the book you need.', tag: 'UNIQUE' },
+                { icon: '🗺️', title: '3D Concept Explorer', desc: 'Navigate a living 3D cube of your curriculum. Click any concept tile to see its academic hierarchy, recommended readings, and mastery progress.', tag: 'VISUAL' },
+                { icon: '👩‍🏫', title: 'Faculty Rating System', desc: 'Rate your professors anonymously. Community-driven scores dynamically reorder the faculty directory so you can find the best mentors.', tag: 'COMMUNITY' },
+                { icon: '📊', title: 'Learning Analytics', desc: 'Track your weekly learning hours with a live dashboard. See your Saturday peaks, Sunday streaks, and identify patterns in your study habits.', tag: 'DATA' },
+                { icon: '🔗', title: 'Dependency Graph', desc: 'Visualize prerequisite chains between concepts. Understand why you\'re stuck on Laplace Transforms by seeing you missed Complex Numbers first.', tag: 'INSIGHT' }
+              ].map((feat, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                  className="p-6 rounded-3xl bg-white/[0.03] border border-white/[0.06] hover:border-[#FFD85F]/20 hover:bg-white/[0.05] transition-all duration-500 group cursor-default"
+                >
+                  <div className="flex items-center justify-between mb-5">
+                    <span className="text-3xl">{feat.icon}</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-[#FFD85F]/50 bg-[#FFD85F]/5 border border-[#FFD85F]/10 px-2 py-1 rounded-full">{feat.tag}</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2 group-hover:text-[#FFD85F] transition-colors">{feat.title}</h3>
+                  <p className="text-white/40 text-sm leading-relaxed">{feat.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ══════════════ ABOUT SECTION ══════════════ */}
+        <section id="about" className="relative py-32 px-[10vw]">
+          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[#FFD85F]/[0.015] to-transparent pointer-events-none" />
+          
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true, amount: 0.3 }}
+            className="max-w-4xl mx-auto text-center"
+          >
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <span className="w-10 h-[2px] bg-[#FFD85F]" />
+              <span className="text-[#FFD85F] text-xs font-bold uppercase tracking-[0.25em]">About</span>
+              <span className="w-10 h-[2px] bg-[#FFD85F]" />
+            </div>
+
+            <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
+              Built by students,<br /><span className="text-[#FFD85F]">for students</span>
+            </h2>
+
+            <p className="text-white/50 text-lg leading-relaxed max-w-2xl mx-auto mb-12">
+              LearnifAI was born out of a simple frustration — students don't fail because they're not smart enough. 
+              They fail because they study the wrong things. Our team of engineering students at SCOE built this platform 
+              to solve that exact problem using Bayesian AI and the physical library resources already available on campus.
+            </p>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+              {[
+                { value: '500+', label: 'Concepts Mapped' },
+                { value: '8', label: 'Subjects Covered' },
+                { value: '24', label: '3D Explorer Tiles' },
+                { value: '∞', label: 'Learning Potential' }
+              ].map((stat, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                  className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.06]"
+                >
+                  <p className="text-3xl font-black text-[#FFD85F] mb-1">{stat.value}</p>
+                  <p className="text-xs font-bold text-white/30 uppercase tracking-wider">{stat.label}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-center">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/auth')}
+                className="px-10 py-4 bg-[#FFD85F] text-black text-lg font-bold rounded-full shadow-[0_0_30px_rgba(255,216,95,0.25)] pointer-events-auto transition-shadow cursor-pointer"
+              >
+                Sign In
+              </motion.button>
+            </div>
+          </motion.div>
+
+          {/* Footer */}
+          <div className="mt-32 pt-8 border-t border-white/[0.06] text-center">
+            <p className="text-white/20 text-xs font-bold tracking-wider">
+              © 2026 LearnifAI — SCOE, Pune. Built with Bayesian Knowledge Tracing.
+            </p>
+          </div>
         </section>
       </div>
 
       {/* Navigation Overlay */}
-      <nav className="fixed top-0 left-0 w-full p-8 px-10 z-20 flex justify-between items-center pointer-events-none">
-        <div className="text-2xl font-bold tracking-tighter pointer-events-auto cursor-pointer text-white">
-          Learnif<span className="text-primary-accent">AI</span>
+      <nav className="fixed top-0 left-0 w-full p-8 px-10 z-20 flex justify-between items-center pointer-events-none bg-gradient-to-b from-black/60 to-transparent">
+        <div 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="text-2xl font-bold tracking-tighter pointer-events-auto cursor-pointer text-white hover:text-[#FFD85F] transition-colors"
+        >
+          Learnif<span className="text-[#FFD85F]">AI</span>
         </div>
         <div className="flex gap-10 text-xs font-bold uppercase tracking-widest text-white/50 pointer-events-auto">
-          <a href="#" className="hover:text-white transition-colors">Platform</a>
-          <a href="#" className="hover:text-white transition-colors">Science</a>
-          <a href="#" className="hover:text-white transition-colors">About</a>
+          <a href="#science" className="hover:text-[#FFD85F] transition-colors">Science</a>
+          <a href="#platform" className="hover:text-[#FFD85F] transition-colors">Platform</a>
+          <a href="#about" className="hover:text-[#FFD85F] transition-colors">About</a>
         </div>
       </nav>
-
-
     </div>
   );
 };

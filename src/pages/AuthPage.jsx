@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import { Brain, ArrowRight, User, Mail, GraduationCap, Building2, Lock, Loader2, AlertTriangle, BookOpen, Layers } from 'lucide-react'
 import { ScrollReveal } from '../components/ui/ScrollReveal'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002'
-console.log('[Auth] API_BASE points to:', API_BASE)
+// EMERGENCY HARDCODE FOR PRODUCTION
+const API_BASE = 'https://learnifai-d653.onrender.com/api'
+console.log('[Auth] HARDCODED API_BASE:', API_BASE)
 
 
 export default function AuthPage() {

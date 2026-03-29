@@ -9,8 +9,7 @@ const API_BASE = 'http://localhost:3002/api'
 
 // ─── Avatar session config ────────────────────────────────────────────────────
 // Credits are consumed only when a session starts — do NOT auto-load on mount.
-const EMBED_ID = import.meta.env.VITE_HEYGEN_EMBED_ID || ''
-const EMBED_URL = EMBED_ID ? `https://embed.liveavatar.com/v1/${EMBED_ID}` : ''
+const EMBED_URL = "https://labs.heygen.com/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJBbm5fRG9jdG9yX1NpdHRpbmdfcHVibGljIiwicHJldmlld0ltZyI6Imh0dHBzOi8vZmlsZXMyLmhleWdlbi5haS9hdmF0YXIvdjMvMjZkZTM2OWIyZDQ0NDNlNTg2ZGVkZjI3YWYxZTBjMWRfNDU1NzAvcHJldmlld190YWxrXzEud2VicCIsIm5lZWRSZW1vdmVCYWNrZ3JvdW5kIjpmYWxzZSwia25vd2xlZGdlQmFzZUlkIjoiMzE3NWU1MTRlZjhjNDVkY2I0MjE3MmExZTA0MjY2ZDkiLCJ1c2VybmFtZSI6IjliOTNiNWI1MzM2YjQ1Yzc5ZDU2NjY4MWM1YjQ4Y2Y3In0%3D&inIFrame=1"
 // ─────────────────────────────────────────────────────────────────────────────
 
 function AvatarFrame() {
@@ -56,6 +55,7 @@ function AvatarFrame() {
             <iframe
                 ref={iframeRef}
                 allow="microphone"
+                allowFullScreen
                 onLoad={handleLoad}
                 className={`w-full h-full border-none transition-opacity duration-500 bg-background-base ${
                     status === 'loading' || status === 'live' ? 'pt-[45px] opacity-100' : 'opacity-0 pointer-events-none'

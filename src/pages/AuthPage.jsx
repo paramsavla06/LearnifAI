@@ -128,12 +128,16 @@ export default function AuthPage() {
             {/* Left Col - Brand Info */}
             <div className="hidden lg:flex flex-1 relative z-10 flex-col justify-center px-16 xl:px-24">
                 <ScrollReveal>
-                    <div className="flex items-center gap-3 mb-12">
-                        <div className="w-12 h-12 bg-primary-accent rounded-xl flex items-center justify-center shadow-[0_0_30px_rgba(255,216,95,0.3)]">
+                    <div 
+                        onClick={() => navigate('/')}
+                        className="flex items-center gap-3 mb-12 cursor-pointer group"
+                    >
+                        <div className="w-12 h-12 bg-primary-accent rounded-xl flex items-center justify-center shadow-[0_0_30px_rgba(255,216,95,0.3)] transition-transform group-hover:scale-105">
                             <Brain className="w-7 h-7 text-black" />
                         </div>
-                        <span className="text-3xl font-bold tracking-tight">Learnif<span className="text-white">AI</span></span>
+                        <span className="text-3xl font-bold tracking-tight transition-colors group-hover:text-primary-accent">Learnif<span className="text-white group-hover:text-white">AI</span></span>
                     </div>
+
 
                     <h1 className="text-5xl xl:text-6xl font-black text-white leading-[1.1] tracking-tight mb-8">
                         The future of <br />
@@ -178,14 +182,18 @@ export default function AuthPage() {
                     className="w-full max-w-md mx-auto"
                 >
                     {/* Mobile logo */}
-                    <div className="lg:hidden flex justify-center mb-10">
+                    <div 
+                        onClick={() => navigate('/')}
+                        className="lg:hidden flex justify-center mb-10 cursor-pointer group"
+                    >
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-primary-accent rounded-xl flex items-center justify-center shadow-[0_0_30px_rgba(255,216,95,0.3)]">
+                            <div className="w-10 h-10 bg-primary-accent rounded-xl flex items-center justify-center shadow-[0_0_30px_rgba(255,216,95,0.3)] transition-transform group-hover:scale-105">
                                 <Brain className="w-6 h-6 text-black" />
                             </div>
-                            <span className="text-3xl font-bold tracking-tight">Learnif<span className="text-white">AI</span></span>
+                            <span className="text-3xl font-bold tracking-tight transition-colors group-hover:text-primary-accent">Learnif<span className="text-white group-hover:text-white">AI</span></span>
                         </div>
                     </div>
+
 
                     <div className="p-8 rounded-3xl bg-surface-elevation-1/80 border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary-accent/10 blur-[50px] rounded-full pointer-events-none" />

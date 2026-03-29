@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { motion, useScroll, useTransform, useMotionValue, useAnimationFrame } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { GlassCard } from '../components/ui/GlassCard'
@@ -354,13 +354,27 @@ export default function Dashboard() {
   }))
 
 
-  const mentors = [
-    { name: "Dr. Anjali Sharma", role: "Machine Learning Specialist", department: "Computer Engineering", rating: 4.9, reviewCount: 124 },
-    { name: "Prof. Rajan Kulkarni", role: "Cloud & Big Data Expert", department: "Computer Engineering", rating: 4.7, reviewCount: 89 },
-    { name: "Dr. Priya Mehta", role: "Network Security Lead", department: "Computer Engineering", rating: 4.8, reviewCount: 112 },
-    { name: "Prof. Suresh Patil", role: "Operating Systems Specialist", department: "Computer Engineering", rating: 4.5, reviewCount: 76 },
-    { name: "Dr. Kavita Joshi", role: "Applied Mathematics Head", department: "Applied Sciences", rating: 4.6, reviewCount: 95 },
-  ].sort((a, b) => b.rating - a.rating)
+  const mentors = useMemo(() => {
+    const defaultMentors = [
+      { name: "Dr. Anjali Sharma", role: "Machine Learning Specialist", department: "Computer Engineering", rating: 4.9, reviewCount: 124 },
+      { name: "Prof. Rajan Kulkarni", role: "Cloud & Big Data Expert", department: "Computer Engineering", rating: 4.7, reviewCount: 89 },
+      { name: "Dr. Priya Mehta", role: "Network Security Lead", department: "Computer Engineering", rating: 4.8, reviewCount: 112 },
+      { name: "Prof. Suresh Patil", role: "Operating Systems Specialist", department: "Computer Engineering", rating: 4.5, reviewCount: 76 },
+      { name: "Dr. Kavita Joshi", role: "Applied Mathematics Head", department: "Applied Sciences", rating: 4.6, reviewCount: 95 },
+    ]
+
+    const saved = localStorage.getItem('learnifai_faculty_stats')
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      return defaultMentors.map(m => ({
+        ...m,
+        rating: parsed[m.name]?.rating || m.rating,
+        reviewCount: parsed[m.name]?.count || m.reviewCount
+      })).sort((a, b) => b.rating - a.rating)
+    }
+    return defaultMentors.sort((a, b) => b.rating - a.rating)
+  }, [])
+
 
   return (
     <>

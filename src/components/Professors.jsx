@@ -21,11 +21,56 @@ const initials = (name) => {
 }
 
 export default function Professors() {
+    // Load initial data and merge with any locally stored updates
+    const [professors, setProfessors] = useState(() => {
+        const saved = localStorage.getItem('learnifai_faculty_stats')
+        if (saved) {
+            const parsed = JSON.parse(saved)
+            return [...professorsData].map(p => ({
+                ...p,
+                rating: parsed[p.name]?.rating || p.initialRating,
+                reviewCount: parsed[p.name]?.count || Math.floor(Math.random() * 100) + 50
+            })).sort((a, b) => b.rating - a.rating)
+        }
+        return [...professorsData].map(p => ({
+            ...p,
+            rating: p.initialRating,
+            reviewCount: Math.floor(Math.random() * 100) + 50
+        })).sort((a, b) => b.rating - a.rating)
+    })
+
     const [ratings, setRatings] = useState({})
     const [hoveredStar, setHoveredStar] = useState({ id: null, val: 0 })
 
-    const handleRate = (profId, rating) => {
-        setRatings(prev => ({ ...prev, [profId]: rating }))
+    const handleRate = (profId, userRating) => {
+        const oldUserRating = ratings[profId] || 0
+        
+        setProfessors(prevProfs => {
+            const updated = prevProfs.map(p => {
+                if (p.id === profId) {
+                    // Weighted Average Calculation: (oldTotal - oldUserRating + newUserRating) / totalCount
+                    // For local simplicity, we treat the 'initialRating' and 'reviewCount' as static community data, 
+                    // and allow the current user to contribute 1 rating that they can update.
+                    const isNewReview = !ratings[profId]
+                    const newCount = p.reviewCount + (isNewReview ? 1 : 0)
+                    const oldTotal = p.rating * p.reviewCount
+                    const newTotal = oldTotal - (oldUserRating) + userRating
+                    const newRating = parseFloat((newTotal / newCount).toFixed(1))
+                    
+                    return { ...p, rating: newRating, reviewCount: newCount }
+                }
+                return p
+            }).sort((a, b) => b.rating - a.rating)
+            
+            // Sync to localStorage
+            const stats = {}
+            updated.forEach(p => stats[p.name] = { rating: p.rating, count: p.reviewCount })
+            localStorage.setItem('learnifai_faculty_stats', JSON.stringify(stats))
+            
+            return updated
+        })
+        
+        setRatings(prev => ({ ...prev, [profId]: userRating }))
     }
 
     return (
@@ -47,12 +92,13 @@ export default function Professors() {
                 </ScrollReveal>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {professorsData.map((prof, i) => {
+                    {professors.map((prof, i) => {
                         const userRating = ratings[prof.id]
                         
                         return (
                             <motion.div
                                 key={prof.id}
+                                layout
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, margin: '-40px' }}
@@ -75,7 +121,7 @@ export default function Professors() {
                                             <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Community Rating</span>
                                             <div className="flex items-center gap-1">
                                                 <Star className="w-3 h-3 fill-primary-accent text-primary-accent" />
-                                                <span className="text-sm font-bold text-primary-accent">{prof.initialRating}</span>
+                                                <span className="text-sm font-bold text-primary-accent">{prof.rating}</span>
                                             </div>
                                         </div>
                                         
@@ -99,6 +145,10 @@ export default function Professors() {
                                             ))}
                                         </div>
                                         
+                                        <div className="text-center mt-1">
+                                           <span className="text-[9px] font-bold text-white/30 uppercase">{prof.reviewCount} total reviews</span>
+                                        </div>
+
                                         <AnimatePresence>
                                             {userRating && (
                                                 <motion.div 
@@ -148,3 +198,4 @@ export default function Professors() {
         </section>
     )
 }
+

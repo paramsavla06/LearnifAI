@@ -5,7 +5,7 @@ import { ScrollReveal } from './ui/ScrollReveal'
 import { Bot, Wifi, AlertTriangle, Play, Zap, Brain, Target, User } from 'lucide-react'
 
 // Fetch helper from local API
-const API_BASE = 'http://localhost:3002/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002'
 
 // ─── Avatar session config ────────────────────────────────────────────────────
 // Credits are consumed only when a session starts — do NOT auto-load on mount.

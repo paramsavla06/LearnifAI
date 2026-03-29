@@ -10,7 +10,8 @@ import {
 import conceptsData from '../data/concepts.json'
 import questionsRaw from '../data/questions.json'
 
-const API_BASE = 'http://localhost:3002/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002'
+
 
 // ─── Program definitions (mirrors AuthPage fallback) ─────────────────────────
 const PROGRAM_META = {

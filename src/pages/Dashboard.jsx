@@ -34,7 +34,8 @@ import {
   Play
 } from "lucide-react"
 
-const API_BASE = 'http://localhost:3002/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002'
+
 
 // ── Diagnostic Banner ─────────────────────────────────────────────────────────
 function DiagnosticBanner() {

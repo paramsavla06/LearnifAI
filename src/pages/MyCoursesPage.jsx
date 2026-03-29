@@ -10,7 +10,7 @@ import {
 import { GlassCard } from '../components/ui/GlassCard'
 import { ScrollReveal } from '../components/ui/ScrollReveal'
 
-const API_BASE = 'http://localhost:3002/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002'
 
 const ICON_MAP = {
     Sparkles, BookOpen, Cpu, Brain, Compass, 

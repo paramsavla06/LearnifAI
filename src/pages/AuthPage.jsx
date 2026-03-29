@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { Brain, ArrowRight, User, Mail, GraduationCap, Building2, Lock, Loader2, AlertTriangle, BookOpen, Layers } from 'lucide-react'
 import { ScrollReveal } from '../components/ui/ScrollReveal'
 
-const API_BASE = 'http://localhost:3002/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002'
+
 
 export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true)

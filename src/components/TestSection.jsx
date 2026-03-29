@@ -73,33 +73,45 @@ for (const subj of conceptsData.subjects) {
 
 // Map user branch to concepts.json branch strings
 function mapUserBranchToSubjectBranches(program, branch, yearStr) {
-    if (program === 'mba') return ['General MBA', 'MBA Finance', 'MBA HR', 'MBA Marketing']
+    const p = program?.toLowerCase() || ''
     
-    // First year engineering is Common
-    if (program === 'btech' && (yearStr === 'FE' || String(yearStr) === '1')) return ['Common', 'General']
+    // Engineering Stream (B.Tech, M.Tech, Diploma, etc.)
+    if (['btech', 'mtech', 'diploma', 'general'].includes(p)) {
+        return ['CE', 'Common', 'IT', 'Electronics / EXTC', 'Mech', 'CE Civil', 'EE']
+    }
+    
+    // Management Stream (MBA)
+    if (p === 'mba') {
+        return ['General MBA', 'MBA Finance', 'MBA HR', 'MBA Marketing']
+    }
+    
+    // Management Stream (BBA)
+    if (p === 'bba') {
+        return ['BBA']
+    }
+    
+    // Science & Computer Applications Stream
+    if (['bsc', 'msc', 'bca', 'mca'].includes(p)) {
+        return ['BSc/MSc', 'BCA/MCA']
+    }
+    
+    // Commerce
+    if (p === 'bcom') return ['BCom']
+    
+    // Arts
+    if (p === 'ba') return ['BA']
 
-    const b = branch?.toUpperCase() || ''
-    if (b === 'CSE' || b === 'CS') return ['CE', 'Common']
-    if (b === 'IT') return ['IT', 'Common']
-    if (b === 'ECE' || b === 'EXTC') return ['Electronics / EXTC', 'Common']
-    if (b === 'ME' || b === 'MECH') return ['Mech', 'Common']
-    if (b === 'CE' || b === 'CIVIL') return ['CE Civil', 'Common']
-    if (b === 'EE') return ['EE', 'Common']
-
-    // If no exact match, allow all non-MBA
-    return ['ALL_NON_MBA']
+    return []
 }
 
-// Returns subjects filtered by program/branch, and then by semester
 function getSubjectsForUser(sem, program, branch, yearStr) {
     const allowedBranches = mapUserBranchToSubjectBranches(program, branch, yearStr)
     
-    let filtered = conceptsData.subjects
-    if (!allowedBranches.includes('ALL_NON_MBA')) {
-        filtered = filtered.filter(s => s.branch && allowedBranches.some(ab => s.branch.includes(ab)))
-    } else if (program !== 'mba') {
-        filtered = filtered.filter(s => !(s.branch && s.branch.includes('MBA')))
-    }
+    let filtered = conceptsData.subjects.filter(s => {
+        if (!s.branch) return false;
+        // Exact match or includes (since some allowed branches perfectly map)
+        return allowedBranches.some(ab => s.branch === ab || s.branch.includes(ab))
+    });
 
     const matched = filtered.filter(s =>
         s.concepts.some(c => c.semester === sem)
@@ -802,16 +814,6 @@ function localScore(answers, profile) {
     }
 }
 
-// ─── Timetable sidebar ─────────────────────────────────────────────────────────
-const timetable = [
-    { subject: 'Engineering Mathematics III', date: '10 Apr', time: '10:00', sem: 'SE SEM 3' },
-    { subject: 'Data Structures & Algorithms', date: '12 Apr', time: '10:00', sem: 'SE SEM 3' },
-    { subject: 'Engineering Mathematics IV', date: '14 Apr', time: '10:00', sem: 'SE SEM 4' },
-    { subject: 'Operating Systems', date: '16 Apr', time: '10:00', sem: 'TE SEM 5' },
-    { subject: 'Machine Learning', date: '18 Apr', time: '10:00', sem: 'BE SEM 7' },
-    { subject: 'Computer Networks', date: '21 Apr', time: '10:00', sem: 'TE SEM 6' },
-]
-
 // ─── Main Component ────────────────────────────────────────────────────────────
 export default function TestSection() {
     const [step, setStep]         = useState(1)
@@ -836,7 +838,6 @@ export default function TestSection() {
                 : `Year ${storedYear}`
         }
 
-        // Validate: if stored year is a BTech key (FE/SE/TE/BE) but program is not btech, reset
         const isBtechYear  = ['FE','SE','TE','BE'].includes(storedYear)
         const year         = (program === 'btech' || !isBtechYear) && yearOptions.includes(storedYear) ? storedYear : yearOptions[0]
         const sems         = getSemsForYear(program, year)
@@ -854,6 +855,31 @@ export default function TestSection() {
             _fromSession: fromSession
         }
     })
+
+    // Dynamically generate timetable based on profile
+    const timetable = useMemo(() => {
+        const allowedBranches = mapUserBranchToSubjectBranches(profile.program, profile.branch, profile.year)
+        const allRelevantSubjects = conceptsData.subjects.filter(s => 
+            allowedBranches.some(ab => s.branch === ab || s.branch.includes(ab))
+        )
+        
+        // Pick top 6 subjects to show as "Upcoming Exams"
+        // Try to favor current semester, then others
+        const currentSemSubjects = allRelevantSubjects.filter(s => s.concepts.some(c => c.semester === profile.semester))
+        const otherSubjects = allRelevantSubjects.filter(s => !s.concepts.some(c => c.semester === profile.semester))
+        
+        const displayList = [...currentSemSubjects, ...otherSubjects].slice(0, 6)
+        
+        // Mock dates
+        const dates = ['12 Apr', '14 Apr', '16 Apr', '18 Apr', '20 Apr', '22 Apr']
+        
+        return displayList.map((s, i) => ({
+            subject: s.name,
+            date: dates[i] || 'TBD',
+            time: '10:00',
+            sem: s.concepts[0]?.semester || profile.semester
+        }))
+    }, [profile.program, profile.branch, profile.year, profile.semester])
 
     // Removed auto-skip to let users configure subjects and question counts in Step 1
     useEffect(() => {

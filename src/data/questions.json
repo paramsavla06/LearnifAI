@@ -216,13 +216,57 @@
   { "slug": "power-electronics", "q": "Inverters convert:", "a": "AC to DC", "b": "DC to AC", "c": "AC to AC", "d": "DC to DC", "ans": "b", "diff": 1 },
 
   { "slug": "marketing-mix", "q": "Which of the following is NOT one of the 4Ps of the Marketing Mix?", "a": "Product", "b": "Price", "c": "Promotion", "d": "People", "ans": "d", "diff": 1 },
-  { "slug": "marketing-mix", "q": "In the 4Ps, 'Place' refers to:", "a": "The physical location of the factory", "b": "Where the product is distributed and sold", "c": "The psychological positioning", "d": "Where the advertisement is placed", "ans": "b", "diff": 2 },
-  { "slug": "consumer-behavior", "q": "Maslow's Hierarchy of Needs often informs which part of marketing?", "a": "Consumer Motivation", "b": "Pricing Strategy", "c": "Distribution Logistics", "d": "Accounting", "ans": "a", "diff": 2 },
-  
+  { "slug": "marketing-mix", "q": "In the 4Ps, 'Place' refers to:", "a": "Physical location", "b": "Distribution channels", "c": "Psychological positioning", "d": "Warehouse size", "ans": "b", "diff": 2 },
+  { "slug": "consumer-behavior", "q": "Maslow's Hierarchy of Needs often informs which part of marketing?", "a": "Motivation", "b": "Pricing", "c": "Logistics", "d": "Accounting", "ans": "a", "diff": 2 },
+  { "slug": "consumer-behavior", "q": "The first stage in the consumer decision-making process is:", "a": "Search", "b": "Evaluation", "c": "Problem Recognition", "d": "Purchase", "ans": "c", "diff": 1 },
+  { "slug": "strat-mgmt", "q": "SWOT analysis stands for:", "a": "Strengths, Weaknesses, Opportunities, Threats", "b": "Sales, Work, Operations, Teams", "c": "Strategy, Wisdom, Ordering, Tactics", "d": "Simple, Wise, Open, Tight", "ans": "a", "diff": 1 },
+  { "slug": "strat-mgmt", "q": "Porter's Five Forces model is used for:", "a": "Employee appraisal", "b": "Industry analysis", "c": "Budgeting", "d": "Inventory control", "ans": "b", "diff": 3 },
+  { "slug": "biz-ethics", "q": "The concept of 'Triple Bottom Line' includes:", "a": "Profit, People, Planet", "b": "Price, Product, Promotion", "c": "Past, Present, Future", "d": "Plans, Programs, Projects", "ans": "a", "diff": 2 },
+
   { "slug": "accounting-principles", "q": "The fundamental accounting equation is:", "a": "Assets = Liabilities + Equity", "b": "Revenue = Expenses + Profit", "c": "Assets + Liabilities = Equity", "d": "Cash = Inflow - Outflow", "ans": "a", "diff": 1 },
-  { "slug": "accounting-principles", "q": "Which of the following is not a general purpose financial statement?", "a": "Balance Sheet", "b": "Income Statement", "c": "Tax Return", "d": "Statement of Cash Flows", "ans": "c", "diff": 2 },
-  { "slug": "financial-statements", "q": "A balance sheet provides a financial snapshot at:", "a": "A given period (like a year)", "b": "A specific point in time", "c": "The end of a project", "d": "Random intervals", "ans": "b", "diff": 2 },
-  
+  { "slug": "accounting-principles", "q": "Accrual basis of accounting records revenue when:", "a": "Cash is received", "b": "Earned", "c": "Billed", "d": "End of year", "ans": "b", "diff": 2 },
+  { "slug": "financial-statements", "q": "A balance sheet provides a financial snapshot at:", "a": "A given period", "b": "A specific point in time", "c": "End of project", "d": "Random intervals", "ans": "b", "diff": 2 },
+  { "slug": "corp-finance", "q": "WACC stands for:", "a": "Weighted Average Cost of Capital", "b": "Weekly Asset Cost Calculation", "c": "Western Associate Corporate Finance", "d": "Work and Cash Control", "ans": "a", "diff": 3 },
+  { "slug": "investment-analysis", "q": "The CAPM model is used to calculate:", "a": "Expected return", "b": "Net income", "c": "Inventory turnover", "d": "Debt ratio", "ans": "a", "diff": 4 },
+
   { "slug": "leadership-styles", "q": "Which leadership style involves making decisions without consulting team members?", "a": "Democratic", "b": "Laissez-Faire", "c": "Autocratic", "d": "Transformational", "ans": "c", "diff": 1 },
-  { "slug": "motivation-theories", "q": "According to Herzberg's Two-Factor Theory, which of these is a 'Hygiene Factor'?", "a": "Recognition", "b": "Salary", "c": "Responsibility", "d": "Achievement", "ans": "b", "diff": 3 }
+  { "slug": "leadership-styles", "q": "Democratic leadership is also known as:", "a": "Participative", "b": "Dictatorial", "c": "Hands-off", "d": "Transactional", "ans": "a", "diff": 1 },
+  { "slug": "motivation-theories", "q": "According to Herzberg's Two-Factor Theory, which of these is a 'Hygiene Factor'?", "a": "Recognition", "b": "Salary", "c": "Responsibility", "d": "Achievement", "ans": "b", "diff": 3 },
+  { "slug": "hrm-recruiting", "q": "The process of attracting a pool of applicants is called:", "a": "Selection", "b": "Recruitment", "c": "Induction", "d": "Training", "ans": "b", "diff": 1 },
+  { "slug": "labor-law", "q": "The Minimum Wages Act was enacted in:", "a": "1948", "b": "1950", "c": "1991", "d": "2000", "ans": "a", "diff": 3 },
+
+  { "slug": "bba-management", "q": "Who is known as the father of scientific management?", "a": "Peter Drucker", "b": "Henry Fayol", "c": "F.W. Taylor", "d": "Max Weber", "ans": "c", "diff": 1 },
+  { "slug": "bba-comm", "q": "The encoding-decoding model of communication is by:", "a": "Shannon and Weaver", "b": "Kotler", "c": "Maslow", "d": "Porter", "ans": "a", "diff": 2 },
+  { "slug": "bba-stat", "q": "The standard deviation is the square root of:", "a": "Mean", "b": "Median", "c": "Variance", "d": "Range", "ans": "c", "diff": 1 },
+  { "slug": "bba-law", "q": "A contract requires which of the following?", "a": "Offer and Acceptance", "b": "Force", "c": "Secret", "d": "Nothing", "ans": "a", "diff": 2 },
+  { "slug": "bba-ops", "q": "JIT in operations stands for:", "a": "Just in Time", "b": "Joint Internal Team", "c": "Jobs in Traffic", "d": "Junior Industrial Tech", "ans": "a", "diff": 2 },
+
+  { "slug": "bsc-phys", "q": "What is the SI unit of force?", "a": "Joule", "b": "Newton", "c": "Watt", "d": "Pascal", "ans": "b", "diff": 1 },
+  { "slug": "bsc-phys", "q": "Newton's first law is also known as the law of:", "a": "Inertia", "b": "Gravity", "c": "Friction", "d": "Motion", "ans": "a", "diff": 1 },
+  { "slug": "bsc-chem", "q": "Which functional group is present in Alcohols?", "a": "-OH", "b": "-CHO", "c": "-COOH", "d": "-NH2", "ans": "a", "diff": 2 },
+  { "slug": "bsc-math", "q": "In set theory, the set of all possible outcomes is called:", "a": "Null set", "b": "Subset", "c": "Universal set", "d": "Power set", "ans": "c", "diff": 1 },
+  { "slug": "msc-quantum", "q": "The uncertainty principle was proposed by:", "a": "Bohr", "b": "Einstein", "c": "Heisenberg", "d": "Schrodinger", "ans": "c", "diff": 4 },
+  { "slug": "msc-bio", "q": "The blueprint of life is:", "a": "RNA", "b": "DNA", "c": "Proteins", "d": "Lipids", "ans": "b", "diff": 1 },
+
+  { "slug": "bcom-acc", "q": "Which of these is a liquid asset?", "a": "Building", "b": "Machinery", "c": "Cash", "d": "Goodwill", "ans": "c", "diff": 1 },
+  { "slug": "bcom-aud", "q": "An internal auditor is appointed by:", "a": "Shareholders", "b": "Management", "c": "Government", "d": "Banks", "ans": "b", "diff": 3 },
+  { "slug": "bcom-tax", "q": "GST is which type of tax?", "a": "Direct", "b": "Indirect", "c": "Wealth", "d": "Income", "ans": "b", "diff": 2 },
+  { "slug": "bcom-cost", "q": "Variable costs change with:", "a": "Time", "b": "Production volume", "c": "Rent", "d": "Interest rates", "ans": "b", "diff": 2 },
+  { "slug": "bcom-market", "q": "E-commerce refers to:", "a": "Electronic commerce", "b": "Extended commerce", "c": "Easy commerce", "d": "Essential commerce", "ans": "a", "diff": 1 },
+
+  { "slug": "ba-hum", "q": "Who wrote 'The Odyssey'?", "a": "Plato", "b": "Homer", "c": "Aristotle", "d": "Virgil", "ans": "b", "diff": 1 },
+  { "slug": "ba-hist", "q": "The Indus Valley Civilization is also known as:", "a": "Harappan", "b": "Vedic", "c": "Mauryan", "d": "Gupta", "ans": "a", "diff": 2 },
+  { "slug": "ba-psy", "q": "Classical conditioning is associated with:", "a": "Skinner", "b": "Pavlov", "c": "Freud", "d": "Maslow", "ans": "b", "diff": 3 },
+  { "slug": "ba-pol", "q": "A democracy is a government by the:", "a": "Monarch", "b": "Elite", "c": "People", "d": "Priests", "ans": "c", "diff": 1 },
+  { "slug": "ba-soc", "q": "The father of Sociology is:", "a": "Karl Marx", "b": "Auguste Comte", "c": "Max Weber", "d": "Herbert Spencer", "ans": "b", "diff": 3 },
+  { "slug": "ba-lit", "q": "Who wrote 'Hamlet'?", "a": "Charles Dickens", "b": "William Shakespeare", "c": "Mark Twain", "d": "Leo Tolstoy", "ans": "b", "diff": 1 },
+  { "slug": "ba-geo", "q": "The study of human populations is called:", "a": "Demography", "b": "Topology", "c": "Cartography", "d": "History", "ans": "a", "diff": 2 },
+
+  { "slug": "bca-prog", "q": "Which of these is a pure object-oriented language?", "a": "C", "b": "C++", "c": "Java", "d": "Python", "ans": "c", "diff": 2 },
+  { "slug": "bca-web", "q": "Which tag is used for the largest heading in HTML?", "a": "h1", "b": "h6", "c": "head", "d": "header", "ans": "a", "diff": 1 },
+  { "slug": "bca-dbms", "q": "Which command is used to remove all records from a table in SQL?", "a": "DELETE", "b": "TRUNCATE", "c": "REMOVE", "d": "DROP", "ans": "b", "diff": 3 },
+  { "slug": "bca-shell", "q": "Which command is used to list files in Linux?", "a": "ls", "b": "cd", "c": "mkdir", "d": "rm", "ans": "a", "diff": 1 },
+  { "slug": "bca-sec", "q": "What does SSL stand for?", "a": "Secure Sockets Layer", "b": "System Security Level", "c": "Super Safe Link", "d": "Simple Shell Line", "ans": "a", "diff": 2 },
+  { "slug": "mca-ai", "q": "The Turning Test is used to determine:", "a": "AI Intelligence", "b": "Processing speed", "c": "Network stability", "d": "Algorithm complexity", "ans": "a", "diff": 4 },
+  { "slug": "mca-cloud", "q": "Which service is a PaaS?", "a": "EC2", "b": "S3", "c": "Heroku", "d": "CloudFront", "ans": "c", "diff": 4 }
 ]

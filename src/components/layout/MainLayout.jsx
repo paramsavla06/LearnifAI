@@ -19,7 +19,6 @@ export default function MainLayout({ children }) {
 
   return (
     <div className={`min-h-screen selection:bg-primary-accent/30 bg-background-base ${(isAuth || isLanding) ? '' : 'flex flex-col'}`}>
-      <CustomCursor />
       
       {!isAuth && !isLanding && (
         <motion.div

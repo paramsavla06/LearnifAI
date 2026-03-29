@@ -291,31 +291,41 @@ export default function Library() {
                 </div>
 
                 {/* Filters row */}
-                <div className="flex flex-col md:flex-row gap-4 mb-8">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
+                <div className="flex flex-col gap-6 mb-10">
+                    <div className="relative">
+                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-primary-accent/60" />
                         <input
                             type="text"
-                            placeholder="Search concept, book, or subject…"
+                            placeholder="Find a specific concept, the main solution, or a book…"
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full bg-surface-elevation-1 border border-white/10 rounded-full pl-11 pr-6 py-3 text-sm font-medium text-white placeholder:text-text-secondary/50 focus:outline-none focus:border-primary-accent/50 focus:ring-1 focus:ring-primary-accent/40 transition-all"
+                            className="w-full bg-surface-elevation-1 border border-white/10 rounded-2xl pl-14 pr-6 py-5 text-base font-medium text-white placeholder:text-text-secondary/50 focus:outline-none focus:border-primary-accent/60 focus:ring-1 focus:ring-primary-accent/40 transition-all shadow-xl"
                         />
                     </div>
-                    <div className="flex gap-2 flex-wrap">
-                        {allSubjectNames.map(b => (
-                            <button
-                                key={b}
-                                onClick={() => setSelectedSubject(b)}
-                                className={`px-4 py-2.5 rounded-full font-bold text-xs transition-colors border ${
-                                    selectedSubject === b
-                                        ? 'bg-white/10 text-white border-white/20'
-                                        : 'bg-transparent text-text-secondary border-transparent hover:bg-white/5 hover:text-white'
-                                }`}
-                            >
-                                {b}
-                            </button>
-                        ))}
+
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-center gap-3">
+                            <Layers className="w-4 h-4 text-primary-accent" />
+                            <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">Quick Filters by Subject</span>
+                        </div>
+                        <div className="flex gap-2 flex-wrap max-h-40 overflow-y-auto pr-2 custom-scrollbar p-1">
+                            {allSubjectNames.map(b => {
+                                const active = selectedSubject === b
+                                return (
+                                    <button
+                                        key={b}
+                                        onClick={() => setSelectedSubject(b)}
+                                        className={`px-4 py-2 rounded-full font-bold text-[10px] transition-all border uppercase tracking-widest ${
+                                            active
+                                                ? 'bg-primary-accent text-black border-primary-accent shadow-lg scale-105'
+                                                : 'bg-white/5 text-text-secondary border-white/10 hover:border-white/30 hover:text-white'
+                                        }`}
+                                    >
+                                        {b}
+                                    </button>
+                                )
+                            })}
+                        </div>
                     </div>
                 </div>
 

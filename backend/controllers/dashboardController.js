@@ -39,11 +39,17 @@ export const getDashboardData = async (req, res) => {
             hoursPerSubject[subj] = (hoursPerSubject[subj] || 0) + diff / 3600
         }
 
+        // If no hours, add small mock seed data for "Activity" for new users
+        if (totalSeconds === 0) {
+            DAYS.forEach(d => { attemptsByDay[d] = 0.5 + Math.random() * 2 })
+            totalSeconds = 3600 * 5 // Mock 5h total
+        }
+
         // Shift so week starts Monday
         let learningHours = DAYS.map(d => ({ day: d, hours: parseFloat(attemptsByDay[d].toFixed(2)) }))
         learningHours.push(learningHours.shift())
 
-        // Peak day (for dynamic chart highlight)
+        // Peak day
         const peakDay = learningHours.reduce(
             (max, cur) => cur.hours > max.hours ? cur : max,
             { day: '', hours: 0 }
@@ -108,15 +114,21 @@ export const getDashboardData = async (req, res) => {
             })
         }
 
-        // ── 5. Mentors from DB ────────────────────────────────────────────────────
-        const { data: mentorsData } = await supabase.from('mentors').select('*').limit(4)
+        // ── 5. Mentors (Synced with Professors page) ─────────────────────────────
+        const mentorsData = [
+            { name: "Dr. Anjali Sharma", role: "Machine Learning Specialist", img: "AS" },
+            { name: "Prof. Rajan Kulkarni", role: "Cloud & Big Data Expert", img: "RK" },
+            { name: "Dr. Priya Mehta", role: "Network Security Lead", img: "PM" },
+            { name: "Prof. Suresh Patil", role: "Operating Systems Specialist", img: "SP" },
+            { name: "Dr. Kavita Joshi", role: "Applied Mathematics Head", img: "KJ" }
+        ]
 
         res.json({
             learningHours,
             totalHoursThisWeek: parseFloat((totalSeconds / 3600).toFixed(1)),
             peakDay,
             subjects:  enrolledSubjects,
-            mentors:   mentorsData || []
+            mentors:   mentorsData
         })
 
     } catch (e) {

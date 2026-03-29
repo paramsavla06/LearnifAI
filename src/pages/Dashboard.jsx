@@ -188,6 +188,19 @@ export default function Dashboard() {
     rotateY.set(rotateY.get() + info.delta.x * 0.5)
   }
 
+  const formatHours = (h) => {
+    const hours = Math.floor(h)
+    const mins  = Math.round((h - hours) * 60)
+    if (hours === 0) return `${mins}m`
+    if (mins === 0) return `${hours}h`
+    return `${hours}h ${mins}m`
+  }
+
+  const getInitials = (name) => {
+    const parts = name.replace(/^(Dr\.|Prof\.)\s+/, '').split(' ')
+    return parts.slice(0, 2).map((w) => w[0]).join('').toUpperCase()
+  }
+
   // Persist userId when found in result and load userName
   useEffect(() => {
     const storedUserId = localStorage.getItem('learnifai_user_id')
@@ -209,41 +222,38 @@ export default function Dashboard() {
   ]
   const subjects = data.subjects || []
   
-  // To ensure the 6-sided 3D Concept Cube (4 slots per face = 24 total) looks dense and premium, 
+  // To ensure the 6-sided 3D Concept Cube (9 slots per face = 54 total) looks dense and premium, 
   // we'll fill any missing items with real concepts from the curriculum.
-  const curriculumConcepts = []
-  const subConcepts = []
+  const curriculumItems = []
   
-  Object.values(curriculumData.subjects_by_field || {}).forEach(fieldSubjects => {
-    fieldSubjects.forEach(sub => {
-      if (sub.name && !curriculumConcepts.includes(sub.name)) {
-        curriculumConcepts.push(sub.name)
-      }
-      (sub.concepts || []).forEach(concept => {
-        const name = concept.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-        if (!subConcepts.includes(name)) subConcepts.push(name)
-      })
+  if (curriculumData.subjects) {
+    curriculumData.subjects.forEach(sub => {
+      if (sub.name) curriculumItems.push(sub.name)
     })
-  })
+  }
+
+  if (curriculumData.topics) {
+    curriculumData.topics.forEach(top => {
+      if (top.name) curriculumItems.push(top.name)
+    })
+  }
   
-  // Keep main subjects first, then pad the remaining slots with randomized sub-concepts
-  const shuffledSubConcepts = subConcepts.sort(() => 0.5 - Math.random())
-  const dummyTopics = [...curriculumConcepts, ...shuffledSubConcepts]
+  const dummyTopics = curriculumItems.sort(() => 0.5 - Math.random())
   
   const dummyIcons = ["Sparkles", "Brain", "Cpu", "LineChart", "Activity", "Target", "Compass", "Terminal", "Zap", "CheckCircle2"]
   const dummyColors = [
-    { bg: "bg-blue-500/20", text: "text-blue-400" }, { bg: "bg-purple-500/20", text: "text-purple-400" },
-    { bg: "bg-green-500/20", text: "text-green-400" }, { bg: "bg-yellow-500/20", text: "text-yellow-400" },
-    { bg: "bg-red-500/20", text: "text-red-400" }, { bg: "bg-orange-500/20", text: "text-orange-400" }
+    { bg: "bg-blue-500/10", text: "text-blue-400" }, { bg: "bg-purple-500/10", text: "text-purple-400" },
+    { bg: "bg-green-500/10", text: "text-green-400" }, { bg: "bg-yellow-500/10", text: "text-yellow-400" },
+    { bg: "bg-red-500/10", text: "text-red-400" }, { bg: "bg-orange-500/10", text: "text-orange-400" }
   ]
 
   let activeSubjects = [...subjects]
   const existingNames = new Set(activeSubjects.map(s => s.name.toLowerCase()))
   
-  // Fill remaining slots using unique curriculum subjects (no duplicates)
+  // Fill remaining slots up to 54 (9 per face)
   let i = 0;
   for (const topicName of dummyTopics) {
-    if (activeSubjects.length >= 24) break; // Optional cap just in case
+    if (activeSubjects.length >= 54) break;
     if (!existingNames.has(topicName.toLowerCase())) {
       existingNames.add(topicName.toLowerCase())
       const colorSet = dummyColors[i % dummyColors.length]
@@ -261,15 +271,18 @@ export default function Dashboard() {
     }
   }
 
-  // Strictly enforce 4 tiles per face regardless of underlying array shifts
+  // Strictly enforce 9 tiles per face
   activeSubjects = activeSubjects.map((sub, idx) => ({
     ...sub,
-    face: faces[Math.floor(idx / 4) % 6]
+    face: faces[Math.floor(idx / 9) % 6]
   }))
 
-  const mentors = data.mentors && data.mentors.length > 0 ? data.mentors : [
-    { name: "Dr. Sarah Chen", role: "Quantum Physics", img: "https://i.pravatar.cc/150?u=sarah" },
-    { name: "Prof. James Wilson", role: "Pure Mathematics", img: "https://i.pravatar.cc/150?u=james" },
+  const mentors = [
+    { name: "Dr. Anjali Sharma", role: "Machine Learning Specialist", department: "Computer Engineering" },
+    { name: "Prof. Rajan Kulkarni", role: "Cloud & Big Data Expert", department: "Computer Engineering" },
+    { name: "Dr. Priya Mehta", role: "Network Security Lead", department: "Computer Engineering" },
+    { name: "Prof. Suresh Patil", role: "Operating Systems Specialist", department: "Computer Engineering" },
+    { name: "Dr. Kavita Joshi", role: "Applied Mathematics Head", department: "Applied Sciences" },
   ]
 
   return (
@@ -293,7 +306,7 @@ export default function Dashboard() {
                 <p className="text-sm text-text-secondary font-medium">Your progress this week</p>
               </div>
             <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold">{data.totalHoursThisWeek}h</span>
+                <span className="text-2xl font-bold">{formatHours(data.totalHoursThisWeek)}</span>
                 {data.totalHoursThisWeek > 0 && (
                   <span className="text-xs font-bold text-green-500 bg-green-100/20 px-2 py-1 rounded-full">This Week</span>
                 )}
@@ -313,8 +326,8 @@ export default function Dashboard() {
                       className={`w-full max-w-[40px] rounded-t-xl transition-all duration-300 ${isPeak ? 'bg-primary-accent' : 'bg-white/5 group-hover:bg-primary-accent/30'}`}
                     />
                     {isPeak && item.hours > 0 && (
-                      <div className="absolute -top-8 bg-white text-black text-[10px] font-bold px-2 py-1 rounded shadow-lg">
-                        {item.hours}h
+                      <div className="absolute -top-8 bg-white text-black text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                        {formatHours(item.hours)}
                       </div>
                     )}
                   </div>
@@ -538,13 +551,22 @@ export default function Dashboard() {
 
           <GlassCard className="!p-6 bg-surface-elevation-1 overflow-hidden relative">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary-accent/10 blur-[60px] rounded-full" />
-            <h3 className="text-lg font-bold mb-4 relative z-10">Top Mentors</h3>
+            <h3 className="text-lg font-bold mb-4 relative z-10 flex items-center gap-2">
+              <div className="w-1.5 h-10 bg-primary-accent rounded-full shrink-0" />
+              Subject Specialists
+            </h3>
             <div className="space-y-4 relative z-10">
               {mentors.map((mentor, i) => (
-                <div key={i} className="flex items-center gap-3 group cursor-pointer">
-                  <img src={mentor.img} alt={mentor.name} className="w-10 h-10 rounded-full border-2 border-white/10 group-hover:border-primary-accent object-cover transition-colors" />
+                <div 
+                  key={i} 
+                  className="flex items-center gap-3 group cursor-pointer"
+                  onClick={() => navigate('/professors')}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary-accent/10 border border-primary-accent/20 flex items-center justify-center font-bold text-sm text-primary-accent shrink-0 group-hover:bg-primary-accent group-hover:text-black transition-all">
+                    {getInitials(mentor.name)}
+                  </div>
                   <div>
-                    <p className="text-sm font-bold">{mentor.name}</p>
+                    <p className="text-sm font-bold group-hover:text-primary-accent transition-colors">{mentor.name}</p>
                     <p className="text-[10px] text-white/50">{mentor.role}</p>
                   </div>
                   <div className="ml-auto w-8 h-8 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:bg-white/10 transition-all">
@@ -553,7 +575,10 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-            <button className="w-full mt-6 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold transition-colors">
+            <button 
+              onClick={() => navigate('/professors')}
+              className="w-full mt-6 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold transition-colors"
+            >
               View All Mentors
             </button>
           </GlassCard>

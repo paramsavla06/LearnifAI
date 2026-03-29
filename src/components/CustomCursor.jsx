@@ -16,16 +16,9 @@ export default function CustomCursor() {
 
             gsap.to(cursorRef.current, {
                 x, y,
-                duration: 0.15,
-                ease: 'power2.out',
+                duration: 0,
+                ease: 'none',
             })
-
-            if (lineVRef.current) {
-                gsap.to(lineVRef.current, { x, duration: 0.1, ease: 'none' })
-            }
-            if (lineHRef.current) {
-                gsap.to(lineHRef.current, { y, duration: 0.1, ease: 'none' })
-            }
 
         }
 
@@ -48,22 +41,10 @@ export default function CustomCursor() {
 
     return (
         <div className={`fixed inset-0 z-[9998] pointer-events-none transition-opacity duration-300 hide-mobile ${visible ? 'opacity-100' : 'opacity-0'}`}>
-            {/* Vertical line */}
-            <div
-                ref={lineVRef}
-                className="absolute top-0 h-full w-[1px] bg-accent/15"
-                style={{ transform: 'translateX(0px)' }}
-            />
-            {/* Horizontal line */}
-            <div
-                ref={lineHRef}
-                className="absolute left-0 w-full h-[1px] bg-accent/15"
-                style={{ transform: 'translateY(0px)' }}
-            />
             {/* Center pointer */}
             <div
                 ref={cursorRef}
-                className="absolute"
+                className="absolute w-1.5 h-1.5 rounded-full bg-primary-accent"
                 style={{ transform: 'translate(0px, 0px)' }}
             />
         </div>

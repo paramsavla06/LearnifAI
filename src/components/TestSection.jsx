@@ -4,7 +4,8 @@ import { GlassCard } from './ui/GlassCard'
 import { ScrollReveal } from './ui/ScrollReveal'
 import {
     MapPin, BookOpen, Zap, User, ChevronRight, ChevronLeft,
-    CheckCircle, XCircle, BarChart2, Brain, AlertTriangle, Star, Loader2, Hash, X
+    CheckCircle, XCircle, BarChart2, Brain, AlertTriangle, Star, Loader2, Hash, X,
+    RefreshCw, Target, Library
 } from 'lucide-react'
 import conceptsData from '../data/concepts.json'
 import questionsRaw from '../data/questions.json'
@@ -149,6 +150,8 @@ const STEPS = [
     { id: 1, label: 'Setup', icon: User },
     { id: 2, label: 'Diagnostic', icon: Brain },
     { id: 3, label: 'Results', icon: BarChart2 },
+    { id: 4, label: 'Remedial', icon: Target },
+    { id: 5, label: 'Deep Analysis', icon: Library },
 ]
 
 function StepBar({ current }) {
@@ -160,14 +163,14 @@ function StepBar({ current }) {
                 const active = current === s.id
                 
                 const elements = [
-                    <div key={`step-${s.id}`} className="flex flex-col items-center gap-1.5 w-28 shrink-0">
+                    <div key={`step-${s.id}`} className="flex flex-col items-center gap-1.5 w-16 shrink-0">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 z-10 ${
                             (done || active) ? 'bg-primary-accent border-primary-accent text-black shadow-[0_0_15px_rgba(255,216,95,0.3)]'
                                              : 'border-white/20 text-text-secondary bg-white/5'
                         }`}>
                             {done ? <CheckCircle className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                         </div>
-                        <span className={`text-[10px] text-center font-bold uppercase tracking-widest ${active ? 'text-primary-accent' : done ? 'text-white' : 'text-text-secondary'}`}>
+                        <span className={`text-[9px] text-center font-bold uppercase tracking-widest leading-tight ${active ? 'text-primary-accent' : done ? 'text-white' : 'text-text-secondary'}`}>
                             {s.label}
                         </span>
                     </div>
@@ -175,7 +178,7 @@ function StepBar({ current }) {
                 
                 if (i < STEPS.length - 1) {
                     elements.push(
-                        <div key={`line-${s.id}`} className={`h-[2px] flex-1 mt-5 mx-2 md:mx-4 transition-all duration-700 ${done ? 'bg-primary-accent' : 'bg-white/10'}`} />
+                        <div key={`line-${s.id}`} className={`h-[3px] flex-1 mt-5 -mx-1 rounded-full transition-all duration-700 ${done ? 'bg-primary-accent shadow-[0_0_6px_rgba(255,216,95,0.3)]' : 'bg-white/10'}`} />
                     )
                 }
                 
@@ -590,7 +593,7 @@ function DiagnosticStep({ profile, onFinish }) {
 }
 
 // ─── Step 3 — Results ─────────────────────────────────────────────────────────
-function ResultsStep({ result, profile, wrongAnswers = [], onRetake }) {
+function ResultsStep({ result, profile, wrongAnswers = [], onRetake, onStartRemedial, onGoToSetup }) {
     const { weak_topics = [], strong_topics = [], mastery_summary = {}, analysis_text = '' } = result || {}
     const pct = mastery_summary.overall_pct ?? 0
     const [activeTab, setActiveTab] = useState('analysis')
@@ -774,10 +777,28 @@ function ResultsStep({ result, profile, wrongAnswers = [], onRetake }) {
                 </div>
             )}
 
-            <button onClick={onRetake}
-                className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-full border border-white/20 text-text-secondary font-bold text-sm hover:bg-white/5 hover:text-white transition-all">
-                <ChevronLeft className="w-5 h-5" /> Retake Diagnostic
-            </button>
+            {weak_topics.length > 0 && (
+                <motion.button
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    onClick={onStartRemedial}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-primary-accent text-black font-bold text-sm hover:opacity-90 transition-opacity mb-3"
+                >
+                    <Target className="w-5 h-5" /> Take Remedial Test ({weak_topics.length} weak topics)
+                </motion.button>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button onClick={onGoToSetup}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-full border border-white/20 text-text-secondary font-bold text-sm hover:bg-white/5 hover:text-white transition-all">
+                    <User className="w-5 h-5" /> Start New (Select Subjects)
+                </button>
+                <button onClick={onRetake}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-primary-accent/10 border border-primary-accent/30 text-primary-accent font-bold text-sm hover:bg-primary-accent/20 transition-all">
+                    <RefreshCw className="w-5 h-5" /> Retake (Same Settings)
+                </button>
+            </div>
         </motion.div>
     )
 }
@@ -835,10 +856,314 @@ function localScore(answers, profile) {
     }
 }
 
+// ─── Step 4 — Remedial Test (only weak-topic questions) ────────────────────────
+function RemedialStep({ profile, weakTopics = [], wrongAnswers = [], onFinish }) {
+    // Collect unique weak concept slugs from the BKT weak_topics result
+    const weakSlugs = useMemo(() => {
+        return weakTopics.map(w => w.slug)
+    }, [weakTopics])
+
+    // Build remedial question pool — array of blocks per topic so they show up sequentially
+    const remedialQuestions = useMemo(() => {
+        const MIN_PER_TOPIC = 3
+        const final = []
+
+        for (const slug of weakSlugs) {
+            const allQs = (questionsBySlug[slug] || []).map(q => {
+                const concept = conceptBySlug[slug]
+                return { ...q, concept_name: concept?.name || slug }
+            })
+
+            // Strictly exclude questions that were already asked in the first test
+            const fresh = allQs.filter(q => !wrongAnswers.some(w => w.question_text === q.q))
+
+            // Shuffle fresh questions for this specific topic
+            for (let i = fresh.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [fresh[i], fresh[j]] = [fresh[j], fresh[i]]
+            }
+
+            // Append this topic's questions to the final series so topics appear sequentially
+            final.push(...fresh.slice(0, MIN_PER_TOPIC))
+        }
+
+        return final
+    }, [weakSlugs, wrongAnswers])
+
+    const [qIdx, setQIdx] = useState(0)
+    const [selected, setSelected] = useState(null)
+    const [answered, setAnswered] = useState(false)
+    const [allAnswers, setAllAnswers] = useState([])
+    const [remedialWrong, setRemedialWrong] = useState([])
+
+    const q = remedialQuestions[qIdx]
+    const totalQs = remedialQuestions.length
+    const progress = totalQs > 0 ? (qIdx / totalQs) * 100 : 0
+
+    function chooseOption(opt) {
+        if (answered) return
+        setSelected(opt)
+        setAnswered(true)
+        const isCorrect = opt === q.ans
+        const rec = {
+            slug: q.slug,
+            question_text: q.q,
+            selectedOption: opt,
+            correctOption: q.ans,
+            selectedText: q[opt],
+            correctText: q[q.ans],
+            concept_name: q.concept_name,
+            isCorrect
+        }
+        setAllAnswers(prev => [...prev, rec])
+        if (!isCorrect) setRemedialWrong(prev => [...prev, rec])
+    }
+
+    function nextQuestion() {
+        if (qIdx < totalQs - 1) {
+            setQIdx(i => i + 1); setSelected(null); setAnswered(false)
+        } else {
+            // Calculate deep analysis data
+            const stillWeakSlugs = new Set(remedialWrong.map(w => w.slug))
+            const improvedSlugs = weakSlugs.filter(s => !stillWeakSlugs.has(s))
+            const persistentWeakConcepts = [...stillWeakSlugs].map(slug => {
+                const concept = conceptBySlug[slug]
+                return {
+                    slug,
+                    name: concept?.name || slug,
+                    subject: concept?.subject_name || 'Unknown',
+                    book_title: concept?.book_title || 'See library catalogue',
+                    library_section: concept?.library_section,
+                    shelf: concept?.shelf,
+                    book_isbn: concept?.book_isbn,
+                    floor: inferFloor(concept?.library_section)
+                }
+            })
+
+            onFinish({
+                remedialAnswers: allAnswers,
+                remedialWrong,
+                persistentWeakConcepts,
+                improvedSlugs,
+                originalWrongCount: wrongAnswers.length,
+                remedialCorrect: allAnswers.filter(a => a.isCorrect).length,
+                remedialTotal: allAnswers.length
+            })
+        }
+    }
+
+    const shuffledKeys = useMemo(() => {
+        if (!q) return ['a', 'b', 'c', 'd'];
+        const keys = ['a', 'b', 'c', 'd'];
+        for (let i = keys.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [keys[i], keys[j]] = [keys[j], keys[i]];
+        }
+        return keys;
+    }, [q]);
+
+    const displayLabels = ['a', 'b', 'c', 'd'];
+
+    if (!q || totalQs === 0) return (
+        <div className="text-center py-12 text-text-secondary">
+            <p>No remedial questions available. Your weak topics may not have additional questions in the pool.</p>
+        </div>
+    )
+
+    return (
+        <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
+            <div className="mb-4 p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center gap-2">
+                <Target className="w-4 h-4 text-orange-400 shrink-0" />
+                <span className="text-xs font-bold text-orange-300">REMEDIAL TEST — Focused on your {weakSlugs.length} weak topic(s) only</span>
+            </div>
+
+            <div className="mb-6">
+                <div className="flex justify-between text-xs font-bold text-text-secondary mb-2">
+                    <span>Q{qIdx + 1} of {totalQs} — <span className="text-orange-400">{q.concept_name}</span></span>
+                    <span>{Math.round(progress)}%</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                    <motion.div className="h-full bg-orange-400 rounded-full" initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 0.5 }} />
+                </div>
+            </div>
+
+            <AnimatePresence mode="wait">
+                <motion.div key={qIdx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
+                    <h3 className="text-xl font-bold text-white mb-6 leading-relaxed">{q?.q}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                        {displayLabels.map((displayLabel, idx) => {
+                            const dataKey = shuffledKeys[idx]
+                            const text = q[dataKey]
+                            const isCorrect = dataKey === q?.ans
+                            const isSelected = dataKey === selected
+                            let variant = 'default'
+                            if (answered) {
+                                if (isCorrect) variant = 'correct'
+                                else if (isSelected) variant = 'wrong'
+                            } else if (isSelected) { variant = 'selected' }
+                            const styles = {
+                                default:  'border-white/10 bg-white/5 text-text-secondary hover:bg-white/10 hover:border-white/20 hover:text-white cursor-pointer',
+                                selected: 'border-orange-400/60 bg-orange-400/10 text-white cursor-pointer',
+                                correct:  'border-emerald-500/60 bg-emerald-500/10 text-emerald-300',
+                                wrong:    'border-red-500/60 bg-red-500/10 text-red-300',
+                            }
+                            return (
+                                <button key={dataKey} onClick={() => chooseOption(dataKey)} disabled={answered}
+                                    className={`flex items-start gap-3 p-4 rounded-xl border transition-all duration-200 text-left ${styles[variant]}`}>
+                                    <span className={`shrink-0 w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold mt-0.5 ${
+                                        variant === 'correct' ? 'border-emerald-500 text-emerald-300' :
+                                        variant === 'wrong'   ? 'border-red-500 text-red-300' :
+                                        variant === 'selected' ? 'border-orange-400 text-orange-400' :
+                                        'border-white/20 text-text-secondary'
+                                    }`}>{displayLabel.toUpperCase()}</span>
+                                    <span className="text-sm font-medium leading-relaxed">{text}</span>
+                                    {answered && isCorrect && <CheckCircle className="shrink-0 w-5 h-5 text-emerald-400 ml-auto mt-0.5" />}
+                                    {answered && isSelected && !isCorrect && <XCircle className="shrink-0 w-5 h-5 text-red-400 ml-auto mt-0.5" />}
+                                </button>
+                            )
+                        })}
+                    </div>
+                </motion.div>
+            </AnimatePresence>
+
+            {answered && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                    <button onClick={nextQuestion}
+                        className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-orange-400 text-black font-bold text-sm hover:opacity-90 transition-opacity">
+                        {qIdx < totalQs - 1
+                            ? <><span>Next Question</span><ChevronRight className="w-5 h-5" /></>
+                            : <><span>View Deep Analysis</span><BarChart2 className="w-5 h-5" /></>
+                        }
+                    </button>
+                </motion.div>
+            )}
+        </motion.div>
+    )
+}
+
+// ─── Step 5 — Deep Analysis ────────────────────────────────────────────────────
+function DeepAnalysisStep({ remedialData, profile, onRetake, onGoToSetup }) {
+    const { persistentWeakConcepts = [], improvedSlugs = [], originalWrongCount, remedialCorrect, remedialTotal } = remedialData || {}
+    const improvementRate = remedialTotal > 0 ? Math.round((remedialCorrect / remedialTotal) * 100) : 0
+
+    return (
+        <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
+            <div className="mb-6">
+                <h3 className="text-2xl font-bold text-white mb-1">Deep Concept Analysis</h3>
+                <p className="text-text-secondary font-medium">
+                    Your remedial test pinpointed the exact foundational gaps, {profile.name || 'Student'}.
+                </p>
+            </div>
+
+            {/* Improvement Summary */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+                <GlassCard className="!p-4 text-center">
+                    <p className="text-2xl font-black text-[#FFD85F]">{improvementRate}%</p>
+                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mt-1">Remedial Score</p>
+                </GlassCard>
+                <GlassCard className="!p-4 text-center">
+                    <p className="text-2xl font-black text-emerald-400">{improvedSlugs.length}</p>
+                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mt-1">Concepts Fixed</p>
+                </GlassCard>
+                <GlassCard className="!p-4 text-center">
+                    <p className="text-2xl font-black text-red-400">{persistentWeakConcepts.length}</p>
+                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mt-1">Still Weak</p>
+                </GlassCard>
+            </div>
+
+            {/* Persistent Weak Concepts — The Core Output */}
+            {persistentWeakConcepts.length > 0 ? (
+                <div className="mb-6">
+                    <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <AlertTriangle className="w-3 h-3" /> FOUNDATIONAL CONCEPTS YOU MISUNDERSTOOD
+                    </p>
+                    <div className="flex flex-col gap-4">
+                        {persistentWeakConcepts.map((concept, i) => (
+                            <motion.div key={concept.slug} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+                                <GlassCard className="!p-5 border-red-500/20 hover:border-red-500/40 transition-colors">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <XCircle className="w-4 h-4 text-red-400 shrink-0" />
+                                        <h4 className="font-bold text-white text-base">{concept.name}</h4>
+                                    </div>
+                                    <p className="text-xs text-text-secondary ml-6 mb-4">
+                                        Subject: <span className="text-white font-bold">{concept.subject}</span> · You answered this wrong in <span className="text-red-400 font-bold">both tests</span>
+                                    </p>
+
+                                    {/* Exact book and library navigation */}
+                                    <div className="p-4 rounded-xl bg-black/40 border border-[#FFD85F]/20">
+                                        <p className="text-[10px] font-bold text-[#FFD85F] uppercase tracking-widest mb-2 flex items-center gap-2">
+                                            <BookOpen className="w-3 h-3" /> WHERE TO STUDY THIS
+                                        </p>
+                                        <div className="space-y-2">
+                                            <div className="flex items-start gap-2">
+                                                <Library className="w-4 h-4 text-[#FFD85F] shrink-0 mt-0.5" />
+                                                <div>
+                                                    <p className="text-sm font-bold text-white">{concept.book_title}</p>
+                                                    <p className="text-xs text-text-secondary">ISBN: {concept.book_isbn || 'Check catalogue'}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-start gap-2">
+                                                <MapPin className="w-4 h-4 text-[#FFD85F] shrink-0 mt-0.5" />
+                                                <div>
+                                                    <p className="text-sm font-bold text-white">
+                                                        {concept.floor} → {concept.library_section} → {concept.shelf}
+                                                    </p>
+                                                    <p className="text-xs text-text-secondary">Go directly to this shelf in your university library</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </GlassCard>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            ) : (
+                <GlassCard className="!p-8 text-center mb-6">
+                    <CheckCircle className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
+                    <h4 className="text-xl font-bold text-white mb-2">All Concepts Resolved!</h4>
+                    <p className="text-sm text-text-secondary">You corrected all your mistakes in the remedial round. Outstanding improvement!</p>
+                </GlassCard>
+            )}
+
+            {/* Improved concepts */}
+            {improvedSlugs.length > 0 && (
+                <div className="mb-6">
+                    <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3" /> CONCEPTS YOU FIXED IN REMEDIAL
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                        {improvedSlugs.map(slug => {
+                            const c = conceptBySlug[slug]
+                            return (
+                                <span key={slug} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-300">
+                                    <CheckCircle className="w-3 h-3" /> {c?.name || slug}
+                                </span>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button onClick={onGoToSetup}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-full border border-white/20 text-text-secondary font-bold text-sm hover:bg-white/5 hover:text-white transition-all">
+                    <User className="w-5 h-5" /> Start New (Select Subjects)
+                </button>
+                <button onClick={onRetake}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-primary-accent/10 border border-primary-accent/30 text-primary-accent font-bold text-sm hover:bg-primary-accent/20 transition-all">
+                    <RefreshCw className="w-5 h-5" /> Retake (Same Settings)
+                </button>
+            </div>
+        </motion.div>
+    )
+}
+
 // ─── Main Component ────────────────────────────────────────────────────────────
 export default function TestSection() {
     const [step, setStep]         = useState(1)
     const [resultData, setResult] = useState(null)
+    const [remedialData, setRemedialData] = useState(null)
 
     // Try to load session from localStorage
     const [profile, setProfile] = useState(() => {
@@ -884,14 +1209,11 @@ export default function TestSection() {
             allowedBranches.some(ab => s.branch === ab || s.branch.includes(ab))
         )
         
-        // Pick top 6 subjects to show as "Upcoming Exams"
-        // Try to favor current semester, then others
         const currentSemSubjects = allRelevantSubjects.filter(s => s.concepts.some(c => c.semester === profile.semester))
         const otherSubjects = allRelevantSubjects.filter(s => !s.concepts.some(c => c.semester === profile.semester))
         
         const displayList = [...currentSemSubjects, ...otherSubjects].slice(0, 6)
         
-        // Mock dates
         const dates = ['12 Apr', '14 Apr', '16 Apr', '18 Apr', '20 Apr', '22 Apr']
         
         return displayList.map((s, i) => ({
@@ -902,18 +1224,23 @@ export default function TestSection() {
         }))
     }, [profile.program, profile.branch, profile.year, profile.semester])
 
-    // Removed auto-skip to let users configure subjects and question counts in Step 1
-    useEffect(() => {
-        // Just let them start at Step 1, SetupStep will handle read-only mode for profile info
-    }, [])
+    useEffect(() => {}, [])
 
     function handleDiagnosticFinish(data) { 
         setResult(data)
         setStep(3) 
     }
+    function handleStartRemedial() {
+        setStep(4)
+    }
+    function handleRemedialFinish(data) {
+        setRemedialData(data)
+        setStep(5)
+    }
     function handleRetake() {
         setStep(profile._fromSession ? 2 : 1)
         setResult(null)
+        setRemedialData(null)
     }
     function handleGoToSetup() { setStep(1) }
 
@@ -948,7 +1275,13 @@ export default function TestSection() {
                                     <DiagnosticStep key="diagnostic" profile={profile} onFinish={handleDiagnosticFinish} />
                                 )}
                                 {step === 3 && (
-                                    <ResultsStep key="results" result={resultData?.result} profile={profile} wrongAnswers={resultData?.wrongAnswers || []} onRetake={handleRetake} />
+                                    <ResultsStep key="results" result={resultData?.result} profile={profile} wrongAnswers={resultData?.wrongAnswers || []} onRetake={handleRetake} onStartRemedial={handleStartRemedial} onGoToSetup={handleGoToSetup} />
+                                )}
+                                {step === 4 && (
+                                    <RemedialStep key="remedial" profile={profile} weakTopics={resultData?.result?.weak_topics} wrongAnswers={resultData?.wrongAnswers || []} onFinish={handleRemedialFinish} />
+                                )}
+                                {step === 5 && (
+                                    <DeepAnalysisStep key="deep-analysis" remedialData={remedialData} profile={profile} onRetake={handleRetake} onGoToSetup={handleGoToSetup} />
                                 )}
                             </AnimatePresence>
                             {step === 2 && profile._fromSession && (
